@@ -1,0 +1,65 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: $
+
+PortSystem          1.0
+PortGroup           cmake 1.0
+PortGroup           github 1.0
+
+# TODO: just temporary
+github.setup        mojca opengate 06d46c2
+
+name                gate
+version             6.2
+categories          science
+maintainers         mojca
+license             LGPL
+description         GATE description
+long_description    GATE is dedicated to numerical simulations in medical imaging and radiotherapy. \
+                    It currently supports simulations of Emission Tomography (PET and SPECT), \
+                    Computed Tomography (CT) and Radiotherapy experiments.
+homepage            http://www.opengatecollaboration.org
+platforms           darwin
+
+# distfiles           gate_v6_2_tar_gz_15843.gz
+# master_sites        http://www.opengatecollaboration.org/sites/opengatecollaboration.org/files/gate_release/2012/08/
+
+checksums           rmd160  0b03bd6273202e5dc6f4e443ebb92d1b2f7576b4 \
+                    sha256  5a73951f65d961723f167f3c30a1c5fbf0eb9ca29fb634710e76697f33348df4
+
+patchfiles          patch-compileerrors.diff
+
+worksrcdir          gate_v${version}
+configure.dir       ${workpath}/build
+build.dir           ${configure.dir}
+
+post-extract {
+    file mkdir ${configure.dir}
+}
+
+configure.post_args ${worksrcpath}
+
+depends_lib         port:geant4.9.6
+# clhep implied with geant4
+
+# depends_lib         port:clhep \
+#                     port:zlib
+
+# WITH_GEANT4_UIVIS=ON
+variant qt description {Build with Qt support} {
+    depends_lib-append  port:qt4-mac
+
+    # configure.args-append -DGEANT4_USE_QT=ON
+    # maybe we need more variables?
+}
+
+configure.args-append -DGATE_USE_OWN_CLHEP=OFF
+# configure.args-append -DGEANT4_INSTALL_DATA=ON \
+#                       -DGEANT4_BUILD_EXAMPLES=ON \
+#                       -DGEANT4_INSTALL_EXAMPLES=ON \
+#                       -DWITH_GEANT4_UIVIS=ON \
+#                       -DGEANT4_USE_OPENGL_X11=ON
+
+# TODO: this should come from Geant4 PortGroup
+configure.args-append -DGeant4_DIR=${prefix}/lib/Geant4/Geant4.9.6/Geant4-9.6.2
+
+default_variants +qt
