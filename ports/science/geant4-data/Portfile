@@ -1,0 +1,68 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: $
+
+PortSystem          1.0
+
+name                geant4-data
+version             1.0
+categories          science
+platforms           darwin
+license             Geant4
+maintainers         mojca openmaintainer
+description         Data files for Geant4
+long_description    ${description}
+homepage            http://geant4.web.cern.ch/
+master_sites        http://geant4.cern.ch/support/source/
+supported_archs     noarch
+
+set geant.datadir ${prefix}/share/Geant4/Data
+
+set geant.data_versions {
+    G4NDL              4.3   55493e74cba90e6cb167a5008e138cd7  G4NDL               G4NDL
+    G4NDL              4.2   2302d7ffeef1a450955302f027ee1cf4  G4NDL               G4NDL
+    G4EMLOW            6.33  0002a1c16c9b1fb5e8d49dfbce12a576  G4EMLOW             G4EMLOW
+    G4EMLOW            6.32  9d3302072ba694b1d4505c330ed89d89  G4EMLOW             G4EMLOW
+    PhotonEvaporation  2.1   d1ee8ac49515109c34ae3714c22d59dd  G4PhotonEvaporation PhotonEvaporation
+    PhotonEvaporation  2.3   08848ebdd536280a0629d802040b70be  G4PhotonEvaporation PhotonEvaporation
+    RadioactiveDecay   3.7   039e5f64b0e451eb5c095bf81552cb42  G4RadioactiveDecay  RadioactiveDecay
+    RadioactiveDecay   3.6   9566ff1614bea7455343328cb66abd6f  G4RadioactiveDecay  RadioactiveDecay
+    G4NEUTRONXS        1.3   ede7c4b3e99cbe1773b672a7404fe0f6  G4NEUTRONXS         G4NEUTRONXS
+    G4NEUTRONXS        1.2   092634b9258c7bc387cb83557ff1df81  G4NEUTRONXS         G4NEUTRONXS
+    G4PII              1.3   05f2471dbcdf1a2b17cbff84e8e83b37  G4PII               G4PII
+    RealSurface        1.0   0dde95e00fcd3bcd745804f870bb6884  RealSurface         RealSurface
+    G4SAIDDATA         1.1   d88a31218fdf28455e5c5a3609f7216f  G4SAIDDATA          G4SAIDDATA
+}
+
+foreach {data.name data.version data.md5 data.filename data.distname} ${geant.data_versions} {
+    subport ${name}-${data.name}-${data.version} {
+
+        version             ${data.version}
+        description         ${data.name} v${data.version} data files for Geant4
+        long_description    ${description}
+        distfiles           ${data.filename}.${data.version}${extract.suffix}
+        checksums           md5 ${data.md5}
+        distname            ${data.distname}${data.version}
+        extract.dir         ${destroot}${geant.datadir}
+        pre-extract {
+            xinstall -m 755 -d ${destroot}${geant.datadir}
+        }
+        use_configure       no
+        build               {}
+        destroot            {}
+    }
+}
+
+if {$subport == $name || $subport == ""} {
+    fetch {}
+    checksum {}
+    extract {}
+    patch {}
+    use_configure       no
+    build {}
+    destroot {
+        set geant.docdir ${prefix}/share/doc/${name}
+        xinstall -m 755 -d ${destroot}${geant.docdir}
+        system "echo $name is a stub port > ${destroot}${geant.docdir}/README"
+    }
+    livecheck.type  none
+}
