@@ -84,21 +84,3 @@ configure.args-append -DGEANT4_INSTALL_DATA=OFF \
 #     port select could be used to get the default installation, but all three scripts in bindir need patching to properly detect their location
 
 default_variants +qt +clhep
-
-# one might want to set these variables as well (not sure if they are used at all):
-#
-# CMAKE_INSTALL_DATADIR
-# CMAKE_INSTALL_DOCDIR
-# CMAKE_INSTALL_MANDIR
-# CMAKE_INSTALL_NAME_DIR
-# CMAKE_INSTALL_NAME_TOOL
-
-# EXPAT
-#
-# GEANT4_USE_SYSTEM_EXPAT          ON
-# EXPAT_INCLUDE_DIR                /usr/include
-# EXPAT_LIBRARY                    /usr/lib/libexpat.dylib
-
-# ZLIB
-#
-# GEANT4_USE_SYSTEM_ZLIB           OFF

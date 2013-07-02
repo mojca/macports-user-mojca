@@ -1,0 +1,14 @@
+- https://trac.macports.org/ticket/35992
+
+Git repository:
+- http://git.opengatecollaboration.org/git/opengate-public.git
+
+Download:
+- http://www.opengatecollaboration.org/sites/opengatecollaboration.org/files/gate_release/2012/08/gate_v6_2_tar_gz_15843.gz
+- http://www.opengatecollaboration.org/sites/opengatecollaboration.org/files/gate_release/2012/08/lmf_v3_0_tar_gz_42819.gz
+- http://www.opengatecollaboration.org/sites/opengatecollaboration.org/files/ReleaseNotes6.2.pdf
+
+Application for Mac, together with documented patches needed to create it:
+- http://suhard.fr/gate/
+- http://suhard.fr/gate/gate6.1.dmg
+- http://suhard.fr/gate/gate6.2.dmg
