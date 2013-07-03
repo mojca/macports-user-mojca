@@ -1,0 +1,97 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id: $
+
+PortSystem          1.0
+PortGroup           cmake 1.0
+
+name                geant4.9.5
+version             4.9.5.p02
+categories          science
+maintainers         nomaintainer
+license             Geant4
+description         Geant4 is a toolkit for the simulation of the passage of particles through matter.
+long_description    Geant4 is a toolkit for the simulation of the passage of particles through matter. \
+                    Its areas of application include high energy, nuclear and accelerator physics, as well as studies in medical and space science. \
+                    The two main reference papers for Geant4 are published in Nuclear Instruments and Methods in Physics Research A 506 (2003) 250-303, \
+                    and IEEE Transactions on Nuclear Science 53 No. 1 (2006) 270-278.
+homepage            http://geant4.web.cern.ch/
+platforms           darwin
+
+set simpleversion 4.9.5
+
+distfiles           geant${version}.tar.gz
+
+master_sites        http://geant4.cern.ch/support/source/
+
+checksums           rmd160  33413f6233b75c003254af5888f4af32d17f515d \
+                    sha256  adb04fce9472228bb10d78cbc7f40493bfb37454beee22e7c80d630646cd3777
+
+worksrcdir          geant${version}
+configure.dir       ${workpath}/build
+build.dir           ${configure.dir}
+
+post-extract {
+    file mkdir ${configure.dir}
+}
+
+configure.post_args ${worksrcpath}
+
+
+depends_lib         port:geant4-data-G4NDL-4.0 \
+                    port:geant4-data-G4EMLOW-6.32 \
+                    port:geant4-data-PhotonEvaporation-2.2 \
+                    port:geant4-data-RadioactiveDecay-3.4 \
+                    port:geant4-data-G4ABLA-3.0 \
+                    port:geant4-data-G4NEUTRONXS-1.1 \
+                    port:geant4-data-G4PII-1.3 \
+                    port:geant4-data-RealSurface-1.0 \
+                    port:zlib \
+                    port:expat \
+                    port:root \
+                    port:aida
+#
+
+variant qt description {Build with Qt support} {
+    depends_lib-append  port:qt4-mac
+
+    configure.args-append -DGEANT4_USE_QT=ON
+    # maybe we need more variables?
+}
+
+# TODO: no need for a separate option
+variant clhep description {Use external CLHEP} {
+    depends_lib-append port:clhep
+
+    configure.args-append -DGEANT4_USE_SYSTEM_CLHEP=ON \
+                          -DCLHEP_CONFIG_EXECUTABLE=${prefix}/bin/clhep-config \
+                          -DCLHEP_INCLUDE_DIR=${prefix}/include \
+                          -DCLHEP_LIBRARY=${prefix}/lib/libCLHEP.dylib
+}
+
+configure.args-append -DGEANT4_INSTALL_DATA=OFF \
+                      -DCMAKE_INSTALL_BINDIR=libexec/Geant4/Geant${simpleversion} \
+                      -DCMAKE_INSTALL_DATAROOTDIR=share/Geant4 \
+                      -DCMAKE_INSTALL_INCLUDEDIR=include/Geant4/Geant${simpleversion} \
+                      -DCMAKE_INSTALL_LIBDIR=lib/Geant4/Geant${simpleversion} \
+                      -DGEANT4_USE_OPENGL_X11=ON
+
+# -DGEANT4_INSTALL_DATADIR=${prefix}/share/Geant4/Data: not supported in Geant4 9.5
+
+# G4LEDATA          -> Unpacked location of G4EMLOW.<VERSION>.tar.gz
+# G4LEVELGAMMADATA  -> Unpacked location of G4PhotonEvaporation.<VERSION>.tar.gz
+# G4NEUTRONHPDATA   -> Unpacked location of G4NDL.<VERSION>.tar.gz
+# G4RADIOACTIVEDATA -> Unpacked location of G4RadioactiveDecay.<VERSION>.tar.gz
+# G4ABLADATA        -> Unpacked location of G4ABLA.<VERSION>.tar.gz
+# G4REALSURFACEDATA -> Unpacked location of G4RealSurface.<VERSION>.tar.gz
+# G4NEUTRONXSDATA   -> Unpacked location of G4NEUTRONXSDATA.<VERSION>.tar.gz
+# G4PIIDATA         -> Unpacked location of G4PII.<VERSION>.tar.gz
+
+# GEANT4_USE_OPENGL_X11 should be a separate options with all dependencies
+
+# DATAROOTDIR: Geant automatically adds /Geant4-9.5.2 (any way to prevent this?)
+# INCLUDEDIR: /opt/local/include/Geant4/Geant4.9.5/Geant4 (any way to prevent double Geant4?)
+# CMake file are under /opt/local/lib/Geant4/Geant4.9.5/Geant4-9.5.2/*.cmake
+# CMAKE_INSTALL_BINDIR: this installs binaries to a non-default location;
+#     port select could be used to get the default installation, but all three scripts in bindir need patching to properly detect their location
+
+default_variants +qt +clhep
