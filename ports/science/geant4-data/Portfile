@@ -15,6 +15,7 @@ homepage            http://geant4.web.cern.ch/
 master_sites        http://geant4.cern.ch/support/source/
 supported_archs     noarch
 
+# this variable should be set in geant4 PortGroup
 set geant.datadir ${prefix}/share/Geant4/Data
 
 set geant.data_versions {
@@ -45,9 +46,9 @@ foreach {data.name data.version data.md5 data.filename data.distname} ${geant.da
         use_configure       no
         build               {}
         destroot {
-			xinstall -m 755 -d ${destroot}${geant.datadir}
-			file rename ${workpath}/${distname} ${destroot}${geant.datadir}
-		}
+            xinstall -m 755 -d ${destroot}${geant.datadir}
+            file rename ${workpath}/${distname} ${destroot}${geant.datadir}
+        }
     }
 }
 
