@@ -42,13 +42,12 @@ foreach {data.name data.version data.md5 data.filename data.distname} ${geant.da
         distfiles           ${data.filename}.${data.version}${extract.suffix}
         checksums           md5 ${data.md5}
         distname            ${data.distname}${data.version}
-        extract.dir         ${destroot}${geant.datadir}
-        pre-extract {
-            xinstall -m 755 -d ${destroot}${geant.datadir}
-        }
         use_configure       no
         build               {}
-        destroot            {}
+        destroot {
+			xinstall -m 755 -d ${destroot}${geant.datadir}
+			file rename ${workpath}/${distname} ${destroot}${geant.datadir}
+		}
     }
 }
 
