@@ -62,6 +62,29 @@ EXPAT
 ZLIB
 - GEANT4_USE_SYSTEM_ZLIB           OFF
 
+Additional packages that might be useful:
+- gccxml-devel
+	-- G4 Examples: GCCXML not found. --> P01 example disabled
+	-- G4 Examples: GCCXML not found. --> P02 example disabled
+- pythia (but it's version 8!)
+	-- G4 Examples: Pythia6 package not found. --> decayer6 example disabled
+- gdml (no such port)
+	-- G4 Examples: GDML not installed --> ChargeExchangeMC example disabled
+	-- G4 Examples: GDML not installed --> gdml examples disabled
+	-- G4 Examples: gdml not found. --> human_phantom example with gdml disabled.
+- hbook (no such port)
+	-- G4 Examples: HBOOK package not found. --> g4tools/hbook analysis disabled
+	-- G4 Examples: HBOOK package not found. --> g4tools/hbook analysis disabled
+- hepmc (no such port)
+	-- G4 Examples: HepMC package not found. --> HepMCEx01 example disabled
+	-- G4 Examples: HepMC package not found. --> HepMCEx02 example disabled
+	-- G4 Examples: HepMC package not found. --> MCTruth example disabled
+
+- this is wrong:
+	-- G4 Examples: AIDA package not found. --> CompositeCalorimeter example disabled
+- probably not needed:
+	-- G4 Examples: G3TOG4 not installed --> g3tog4 examples disabled
+
 
 Release dates and package dependencies:
 

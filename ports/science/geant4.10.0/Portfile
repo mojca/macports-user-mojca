@@ -70,6 +70,12 @@ variant clhep description {Use external CLHEP} {
                           -DCLHEP_LIBRARY=${prefix}/lib/libCLHEP.dylib
 }
 
+# TODO: figure out how to install binaries somewhere else
+variant examples requires clhep description {Build and install examples} {
+    configure.args-append -DGEANT4_BUILD_EXAMPLES=ON \
+                          -DGEANT4_INSTALL_EXAMPLES=ON
+}
+
 configure.args-append -DGEANT4_INSTALL_DATA=OFF \
                       -DGEANT4_INSTALL_DATADIR=${prefix}/share/Geant4/Data \
                       -DCMAKE_INSTALL_BINDIR=libexec/Geant4/Geant${simpleversion} \
