@@ -38,7 +38,7 @@ configure.post_args ${worksrcpath}
 
 
 depends_lib         port:geant4-data-G4NDL-4.0 \
-                    port:geant4-data-G4EMLOW-6.32 \
+                    port:geant4-data-G4EMLOW-6.23 \
                     port:geant4-data-PhotonEvaporation-2.2 \
                     port:geant4-data-RadioactiveDecay-3.4 \
                     port:geant4-data-G4ABLA-3.0 \
