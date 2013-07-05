@@ -36,6 +36,23 @@ post-extract {
 
 configure.post_args ${worksrcpath}
 
+# copy examples
+# TODO: this must be done in a better way
+post-patch {
+    # replace "/vis/open OGLIX" with "/vis/open OGLIQt" (not sure about the difference between OGLIQt and OGLSQt)
+    foreach examplefile {gpumacros/ct/mac/visu.mac gpumacros/optical/macro_biolum_cpu.mac gpumacros/optical/macro_biolum_gpu.mac gpumacros/pet/mac/visu.mac gpumacros/photradthera/mac/visu.mac example_CT/classic/visu.mac example_CT/fast/visu.mac example_CT/vrt/visu.mac example_OPTICAL/macro/Visualisation.mac example_PET/PET_CylindricalPET_System.mac example_PET/PET_Ecat_System.mac example_PHANTOM_SOURCE/Voxelized_Phantom_Source/mainMacro.mac example_SPECT/vis.mac example_TimeActivityCurve/vis.mac example_TrackerDetector/visu.mac} {
+        reinplace "s|OGLIX|OGLIQt|g" ${worksrcpath}/examples/${examplefile}
+        reinplace "s|OGLSX|OGLIQt|g" ${worksrcpath}/examples/${examplefile}
+        system "echo ${examplefile}"
+    }
+}
+pre-destroot {
+    set destdocdir ${destroot}${prefix}/share/doc/${name}
+    xinstall -m 755 -d ${destdocdir}
+    file copy ${worksrcpath}/examples ${destdocdir}
+    # TODO: remove CMake files and add material database
+}
+
 depends_lib         port:geant4.9.6
 # clhep implied with geant4
 

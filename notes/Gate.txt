@@ -18,3 +18,17 @@ TODO:
 - copy examples & benchmarks
 - figure out if there is some CMAKE variable to copy the examples automatically
 - maybe put the Gate binary to libexec and create a shell script in ${prefix}/bin/Gate which sets all the necessary variables (data files) and calls the real binary afterwards
+- in case of errors, Gate reports location where the file is built (that weird build path that doesn't exist any more)
+
+Something like tho following is needed for running Gate:
+	export LOCALE="en_GB.UTF-8"
+	export LC_ALL="en_GB.UTF-8"
+	export G4LEDATA="/opt/local/share/Geant4/Data/G4EMLOW6.32"
+	export G4LEVELGAMMADATA="/opt/local/share/Geant4/Data/PhotonEvaporation2.3"
+	export G4NEUTRONHPDATA="/opt/local/share/Geant4/Data/G4NDL4.2"
+	export G4NEUTRONXSDATA="/opt/local/share/Geant4/Data/G4NEUTRONXS1.2"
+	export G4PIIDATA="/opt/local/share/Geant4/Data/G4PII1.3"
+	export G4RADIOACTIVEDATA="/opt/local/share/Geant4/Data/RadioactiveDecay3.6"
+	export G4REALSURFACEDATA="/opt/local/share/Geant4/Data/RealSurface1.0"
+	export G4SAIDXSDATA="/opt/local/share/Geant4/Data/G4SAIDDATA1.1"
+	/opt/local/bin/Gate $@
