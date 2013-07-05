@@ -6,7 +6,7 @@ PortGroup           cmake 1.0
 PortGroup           github 1.0
 
 # TODO: just temporary
-github.setup        mojca opengate 06d46c2
+github.setup        mojca opengate f14c352c92
 
 name                gate
 version             6.2
@@ -23,10 +23,8 @@ platforms           darwin
 # distfiles           gate_v6_2_tar_gz_15843.gz
 # master_sites        http://www.opengatecollaboration.org/sites/opengatecollaboration.org/files/gate_release/2012/08/
 
-checksums           rmd160  0b03bd6273202e5dc6f4e443ebb92d1b2f7576b4 \
-                    sha256  5a73951f65d961723f167f3c30a1c5fbf0eb9ca29fb634710e76697f33348df4
-
-patchfiles          patch-compileerrors.diff
+checksums           rmd160  b21ab59aa0d7dec9771a9e5a213ee8d739c5666e \
+                    sha256  843424c70c27e4f26cf64b99ddc73b614a0be2abed25a7a48af739eaa5f881f3
 
 worksrcdir          gate_v${version}
 configure.dir       ${workpath}/build
@@ -52,7 +50,7 @@ variant qt description {Build with Qt support} {
     # maybe we need more variables?
 }
 
-configure.args-append -DGATE_USE_OWN_CLHEP=OFF
+configure.args-append -DGATE_USE_SYSTEM_CLHEP=ON
 # configure.args-append -DGEANT4_INSTALL_DATA=ON \
 #                       -DGEANT4_BUILD_EXAMPLES=ON \
 #                       -DGEANT4_INSTALL_EXAMPLES=ON \
