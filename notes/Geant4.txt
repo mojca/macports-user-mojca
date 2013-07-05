@@ -38,7 +38,31 @@ TODO:
 - Try to get rid of one level in /opt/local/include/Geant4/Geant4.10.0/Geant4
 - Try to build examples and test whether they work
 - Carefully check different CMake configuration options
-
+- For 9.5 the following variables need to be set:
+		export G4DATA=/opt/local/share/Geant4/Data
+		export G4NEUTRONHPDATA=$G4DATA/G4NDL4.0
+		export G4LEDATA=$G4DATA/G4EMLOW6.23
+		export G4LEVELGAMMADATA=$G4DATA/PhotonEvaporation2.2
+		export G4RADIOACTIVEDATA=$G4DATA/RadioactiveDecay3.4
+		export G4NEUTRONXSDATA=$G4DATA/G4NEUTRONXS1.2
+		export G4ABLA=$G4DATA/G4ABLA3.0
+		export G4PIIDATA=$G4DATA/G4PII1.3
+		export G4REALSURFACEDATA=$G4DATA/RealSurface1.0
+	and probably similar for 9.6
+- geant4-config could use absolute paths instead of -L/opt/local/libexec/Geant4/Geant4.9.6/../../../lib/Geant4/Geant4.9.6
+- figure out if it is possible to hardcode paths into Geant4 sources to some extent
+	example: G4PenelopeOscillatorManage.cc uses
+		char* path = getenv("G4LEDATA");
+- The following files have "wrong" permissions:
+	./G4NEUTRONXS1.1:
+	-rwxr-xr-x  1 macports  admin   256B 15 nov  2011 History
+	-rwxr-xr-x  1 macports  admin   428B 15 nov  2011 README
+	./G4NEUTRONXS1.2:
+	-rwxr-xr-x  1 macports  admin   331B 15 okt  2012 History
+	./G4NEUTRONXS1.3:
+	-rwxr-xr-x  1 macports  admin   406B  8 feb 20:44 History
+	-rwxr-xr-x  1 macports  admin   547B  8 feb 20:43 README
+	./PhotonEvaporation2.2:
 
 Options:
 - DATAROOTDIR: Geant automatically adds /Geant4-9.6.2 (any way to prevent this?)

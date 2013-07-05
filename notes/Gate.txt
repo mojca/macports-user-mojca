@@ -16,3 +16,5 @@ Application for Mac, together with documented patches needed to create it:
 TODO:
 - copy license/LICENSE.txt
 - copy examples & benchmarks
+- figure out if there is some CMAKE variable to copy the examples automatically
+- maybe put the Gate binary to libexec and create a shell script in ${prefix}/bin/Gate which sets all the necessary variables (data files) and calls the real binary afterwards
