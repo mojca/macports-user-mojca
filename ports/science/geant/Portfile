@@ -7,7 +7,7 @@ PortGroup           cmake 1.0
 # TODO: this will probably be called geant4
 name                geant
 # TODO: not sure what the version should be (version should be specific to each subport)
-#version            4.0
+version            4.0
 categories          science
 maintainers         mojca openmaintainer
 # TODO: what licence is needed to make sure that Geant can be installed as a binary package
@@ -69,13 +69,14 @@ foreach {geant.version geant.revision geant.patchlevel geant.version_full geant.
     set geant.datadir ${prefix}/share/Geant4/Data/Geant${geant.version_simple}
 
     subport geant4-${geant.version}-data {
+        # TODO: not sure which version should be used (updating patchlevel of geant doesn't necessarily change this)
+        version  ${geant.version_simple}
         # TODO: also set revision from some variable to allow rebuilding data file only when they are really needed
         revision 0
         supported_archs     noarch
-        description         "Data files for Geant4"
+        description         Data files for Geant4
         long_description    ${description}
  
-        set list_distfiles {}
         # TODO: use an array (hash) to implement this without if-else
         if {${geant.version} == "10.0" } {
             set geant.data_versions ${geant.data_versions_10.0}
@@ -86,12 +87,13 @@ foreach {geant.version geant.revision geant.patchlevel geant.version_full geant.
         if {${geant.version} == "9.5" } {
             set geant.data_versions ${geant.data_versions_9.5}
         }
+        # TODO: is it possible to make the distfiles list empty in some way?
+        distfiles-delete ${name}-${version}${extract.suffix}
         foreach {data.name data.version data.filename data.envvariable data.md5 data.rmd160 data.sha256} ${geant.data_versions} {
             set filename ${data.filename}.${data.version}${extract.suffix}
-            lappend list_distfiles ${filename}
+            distfiles-append ${filename}
             checksums-append ${filename} md5 ${data.md5} rmd160 ${data.rmd160} sha256 ${data.sha256}
         }
-        distfiles ${list_distfiles}
         post-extract {
             # only necessary for G4EMLOW 6.23 & 6.32
             # but G4NEUTRONXS 1.1, 1.2, 1.3 and PhotonEvaporation 2.2 also have some weird permissions
@@ -133,11 +135,12 @@ foreach {geant.version geant.revision geant.patchlevel geant.version_full geant.
         configure.post_args ${worksrcpath}
 
         # TODO: a few more dependencies
-        depends_lib         port:${name}-data \
+        depends_lib         port:${subport}-data \
                             port:zlib \
                             port:expat \
-                            port:root \
-                            port:iAIDA
+                            port:root
+                            # port:iAIDA
+        # iAIDA currently doesn't compile, while Geant4 compiles just fine without iAIDA
 
         if {${geant.version} == "9.6" || ${geant.version} == "10.0"} {
             patchfiles      patch-cmake_Modules_FindAIDA.cmake.diff
