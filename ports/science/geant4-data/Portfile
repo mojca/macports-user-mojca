@@ -63,7 +63,7 @@ foreach {data.name data.version data.md5 data.filename data.distname data.rmd160
         build               {}
         destroot {
             xinstall -m 755 -d ${destroot}${geant.datadir}
-            move ${workpath}/${distname} ${destroot}${geant.datadir}
+            move ${worksrcpath} ${destroot}${geant.datadir}
         }
     }
 }
