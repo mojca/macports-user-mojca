@@ -30,41 +30,20 @@ TODO:
 - What is /opt/local/lib/Geant4/Geant4.10.0/Geant4-10.0.0/Darwin-clang doing there?
 - Try to move /opt/local/lib/Geant4/Geant4.10.0/Geant4-10.0.0 to a better place
 	according to http://www.cmake.org/Wiki/CMake/Tutorials/Packaging it should be
-	/opt/local/lib/Geant4/Geant4.10.0/Geant4-10.0.0, so maybe one should not change path to
+	/opt/local/lib/Geant4-10.0.0, so maybe one should not change path to
 	/opt/local/lib/Geant4/Geant4.10.0 after all
   Try if setting GEANT4_CMAKE_DIR (or rather: patching its definition in cmake/Modules/Geant4BuildProjectConfig.cmake helps)
 	set(GEANT4_CMAKE_DIR ${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}-${${PROJECT_NAME}_VERSION}) -> NO
 - Try to move /opt/local/share/Geant4/Geant4-10.0.0/geant4make/config to a better place
 - Check if /opt/local/share/Geant4/Geant4-10.0.0/geant4make/geant4make.sh works
-- Fix scripts in /opt/local/libexec/Geant4/Geant4.10.0
-- Try to get rid of one level in /opt/local/include/Geant4/Geant4.10.0/Geant4
+- Fix scripts in /opt/local/libexec/Geant4/Geant4.10.0 (symlinking to them doesn't work)
+- Try to get rid of one level in /opt/local/include/Geant4/Geant4.10.0/Geant4 (low priority)
 - Try to build examples and test whether they work
 - Carefully check different CMake configuration options
-- For 9.5 the following variables need to be set:
-		export G4DATA=/opt/local/share/Geant4/Data
-		export G4NEUTRONHPDATA=$G4DATA/G4NDL4.0
-		export G4LEDATA=$G4DATA/G4EMLOW6.23
-		export G4LEVELGAMMADATA=$G4DATA/PhotonEvaporation2.2
-		export G4RADIOACTIVEDATA=$G4DATA/RadioactiveDecay3.4
-		export G4NEUTRONXSDATA=$G4DATA/G4NEUTRONXS1.2
-		export G4ABLA=$G4DATA/G4ABLA3.0
-		export G4PIIDATA=$G4DATA/G4PII1.3
-		export G4REALSURFACEDATA=$G4DATA/RealSurface1.0
-	and probably similar for 9.6
 - geant4-config could use absolute paths instead of -L/opt/local/libexec/Geant4/Geant4.9.6/../../../lib/Geant4/Geant4.9.6
 - figure out if it is possible to hardcode paths into Geant4 sources to some extent
 	example: G4PenelopeOscillatorManage.cc uses
 		char* path = getenv("G4LEDATA");
-- The following files have "wrong" permissions:
-	./G4NEUTRONXS1.1:
-	-rwxr-xr-x  1 macports  admin   256B 15 nov  2011 History
-	-rwxr-xr-x  1 macports  admin   428B 15 nov  2011 README
-	./G4NEUTRONXS1.2:
-	-rwxr-xr-x  1 macports  admin   331B 15 okt  2012 History
-	./G4NEUTRONXS1.3:
-	-rwxr-xr-x  1 macports  admin   406B  8 feb 20:44 History
-	-rwxr-xr-x  1 macports  admin   547B  8 feb 20:43 README
-	./PhotonEvaporation2.2:
 - Test how setting CMAKE_INSTALL_IS_NONRELOCATABLE influences different components,
   in particular GEANT4_RELATIVE_HEADER_PATH, GEANT4_INCLUDE_DIR_SETUP (cmake/Modules/Geant4BuildProjectConfig.cmake)
 - Test if examples still work if they are manually moved to libexec
@@ -115,6 +94,30 @@ Additional packages that might be useful:
 	-- G4 Examples: AIDA package not found. --> CompositeCalorimeter example disabled
 - probably not needed:
 	-- G4 Examples: G3TOG4 not installed --> g3tog4 examples disabled
+
+
+DONE:
+- For 9.5 the following variables need to be set:
+		export G4DATA=/opt/local/share/Geant4/Data
+		export G4NEUTRONHPDATA=$G4DATA/G4NDL4.0
+		export G4LEDATA=$G4DATA/G4EMLOW6.23
+		export G4LEVELGAMMADATA=$G4DATA/PhotonEvaporation2.2
+		export G4RADIOACTIVEDATA=$G4DATA/RadioactiveDecay3.4
+		export G4NEUTRONXSDATA=$G4DATA/G4NEUTRONXS1.2
+		export G4ABLA=$G4DATA/G4ABLA3.0
+		export G4PIIDATA=$G4DATA/G4PII1.3
+		export G4REALSURFACEDATA=$G4DATA/RealSurface1.0
+	and probably similar for 9.6
+- The following files have "wrong" permissions:
+	./G4NEUTRONXS1.1:
+	-rwxr-xr-x  1 macports  admin   256B 15 nov  2011 History
+	-rwxr-xr-x  1 macports  admin   428B 15 nov  2011 README
+	./G4NEUTRONXS1.2:
+	-rwxr-xr-x  1 macports  admin   331B 15 okt  2012 History
+	./G4NEUTRONXS1.3:
+	-rwxr-xr-x  1 macports  admin   406B  8 feb 20:44 History
+	-rwxr-xr-x  1 macports  admin   547B  8 feb 20:43 README
+	./PhotonEvaporation2.2:
 
 
 Release dates and package dependencies:
