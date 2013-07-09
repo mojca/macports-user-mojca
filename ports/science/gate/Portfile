@@ -72,7 +72,6 @@ post-patch {
     foreach examplefile {gpumacros/ct/mac/visu.mac gpumacros/optical/macro_biolum_cpu.mac gpumacros/optical/macro_biolum_gpu.mac gpumacros/pet/mac/visu.mac gpumacros/photradthera/mac/visu.mac example_CT/classic/visu.mac example_CT/fast/visu.mac example_CT/vrt/visu.mac example_OPTICAL/macro/Visualisation.mac example_PET/PET_CylindricalPET_System.mac example_PET/PET_Ecat_System.mac example_PHANTOM_SOURCE/Voxelized_Phantom_Source/mainMacro.mac example_SPECT/vis.mac example_TimeActivityCurve/vis.mac example_TrackerDetector/visu.mac} {
         reinplace "s|OGLIX|OGLIQt|g" ${worksrcpath}/examples/${examplefile}
         reinplace "s|OGLSX|OGLIQt|g" ${worksrcpath}/examples/${examplefile}
-        system "echo ${examplefile}"
     }
 }
 pre-destroot {
