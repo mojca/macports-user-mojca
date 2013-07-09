@@ -26,6 +26,29 @@ platforms           darwin
 checksums           rmd160  b21ab59aa0d7dec9771a9e5a213ee8d739c5666e \
                     sha256  843424c70c27e4f26cf64b99ddc73b614a0be2abed25a7a48af739eaa5f881f3
 
+set geant.data_versions_9.6 {
+    G4NDL              4.2   G4NDL                G4NEUTRONHPDATA
+    G4EMLOW            6.32  G4EMLOW              G4LEDATA
+    PhotonEvaporation  2.3   G4PhotonEvaporation  G4LEVELGAMMADATA
+    RadioactiveDecay   3.6   G4RadioactiveDecay   G4RADIOACTIVEDATA
+    G4NEUTRONXS        1.2   G4NEUTRONXS          G4NEUTRONXSDATA
+    G4PII              1.3   G4PII                G4PIIDATA
+    RealSurface        1.0   RealSurface          G4REALSURFACEDATA
+    G4SAIDDATA         1.1   G4SAIDDATA           G4SAIDXSDATA
+}
+set geant.data_versions_9.5 {
+    G4NDL              4.2   G4NDL                G4NEUTRONHPDATA
+    G4EMLOW            6.32  G4EMLOW              G4LEDATA
+    PhotonEvaporation  2.3   G4PhotonEvaporation  G4LEVELGAMMADATA
+    RadioactiveDecay   3.6   G4RadioactiveDecay   G4RADIOACTIVEDATA
+    G4ABLA             3.0   G4ABLA               G4ABLADATA
+    G4NEUTRONXS        1.1   G4NEUTRONXS          G4NEUTRONXSDATA
+    G4PII              1.3   G4PII                G4PIIDATA
+    RealSurface        1.0   RealSurface          G4REALSURFACEDATA
+}
+set geant.datadir ""
+set geant.data_versions ""
+
 worksrcdir          gate_v${version}
 configure.dir       ${workpath}/build
 build.dir           ${configure.dir}
@@ -47,34 +70,57 @@ post-patch {
     }
 }
 pre-destroot {
+    # copy examples
+    # Should examples go to share/doc/gate or to share/gate/doc?
     set destdocdir ${destroot}${prefix}/share/doc/${name}
     xinstall -m 755 -d ${destdocdir}
-    file copy ${worksrcpath}/examples ${destdocdir}
+    copy ${worksrcpath}/examples ${destdocdir}
     # TODO: remove CMake files and add material database
+    # add materials database
+    set sharedir ${prefix}/share/${name}
+    set destsharedir ${destroot}${sharedir}
+    xinstall -m 755 -d ${destsharedir}
+    copy ${worksrcpath}/GateMaterials.db ${destsharedir}
+    copy ${worksrcpath}/GateMaterialsGPU.db ${destsharedir}
 }
 
-depends_lib         port:geant4.9.6
-# clhep implied with geant4
+post-destroot {
+    # TODO: this is already set in another phase and should not repeat
+    set sharedir ${prefix}/share/${name}
+    # move the binary and set environmental variables
+    set destexecutable ${destroot}${prefix}/bin/Gate
+    set libexecdir ${prefix}/libexec/${name}
+    set destlibexecdir ${destroot}${libexecdir}
+    xinstall -m 755 -d ${destlibexecdir}
+    move ${destexecutable} ${destlibexecdir}
+    system "echo \\\$GATEHOME=${sharedir} > ${destexecutable}"
+    system "echo export G4DATADIR=${geant.datadir} > ${destexecutable}"
+    foreach {data.name data.version data.filename data.envvariable} ${geant.data_versions} {
+        system "echo export ${data.envvariable}=\\\$G4DATADIR/${data.name}${data.version} >> ${destexecutable}"
+    }
+    system "echo export LC_NUMERIC=C >> ${destexecutable}"
+    system "echo ${libexecdir}/Gate \\\$@ >> ${destexecutable}"
+    system "chmod 755 ${destexecutable}"
+}
 
-# depends_lib         port:clhep \
-#                     port:zlib
-
-# WITH_GEANT4_UIVIS=ON
-variant qt description {Build with Qt support} {
-    depends_lib-append  port:qt4-mac
-
-    # configure.args-append -DGEANT4_USE_QT=ON
-    # maybe we need more variables?
+variant geant495 conflicts geant496 description {Use Geant4 9.5} {
+    depends_lib port:geant4-9.5
+    # TODO: this can probably be done in a more elegant way
+    set geant.data_versions ${geant.data_versions_9.5}
+    set geant.datadir ${prefix}/share/Geant4/Data/Geant4.9.5
+    # TODO: how to copy this from geant4 suports?
+    configure.args-append -DGeant4_DIR=${prefix}/lib/Geant4/Geant4.9.6/Geant4-9.5.2
+}
+variant geant496 conflicts geant495 description {Use Geant4 9.6} {
+    depends_lib port:geant4-9.6
+    # TODO: this can probably be done in a more elegant way
+    set geant.data_versions ${geant.data_versions_9.6}
+    set geant.datadir ${prefix}/share/Geant4/Data/Geant4.9.6
+    # TODO: how to copy this from geant4 suports?
+    configure.args-append -DGeant4_DIR=${prefix}/lib/Geant4/Geant4.9.6/Geant4-9.6.2
+}
+if {![variant_isset geant495] && ![variant_isset geant496]} {
+    default_variants +geant496
 }
 
 configure.args-append -DGATE_USE_SYSTEM_CLHEP=ON
-# configure.args-append -DGEANT4_INSTALL_DATA=ON \
-#                       -DGEANT4_BUILD_EXAMPLES=ON \
-#                       -DGEANT4_INSTALL_EXAMPLES=ON \
-#                       -DWITH_GEANT4_UIVIS=ON \
-#                       -DGEANT4_USE_OPENGL_X11=ON
-
-# TODO: this should come from Geant4 PortGroup
-configure.args-append -DGeant4_DIR=${prefix}/lib/Geant4/Geant4.9.6/Geant4-9.6.2
-
-default_variants +qt
