@@ -190,8 +190,8 @@ foreach {geant.version geant.revision geant.patchlevel geant.version_full geant.
         # to incompatibilities between Apple's native OpenGL Framework and the OpenGL
         # supplied with X11 on this platform.
 
-        # or simply x11?
-        variant x11_opengl description {Build with X11 visualisation drivers} {
+        # or simply x11? The option name in geant4-config is opengl-x11
+        variant opengl_x11 description {Build with X11 visualisation drivers} {
             # dependencies were determined experimentally (by checking which libraries were linked against)
             depends_lib-append    port:xorg-libice \
                                   port:xorg-libsm \
@@ -205,15 +205,15 @@ foreach {geant.version geant.revision geant.patchlevel geant.version_full geant.
         ## This could belong to x11, but see also the comment above
         ## There is a fair chance that other dependencies are needed as well (x11 in particular, not sure which ones exactly)
         ## in geant4.9.4 the names are motif/raytracerx
-        ## or simply motif?
-        # variant x11_motif description {Build with Motif (X11) user interface and visualization driver} {
+        ## or maybe motif-x11?
+        # variant motif description {Build with Motif (X11) user interface and visualization driver} {
         #     depends_lib-append    port:mesa \
         #                           port:openmotif
         #     # configure.args-delete -DGEANT4_USE_XM=OFF
         #     configure.args-append -DGEANT4_USE_XM=ON
         # }
-        ## or simply raytracer(x)?
-        # variant x11_raytracer description {Build with Raytracer (X11) visualization driver} {
+        ## previous name: raytracerx, name in geant4-config: raytracer-x11
+        # variant raytracer_x11 description {Build with Raytracer (X11) visualization driver} {
         #     depends_lib-append    port:mesa
         #     # configure.args-delete -DGEANT4_USE_RAYTRACER_X11=OFF
         #     configure.args-append -DGEANT4_USE_RAYTRACER_X11=ON

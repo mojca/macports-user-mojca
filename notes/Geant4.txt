@@ -173,9 +173,9 @@ also that on Mac you can only pick Qt4 OR X11/Motif interfaces. This is due
 to incompatibilities between Apple's native OpenGL Framework and the OpenGL
 supplied with X11 on this platform.
 
-- x11_opengl (or maybe just x11?)
-- x11_motif (or maybe just motif?)
-- x11_raytracer (or just raytracer?)
+- opengl_x11 (or maybe just x11?)
+- motif (or maybe motif_x11?)
+- raytracer_x11 (or just raytracer?)
 
 - athena/xaw is now deprecated, so I didn't include it
 
