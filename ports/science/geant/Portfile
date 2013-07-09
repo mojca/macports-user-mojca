@@ -145,6 +145,13 @@ foreach {geant.version geant.revision geant.patchlevel geant.version_full geant.
                             port:root
                             # port:iAIDA
         # iAIDA currently doesn't compile, while Geant4 compiles just fine without iAIDA
+        # I don't see any option to switch aida support on or off, so I'm not exactly sure how to handle the dependency
+        # in a proper way other than making it a requirement
+        # geant4.9.4 port provided the default +aida option
+
+        configure.args-append -DGEANT4_USE_SYSTEM_EXPAT=ON
+
+        # GEANT4_USE_SYSTEM_CLHEP=OFF
 
         # - patch-source-interfaces-common-src-G4Qt.cc.diff: http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1487
         # - patch-cmake_Modules_FindAIDA.cmake.diff: http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1485
@@ -164,8 +171,7 @@ foreach {geant.version geant.revision geant.patchlevel geant.version_full geant.
                               -DCMAKE_INSTALL_BINDIR=libexec/Geant4/Geant${geant.version_simple} \
                               -DCMAKE_INSTALL_DATAROOTDIR=share/Geant4 \
                               -DCMAKE_INSTALL_INCLUDEDIR=include/Geant4/Geant${geant.version_simple} \
-                              -DCMAKE_INSTALL_LIBDIR=lib/Geant4/Geant${geant.version_simple} \
-                              -DGEANT4_USE_OPENGL_X11=OFF
+                              -DCMAKE_INSTALL_LIBDIR=lib/Geant4/Geant${geant.version_simple}
 
         if {${geant.version} != "9.5"} {
             configure.args-append -DGEANT4_INSTALL_DATADIR=${geant.datadir} \
@@ -176,15 +182,49 @@ foreach {geant.version geant.revision geant.patchlevel geant.version_full geant.
             configure.args-append -DGEANT4_USE_QT=ON
             # maybe we need more variables?
         }
-        variant x11 description {Build with X11 visualisation drivers} {
+
+        # From installation notes:
+        #
+        # It is recommended that Windows and Mac users prefer the Geant4 Qt4 GUI. Note
+        # also that on Mac you can only pick Qt4 OR X11/Motif interfaces. This is due
+        # to incompatibilities between Apple's native OpenGL Framework and the OpenGL
+        # supplied with X11 on this platform.
+
+        # or simply x11?
+        variant x11_opengl description {Build with X11 visualisation drivers} {
+            # dependencies were determined experimentally (by checking which libraries were linked against)
             depends_lib-append    port:xorg-libice \
                                   port:xorg-libsm \
                                   port:xorg-libX11 \
                                   port:xorg-libXext \
                                   port:xorg-libXmu
-            configure.args-delete -DGEANT4_USE_OPENGL_X11=OFF
+            # TODO: do default arguments need to be turned off explicitly?
+            # configure.args-delete -DGEANT4_USE_OPENGL_X11=OFF
             configure.args-append -DGEANT4_USE_OPENGL_X11=ON
         }
+        ## This could belong to x11, but see also the comment above
+        ## There is a fair chance that other dependencies are needed as well (x11 in particular, not sure which ones exactly)
+        ## in geant4.9.4 the names are motif/raytracerx
+        ## or simply motif?
+        # variant x11_motif description {Build with Motif (X11) user interface and visualization driver} {
+        #     depends_lib-append    port:mesa \
+        #                           port:openmotif
+        #     # configure.args-delete -DGEANT4_USE_XM=OFF
+        #     configure.args-append -DGEANT4_USE_XM=ON
+        # }
+        ## or simply raytracer(x)?
+        # variant x11_raytracer description {Build with Raytracer (X11) visualization driver} {
+        #     depends_lib-append    port:mesa
+        #     # configure.args-delete -DGEANT4_USE_RAYTRACER_X11=OFF
+        #     configure.args-append -DGEANT4_USE_RAYTRACER_X11=ON
+        # }
+        variant gdml description {Build with Geometry Description Markup Language (GDML)} {
+            depends_lib-append  port:xercesc3
+            # configure.args-delete -DGEANT4_USE_GDML=OFF
+            configure.args-append -DGEANT4_USE_GDML=ON
+            # check that XERCESC_ROOT_DIR is properly set
+        }
+
         # TODO: probably no need for a separate option (just make it default)
         variant clhep description {Use external CLHEP} {
             depends_lib-append    port:clhep
@@ -192,6 +232,10 @@ foreach {geant.version geant.revision geant.patchlevel geant.version_full geant.
                                   -DCLHEP_CONFIG_EXECUTABLE=${prefix}/bin/clhep-config \
                                   -DCLHEP_INCLUDE_DIR=${prefix}/include \
                                   -DCLHEP_LIBRARY=${prefix}/lib/libCLHEP.dylib
+        }
+
+        variant debug description {Compile with debug flags on} {
+            configure.args-append -DCMAKE_BUILD_TYPE=Debug
         }
 
         # TODO: figure out how to install binaries somewhere else
@@ -206,6 +250,7 @@ foreach {geant.version geant.revision geant.patchlevel geant.version_full geant.
         # CMAKE_INSTALL_BINDIR: this installs binaries to a non-default location;
         #     port select could be used to get the default installation, but all three scripts in bindir need patching to properly detect their location
         default_variants +qt +clhep
+        # +gdml could be added to default flags
     }
 }
 
