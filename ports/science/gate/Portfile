@@ -3,10 +3,19 @@
 
 PortSystem          1.0
 PortGroup           cmake 1.0
-PortGroup           github 1.0
 
-# TODO: just temporary
-github.setup        mojca opengate f14c352c92
+# TODO: temporary - if checksums are desired
+PortGroup           github 1.0
+github.setup        mojca opengate 6957d3641f
+
+## official repository
+# fetch.type          git
+# git.url             http://git.opengatecollaboration.org/git/opengate-public.git
+# git.branch          6957d3641f0b6a11285326a733ca1b3d7d39dfe6
+
+## previous release (would need quite some patches to start working)
+# distfiles           gate_v6_2_tar_gz_15843.gz
+# master_sites        http://www.opengatecollaboration.org/sites/opengatecollaboration.org/files/gate_release/2012/08/
 
 name                gate
 version             6.2
@@ -20,11 +29,8 @@ long_description    GATE is dedicated to numerical simulations in medical imagin
 homepage            http://www.opengatecollaboration.org
 platforms           darwin
 
-# distfiles           gate_v6_2_tar_gz_15843.gz
-# master_sites        http://www.opengatecollaboration.org/sites/opengatecollaboration.org/files/gate_release/2012/08/
-
-checksums           rmd160  b21ab59aa0d7dec9771a9e5a213ee8d739c5666e \
-                    sha256  843424c70c27e4f26cf64b99ddc73b614a0be2abed25a7a48af739eaa5f881f3
+checksums           rmd160  473358e39e3e7170381bc3e8de42b9c779ff38d2 \
+                    sha256  7518d385ad8612c495e90d9da82511c96f19be380b240d221aa2cb87818ef105
 
 set geant.data_versions_9.6 {
     G4NDL              4.2   G4NDL                G4NEUTRONHPDATA
