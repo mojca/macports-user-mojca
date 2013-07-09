@@ -166,3 +166,4 @@ geant4 10.0
 
 Bugs:
 - http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1485 "aida-config --implementation" doesn't work
+- http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1487 LC_NUMERIC confuses strtod when Qt is being used

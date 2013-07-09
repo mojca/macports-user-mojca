@@ -19,10 +19,14 @@ TODO:
 - figure out if there is some CMAKE variable to copy the examples automatically
 - maybe put the Gate binary to libexec and create a shell script in ${prefix}/bin/Gate which sets all the necessary variables (data files) and calls the real binary afterwards
 - in case of errors, Gate reports location where the file is built (that weird build path that doesn't exist any more)
+- to load the material database, it would be great if Gate would look into some predefined location
+  in general/src/GateTools.cc there is
+    G4String GateTools::FindGateFile(const G4String& fileName)
+  which checks for the environmental variable GATEHOME and may potentially load the material database and other files from there
+  but for the start, try to copy the material database somewhere and set GATEHOME
 
 Something like tho following is needed for running Gate:
-	export LOCALE="en_GB.UTF-8"
-	export LC_ALL="en_GB.UTF-8"
+	export LC_NUMERIC=C
 	export G4LEDATA="/opt/local/share/Geant4/Data/G4EMLOW6.32"
 	export G4LEVELGAMMADATA="/opt/local/share/Geant4/Data/PhotonEvaporation2.3"
 	export G4NEUTRONHPDATA="/opt/local/share/Geant4/Data/G4NDL4.2"
