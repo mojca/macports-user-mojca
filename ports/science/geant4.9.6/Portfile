@@ -34,7 +34,8 @@ post-extract {
     file mkdir ${configure.dir}
 }
 
-patchfiles          patch-cmake_Modules_FindAIDA.cmake.diff
+patchfiles          patch-cmake_Modules_FindAIDA.cmake.diff \
+                    patch-source-interfaces-common-src-G4Qt.cc.diff
 
 configure.post_args ${worksrcpath}
 
