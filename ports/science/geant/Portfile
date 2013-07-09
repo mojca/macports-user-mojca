@@ -142,15 +142,18 @@ foreach {geant.version geant.revision geant.patchlevel geant.version_full geant.
                             # port:iAIDA
         # iAIDA currently doesn't compile, while Geant4 compiles just fine without iAIDA
 
-        # TODO: patch-source-interfaces-common-src-G4Qt.cc.diff is needed in all versions at the moment,
-        #       but I need to check if the same patch applies (maybe some offset is needed)
-        #       I could also use reinplace to simply add 'setlocale (LC_NUMERIC, "C");'
+        # - patch-source-interfaces-common-src-G4Qt.cc.diff: http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1487
+        # - patch-cmake_Modules_FindAIDA.cmake.diff: http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1485
+        if {${geant.version} == "10.0"} {
+            patchfiles      patch-cmake_Modules_FindAIDA.cmake.diff \
+                            patch-source-interfaces-common-src-G4Qt.cc.diff
+        }
         if {${geant.version} == "9.6"} {
             patchfiles      patch-cmake_Modules_FindAIDA.cmake.diff \
                             patch-source-interfaces-common-src-G4Qt.cc.diff
         }
-        if {${geant.version} == "10.0"} {
-            patchfiles      patch-cmake_Modules_FindAIDA.cmake.diff
+        if {${geant.version} == "9.5"} {
+            patchfiles      patch-source-interfaces-common-src-G4Qt.cc.495.diff
         }
 
         configure.args-append -DGEANT4_INSTALL_DATA=OFF \
