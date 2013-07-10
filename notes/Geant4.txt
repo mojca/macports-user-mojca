@@ -34,6 +34,19 @@ TODO:
 	/opt/local/lib/Geant4/Geant4.10.0 after all
   Try if setting GEANT4_CMAKE_DIR (or rather: patching its definition in cmake/Modules/Geant4BuildProjectConfig.cmake helps)
 	set(GEANT4_CMAKE_DIR ${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}-${${PROJECT_NAME}_VERSION}) -> NO
+
+  One thing than works is the following (but is an ugly hack):
+  0.) remove
+  1.) move /opt/local/lib/Geant4/Geant4.9.6/Geant4-9.6.2 to /opt/local/lib/Geant4-9.6.2
+      or rather all files but the symlink Darwin-clang which needs to stay for the sake of the old way of compiling programs
+  2.) in Geant4Config.cmake in that directory replace
+      - get_filename_component(Geant4_INCLUDE_DIR "${_thisdir}/../../../../include/Geant4/Geant4.9.6/Geant4" ABSOLUTE)
+      + get_filename_component(Geant4_INCLUDE_DIR "/opt/local/include/Geant4/Geant4.9.6/Geant4" ABSOLUTE)
+  3.) in Geant4LibraryDepends-release.cmake remove two lines (12&13)
+	  - GET_FILENAME_COMPONENT(_IMPORT_PREFIX "${_IMPORT_PREFIX}" PATH)
+	  - GET_FILENAME_COMPONENT(_IMPORT_PREFIX "${_IMPORT_PREFIX}" PATH)
+      (apparently each line goes one level up)
+
 - Try to move /opt/local/share/Geant4/Geant4-10.0.0/geant4make/config to a better place
 - Check if /opt/local/share/Geant4/Geant4-10.0.0/geant4make/geant4make.sh works
 - Fix scripts in /opt/local/libexec/Geant4/Geant4.10.0 (symlinking to them doesn't work)
@@ -47,6 +60,23 @@ TODO:
 - Test how setting CMAKE_INSTALL_IS_NONRELOCATABLE influences different components,
   in particular GEANT4_RELATIVE_HEADER_PATH, GEANT4_INCLUDE_DIR_SETUP (cmake/Modules/Geant4BuildProjectConfig.cmake)
 - Test if examples still work if they are manually moved to libexec
+
+-- Libraries -L/opt/local/lib/root -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lpthread -lm -ldl were added to the linkage list
+CMake Warning at examples/advanced/ChargeExchangeMC/CMakeLists.txt:131 (message):
+  Could not find ROOT Qt library, skip GUI histograming support
+-- G4 Examples: AIDA package not found. --> CompositeCalorimeter example disabled
+-- G4 Examples: AIDA found. --> gammaray_telescope example with AIDA enabled.
+-- G4 Examples: gdml not found. --> human_phantom example with gdml disabled.
+-- G4 Examples: HBOOK package not found. --> g4tools/hbook analysis disabled
+-- G4 Examples: HBOOK package not found. --> g4tools/hbook analysis disabled
+-- G4 Examples: HepMC package not found. --> HepMCEx01 example disabled
+-- G4 Examples: HepMC package not found. --> HepMCEx02 example disabled
+-- G4 Examples: HepMC package not found. --> MCTruth example disabled
+-- G4 Examples: Pythia6 package not found. --> decayer6 example disabled
+-- G4 Examples: GCCXML not found. --> P01 example disabled
+-- G4 Examples: GCCXML not found. --> P02 example disabled
+
+
 
 - Test if setting EXECUTABLE_OUTPUT_PATH helps move examples to a different place -> NO
 
@@ -78,14 +108,14 @@ Additional packages that might be useful:
 	-- G4 Examples: GCCXML not found. --> P02 example disabled
 - pythia (but it's version 8!)
 	-- G4 Examples: Pythia6 package not found. --> decayer6 example disabled
-- gdml (no such port)
+- gdml (no such port) http://gdml.web.cern.ch/GDML/
 	-- G4 Examples: GDML not installed --> ChargeExchangeMC example disabled
 	-- G4 Examples: GDML not installed --> gdml examples disabled
 	-- G4 Examples: gdml not found. --> human_phantom example with gdml disabled.
 - hbook (no such port)
 	-- G4 Examples: HBOOK package not found. --> g4tools/hbook analysis disabled
 	-- G4 Examples: HBOOK package not found. --> g4tools/hbook analysis disabled
-- hepmc (no such port)
+- hepmc (no such port); https://savannah.cern.ch/projects/hepmc/
 	-- G4 Examples: HepMC package not found. --> HepMCEx01 example disabled
 	-- G4 Examples: HepMC package not found. --> HepMCEx02 example disabled
 	-- G4 Examples: HepMC package not found. --> MCTruth example disabled
@@ -94,6 +124,11 @@ Additional packages that might be useful:
 	-- G4 Examples: AIDA package not found. --> CompositeCalorimeter example disabled
 - probably not needed:
 	-- G4 Examples: G3TOG4 not installed --> g3tog4 examples disabled
+
+--->  Scanning binaries for linking errors: 98.8%
+Could not open /opt/local/lib/libExP01ClassesDict.so: Error opening or reading file (referenced from /opt/local/libexec/Geant4/Geant4.9.6/examples/exampleP01)
+--->  Scanning binaries for linking errors: 98.8%
+Could not open /opt/local/lib/libExP02ClassesDict.so: Error opening or reading file (referenced from /opt/local/libexec/Geant4/Geant4.9.6/examples/exampleP02)
 
 
 DONE:

@@ -105,18 +105,28 @@ foreach {geant.version geant.revision geant.patchlevel geant.version_full geant.
         }
         use_configure no
         build {}
-        destroot {
-            xinstall -m 755 -d ${destroot}${geant.datadir}
-            # TODO: maybe a better name or a better location
-            # in any case the filename of this file needs to be known in the portgroup
-            set filename ${destroot}${geant.datadir}/setup-geant4data.sh
-            system "echo export G4DATADIR=${geant.datadir} > ${filename}"
-            foreach {data.name data.version data.filename data.envvariable data.md5 data.rmd160 data.sha256} ${geant.data_versions} {
-                move ${workpath}/${data.name}${data.version} ${destroot}${geant.datadir}
-                # one option is also to install this as part of geant4 core installation
-                system "echo export ${data.envvariable}=\\\$G4DATADIR/${data.name}${data.version} >> ${filename}"
+        
+        set dr {
+            destroot {
+                xinstall -m 755 -d ${destroot}${geant.datadir}
+                # TODO: maybe a better name or a better location, possibly including version, possibly symlinked in bin
+                # the filename of this file should probably come frome the portgroup
+                xinstall -m 755 -d ${destroot}${prefix}/libexec/Geant4/Geant${geant.version_simple}
+                set filename ${destroot}${prefix}/libexec/Geant4/Geant${geant.version_simple}/geant4data
+                system "echo #!/bin/sh  > ${filename}.sh"
+                system "echo #!/bin/csh > ${filename}.csh"
+                system "echo export G4DATADIR=\\\"${geant.datadir}\\\" >> ${filename}.sh"
+                system "echo setenv G4DATADIR=\\\"${geant.datadir}\\\" >> ${filename}.csh"
+                foreach {data.name data.version data.filename data.envvariable data.md5 data.rmd160 data.sha256} ${geant.data_versions} {
+                    move ${workpath}/${data.name}${data.version} ${destroot}${geant.datadir}
+                    # one option is also to install this as part of geant4 core installation
+                    system "echo export ${data.envvariable}=\\\"\\\$G4DATADIR/${data.name}${data.version}\\\" >> ${filename}.sh"
+                    system "echo setenv ${data.envvariable} \\\"\\\$G4DATADIR/${data.name}${data.version}\\\" >> ${filename}.csh"
+                }
             }
         }
+        eval [string map [list \${geant.datadir} [list ${geant.datadir}]] $dr]
+        eval [string map [list \${geant.version_simple} [list ${geant.version_simple}]] $dr]
     }
 
     # TODO: should eventually become ${name}.${geant.version} (geant4.9.6)
@@ -142,9 +152,9 @@ foreach {geant.version geant.revision geant.patchlevel geant.version_full geant.
         depends_lib         port:${subport}-data \
                             port:zlib \
                             port:expat \
-                            port:root
-                            # port:iAIDA
-        # iAIDA currently doesn't compile, while Geant4 compiles just fine without iAIDA
+                            port:root \
+                            port:iAIDA
+        # Geant4 compiles just fine without iAIDA
         # I don't see any option to switch aida support on or off, so I'm not exactly sure how to handle the dependency
         # in a proper way other than making it a requirement
         # geant4.9.4 port provided the default +aida option
@@ -156,12 +166,10 @@ foreach {geant.version geant.revision geant.patchlevel geant.version_full geant.
         # - patch-source-interfaces-common-src-G4Qt.cc.diff: http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1487
         # - patch-cmake_Modules_FindAIDA.cmake.diff: http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1485
         if {${geant.version} == "10.0"} {
-            patchfiles      patch-cmake_Modules_FindAIDA.cmake.diff \
-                            patch-source-interfaces-common-src-G4Qt.cc.diff
+            patchfiles      patch-source-interfaces-common-src-G4Qt.cc.diff
         }
         if {${geant.version} == "9.6"} {
-            patchfiles      patch-cmake_Modules_FindAIDA.cmake.diff \
-                            patch-source-interfaces-common-src-G4Qt.cc.diff
+            patchfiles      patch-source-interfaces-common-src-G4Qt.cc.diff
         }
         if {${geant.version} == "9.5"} {
             patchfiles      patch-source-interfaces-common-src-G4Qt.cc.495.diff
@@ -175,6 +183,14 @@ foreach {geant.version geant.revision geant.patchlevel geant.version_full geant.
 
         if {${geant.version} != "9.5"} {
             configure.args-append -DGEANT4_INSTALL_DATADIR=${geant.datadir} \
+        }
+
+        # there is no option to build/install the examples elsewhere, so we move them to libexec (they have nothing to do in bin)
+        # this is only needed when +examples is used
+        post-destroot {
+            if [file exists ${destroot}${prefix}/bin] {
+                move ${destroot}${prefix}/bin ${destroot}${prefix}/libexec/Geant4/Geant${geant.version_simple}/examples
+            }
         }
 
         variant qt description {Build with Qt support} {
@@ -219,7 +235,7 @@ foreach {geant.version geant.revision geant.patchlevel geant.version_full geant.
         #     configure.args-append -DGEANT4_USE_RAYTRACER_X11=ON
         # }
         variant gdml description {Build with Geometry Description Markup Language (GDML)} {
-            depends_lib-append  port:xercesc3
+            depends_lib-append    port:xercesc3
             # configure.args-delete -DGEANT4_USE_GDML=OFF
             configure.args-append -DGEANT4_USE_GDML=ON
             # check that XERCESC_ROOT_DIR is properly set
@@ -240,6 +256,8 @@ foreach {geant.version geant.revision geant.patchlevel geant.version_full geant.
 
         # TODO: figure out how to install binaries somewhere else
         variant examples requires clhep description {Build and install examples} {
+            # optional
+            # depends_lib-append    port:gccxml-devel
             configure.args-append -DGEANT4_BUILD_EXAMPLES=ON \
                                   -DGEANT4_INSTALL_EXAMPLES=ON
         }
