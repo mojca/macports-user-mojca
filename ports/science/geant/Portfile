@@ -52,10 +52,10 @@ set geant.data_versions_9.6 {
     G4SAIDDATA         1.1   G4SAIDDATA           G4SAIDXSDATA       d88a31218fdf28455e5c5a3609f7216f  7f0c75c86eea3d227379d3dfe77e4600752f99a2  a38cd9a83db62311922850fe609ecd250d36adf264a88e88c82ba82b7da0ed7f
 }
 set geant.data_versions_9.5 {
-    G4NDL              4.2   G4NDL                G4NEUTRONHPDATA    6d23aff98e5706af1dd7fff397969f37  602d209009ee93d792cb67fe592aa37de6bab7c2  cef4fab143d8dcb8eae4c6e5c095af01d735bb36334b9958e00e30bcec9827ed
-    G4EMLOW            6.32  G4EMLOW              G4LEDATA           98cdca1024bf168c8f8ca1deb40f43b9  84529979894ed5e35ade27201fee67884d7b381d  6452215d9a0acbd35c71eed47f3581fd0276d7088b1a1a8588c003d9072aed3e
-    PhotonEvaporation  2.3   G4PhotonEvaporation  G4LEVELGAMMADATA   8010e7ce8a92564e38dd3418e6040563  8efc16c40b4755d209f83f31f2d251bbef52ccb8  9db02ef8e5b065c1b7f7d1becd1b72dde2b8fc617bcedde97788040418f239c0
-    RadioactiveDecay   3.6   G4RadioactiveDecay   G4RADIOACTIVEDATA  a5b681048584631608ab0965b33c7959  378c237cd5857b4205980815a3c47cdb654506d4  1ecfb477ca3c3966dd128193d8e11e24d6c3dc29cc188c8c9b0b21b941f9c30c
+    G4NDL              4.0   G4NDL                G4NEUTRONHPDATA    6d23aff98e5706af1dd7fff397969f37  602d209009ee93d792cb67fe592aa37de6bab7c2  cef4fab143d8dcb8eae4c6e5c095af01d735bb36334b9958e00e30bcec9827ed
+    G4EMLOW            6.23  G4EMLOW              G4LEDATA           98cdca1024bf168c8f8ca1deb40f43b9  84529979894ed5e35ade27201fee67884d7b381d  6452215d9a0acbd35c71eed47f3581fd0276d7088b1a1a8588c003d9072aed3e
+    PhotonEvaporation  2.2   G4PhotonEvaporation  G4LEVELGAMMADATA   8010e7ce8a92564e38dd3418e6040563  8efc16c40b4755d209f83f31f2d251bbef52ccb8  9db02ef8e5b065c1b7f7d1becd1b72dde2b8fc617bcedde97788040418f239c0
+    RadioactiveDecay   3.4   G4RadioactiveDecay   G4RADIOACTIVEDATA  a5b681048584631608ab0965b33c7959  378c237cd5857b4205980815a3c47cdb654506d4  1ecfb477ca3c3966dd128193d8e11e24d6c3dc29cc188c8c9b0b21b941f9c30c
     G4ABLA             3.0   G4ABLA               G4ABLADATA         d7049166ef74a592cb97df0ed4b757bd  656b10fc9d8022e89e99a728576d0b502161aa69  99fd4dcc9b4949778f14ed8364088e45fa4ff3148b3ea36f9f3103241d277014
     G4NEUTRONXS        1.1   G4NEUTRONXS          G4NEUTRONXSDATA    61ef3a05b56525db04e11820e3f603f1  a4cd8791219f0df856da39295e7f913a537bde1a  d477a377aee229bf9d75d3c9cc4b7cd48b414285a246449e4e44a72bf037472b
     G4PII              1.3   G4PII                G4PIIDATA          05f2471dbcdf1a2b17cbff84e8e83b37  313a2615903b0682b8aabc344bedde82c345704b  6225ad902675f4381c98c6ba25fc5a06ce87549aa979634d3d03491d6616e926
@@ -94,10 +94,6 @@ foreach {geant.version geant.revision geant.patchlevel geant.version_full geant.
             distfiles-append ${filename}
             checksums-append ${filename} md5 ${data.md5} rmd160 ${data.rmd160} sha256 ${data.sha256}
         }
-        # TODO: remove this once the bug has been resolved
-        pre-fetch {
-            system "echo This will install data for geant${geant.version_simple} into ${geant.datadir}"
-        }
         post-extract {
             # only necessary for G4EMLOW 6.23 & 6.32
             # but G4NEUTRONXS 1.1, 1.2, 1.3 and PhotonEvaporation 2.2 also have some weird permissions
@@ -105,12 +101,15 @@ foreach {geant.version geant.revision geant.patchlevel geant.version_full geant.
         }
         use_configure no
         build {}
-        
+
         set dr {
             destroot {
                 xinstall -m 755 -d ${destroot}${geant.datadir}
+                # create a script to initialize environmental variables for locating the data files & move data files to destination
+                #
                 # TODO: maybe a better name or a better location, possibly including version, possibly symlinked in bin
                 # the filename of this file should probably come frome the portgroup
+                # one option is also to install this as part of geant4 core installation
                 xinstall -m 755 -d ${destroot}${prefix}/libexec/Geant4/Geant${geant.version_simple}
                 set filename ${destroot}${prefix}/libexec/Geant4/Geant${geant.version_simple}/geant4data
                 system "echo #!/bin/sh  > ${filename}.sh"
@@ -118,18 +117,21 @@ foreach {geant.version geant.revision geant.patchlevel geant.version_full geant.
                 system "echo export G4DATADIR=\\\"${geant.datadir}\\\" >> ${filename}.sh"
                 system "echo setenv G4DATADIR=\\\"${geant.datadir}\\\" >> ${filename}.csh"
                 foreach {data.name data.version data.filename data.envvariable data.md5 data.rmd160 data.sha256} ${geant.data_versions} {
+                    # move data files to destination
                     move ${workpath}/${data.name}${data.version} ${destroot}${geant.datadir}
-                    # one option is also to install this as part of geant4 core installation
+                    # add environmental variable to locate it
                     system "echo export ${data.envvariable}=\\\"\\\$G4DATADIR/${data.name}${data.version}\\\" >> ${filename}.sh"
                     system "echo setenv ${data.envvariable} \\\"\\\$G4DATADIR/${data.name}${data.version}\\\" >> ${filename}.csh"
                 }
             }
         }
-        eval [string map [list \${geant.datadir} [list ${geant.datadir}]] $dr]
-        eval [string map [list \${geant.version_simple} [list ${geant.version_simple}]] $dr]
+        # weird tcl trickery to store the right version of Geant4
+        set dr_map [list \${geant.datadir} [list ${geant.datadir}] \
+                         \${geant.version_simple} [list ${geant.version_simple}]]
+        eval [string map $dr_map $dr]
     }
 
-    # TODO: should eventually become ${name}.${geant.version} (geant4.9.6)
+    # TODO: should probably eventually become ${name}.${geant.version} (geant4.9.6)
     # (or maybe something else, I'm open to suggestions)
     subport geant4-${geant.version} {
         set                 geant.distfilename geant${geant.version_full}${extract.suffix}
@@ -138,7 +140,7 @@ foreach {geant.version geant.revision geant.patchlevel geant.version_full geant.
         revision            ${geant.revision}
         distfiles           ${geant.distfilename}
         checksums           ${geant.distfilename} rmd160 ${geant.rmd160} sha256 ${geant.sha256}
-        
+
         worksrcdir          geant${version}
         configure.dir       ${workpath}/build
         build.dir           ${configure.dir}
@@ -164,11 +166,7 @@ foreach {geant.version geant.revision geant.patchlevel geant.version_full geant.
         # GEANT4_USE_SYSTEM_CLHEP=OFF
 
         # - patch-source-interfaces-common-src-G4Qt.cc.diff: http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1487
-        # - patch-cmake_Modules_FindAIDA.cmake.diff: http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1485
-        if {${geant.version} == "10.0"} {
-            patchfiles      patch-source-interfaces-common-src-G4Qt.cc.diff
-        }
-        if {${geant.version} == "9.6"} {
+        if {${geant.version} == "10.0" || ${geant.version} == "9.6"} {
             patchfiles      patch-source-interfaces-common-src-G4Qt.cc.diff
         }
         if {${geant.version} == "9.5"} {
