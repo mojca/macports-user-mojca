@@ -6,12 +6,12 @@ PortGroup           cmake 1.0
 
 # TODO: temporary - if checksums are desired
 PortGroup           github 1.0
-github.setup        mojca opengate 6957d3641f
+github.setup        mojca gate 635b457f48
 
 ## official repository
 # fetch.type          git
 # git.url             http://git.opengatecollaboration.org/git/opengate-public.git
-# git.branch          6957d3641f0b6a11285326a733ca1b3d7d39dfe6
+# git.branch          635b457f48879af5aec42b88d9058a459352e49b
 
 ## previous release (would need quite some patches to start working)
 # distfiles           gate_v6_2_tar_gz_15843.gz
@@ -29,8 +29,8 @@ long_description    GATE is dedicated to numerical simulations in medical imagin
 homepage            http://www.opengatecollaboration.org
 platforms           darwin
 
-checksums           rmd160  473358e39e3e7170381bc3e8de42b9c779ff38d2 \
-                    sha256  7518d385ad8612c495e90d9da82511c96f19be380b240d221aa2cb87818ef105
+checksums           rmd160  c83b9d5e16d8527089fa6513732f0281a30d6f11 \
+                    sha256  d0b34aa7db1eee7ebb3df2b15d887e63c2a0460d9908f2969e5b1915e5867a4b
 
 set geant.data_versions_9.6 {
     G4NDL              4.2   G4NDL                G4NEUTRONHPDATA
@@ -99,7 +99,7 @@ post-destroot {
     xinstall -m 755 -d ${destlibexecdir}
     move ${destexecutable} ${destlibexecdir}
     system "echo \\\$GATEHOME=${sharedir} > ${destexecutable}"
-    system "echo export G4DATADIR=${geant.datadir} > ${destexecutable}"
+    system "echo export G4DATADIR=${geant.datadir} >> ${destexecutable}"
     foreach {data.name data.version data.filename data.envvariable} ${geant.data_versions} {
         system "echo export ${data.envvariable}=\\\$G4DATADIR/${data.name}${data.version} >> ${destexecutable}"
     }
