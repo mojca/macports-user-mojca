@@ -14,16 +14,29 @@ Application for Mac, together with documented patches needed to create it:
 - http://suhard.fr/gate/gate6.2.dmg
 
 TODO:
-- copy license/LICENSE.txt
-- copy examples & benchmarks
-- figure out if there is some CMAKE variable to copy the examples automatically
-- maybe put the Gate binary to libexec and create a shell script in ${prefix}/bin/Gate which sets all the necessary variables (data files) and calls the real binary afterwards
-- in case of errors, Gate reports location where the file is built (that weird build path that doesn't exist any more)
 - to load the material database, it would be great if Gate would look into some predefined location
   in general/src/GateTools.cc there is
     G4String GateTools::FindGateFile(const G4String& fileName)
   which checks for the environmental variable GATEHOME and may potentially load the material database and other files from there
-  but for the start, try to copy the material database somewhere and set GATEHOME
+- check if qt4-mac is enabled for Geant4, else prevent compilation (or make a Gate variant without qt4)
+- Should examples go to share/doc/gate or to share/gate/doc?
+- replace "../../GateMaterials.db" with "GateMaterials.db" in examples
+- remove CMake files from examples (possibly add material database, but I guess it should not be needed)
+- load gui.mac
+- png icon: less transparency if possible
+
+Upstream feature requests:
+- CMAKE variable to copy the examples automatically
+- try to prevent crashing by catching errors
+- geant: figure out how file/open & friends menu works (http://geant4.in2p3.fr/spip.php?article84&amp;lang=en)
+- prepare a nice default startup gui
+
+DONE:
+- copy license/LICENSE.txt -> OK
+- copy examples & benchmarks -> OK
+- maybe put the Gate binary to libexec and create a shell script in ${prefix}/bin/Gate which sets all the necessary variables (data files) and calls the real binary afterwards -> OK
+- try to copy the material database somewhere and set GATEHOME -> OK
+- in case of errors, Gate reports location where the file is built (that weird build path that doesn't exist any more) -> OK
 
 Something like tho following is needed for running Gate:
 	export LC_NUMERIC=C

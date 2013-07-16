@@ -27,7 +27,6 @@ TODO:
 		/opt/local/lib/libQtOpenGL.4.dylib (compatibility version 4.8.0, current version 4.8.2)
 		/opt/local/lib/libQtGui.4.dylib (compatibility version 4.8.0, current version 4.8.2)
 		/opt/local/lib/libQtCore.4.dylib (compatibility version 4.8.0, current version 4.8.2)
-- What is /opt/local/lib/Geant4/Geant4.10.0/Geant4-10.0.0/Darwin-clang doing there?
 - Try to move /opt/local/lib/Geant4/Geant4.10.0/Geant4-10.0.0 to a better place
 	according to http://www.cmake.org/Wiki/CMake/Tutorials/Packaging it should be
 	/opt/local/lib/Geant4-10.0.0, so maybe one should not change path to
@@ -49,9 +48,8 @@ TODO:
 
 - Try to move /opt/local/share/Geant4/Geant4-10.0.0/geant4make/config to a better place
 - Check if /opt/local/share/Geant4/Geant4-10.0.0/geant4make/geant4make.sh works
-- Fix scripts in /opt/local/libexec/Geant4/Geant4.10.0 (symlinking to them doesn't work)
-- Try to get rid of one level in /opt/local/include/Geant4/Geant4.10.0/Geant4 (low priority)
-- Try to build examples and test whether they work
+- Fix scripts in /opt/local/libexec/Geant4/Geant4.10.0 (symlinking to them doesn't work, but on the other hand they are probably not needed)
+- Try to get rid of one level in /opt/local/include/Geant4/Geant4.10.0/Geant4 (low priority, maybe not needed at all)
 - Carefully check different CMake configuration options
 - geant4-config could use absolute paths instead of -L/opt/local/libexec/Geant4/Geant4.9.6/../../../lib/Geant4/Geant4.9.6
 - figure out if it is possible to hardcode paths into Geant4 sources to some extent
@@ -59,7 +57,6 @@ TODO:
 		char* path = getenv("G4LEDATA");
 - Test how setting CMAKE_INSTALL_IS_NONRELOCATABLE influences different components,
   in particular GEANT4_RELATIVE_HEADER_PATH, GEANT4_INCLUDE_DIR_SETUP (cmake/Modules/Geant4BuildProjectConfig.cmake)
-- Test if examples still work if they are manually moved to libexec
 
 -- Libraries -L/opt/local/lib/root -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lpthread -lm -ldl were added to the linkage list
 CMake Warning at examples/advanced/ChargeExchangeMC/CMakeLists.txt:131 (message):
@@ -77,8 +74,6 @@ CMake Warning at examples/advanced/ChargeExchangeMC/CMakeLists.txt:131 (message)
 -- G4 Examples: GCCXML not found. --> P02 example disabled
 
 
-
-- Test if setting EXECUTABLE_OUTPUT_PATH helps move examples to a different place -> NO
 
 Options:
 - DATAROOTDIR: Geant automatically adds /Geant4-9.6.2 (any way to prevent this?)
@@ -154,6 +149,11 @@ DONE:
 	-rwxr-xr-x  1 macports  admin   547B  8 feb 20:43 README
 	./PhotonEvaporation2.2:
 
+- Try to build examples and test whether they work -> seems OK
+- Test if examples still work if they are manually moved to libexec -> OK
+- Test if setting EXECUTABLE_OUTPUT_PATH helps move examples to a different place -> NO
+- What is /opt/local/lib/Geant4/Geant4.10.0/Geant4-10.0.0/Darwin-clang doing there? -> needed by GNUmake and needs to stay there
+
 
 Release dates and package dependencies:
 
@@ -217,6 +217,3 @@ supplied with X11 on this platform.
 Bugs:
 - http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1485 "aida-config --implementation" doesn't work
 - http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1487 LC_NUMERIC confuses strtod when Qt is being used
-
-Bugs in Portfile:
-- geant4-9.6-data installs files to 10.0's data folder
