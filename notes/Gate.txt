@@ -14,22 +14,28 @@ Application for Mac, together with documented patches needed to create it:
 - http://suhard.fr/gate/gate6.2.dmg
 
 TODO:
-- to load the material database, it would be great if Gate would look into some predefined location
-  in general/src/GateTools.cc there is
-    G4String GateTools::FindGateFile(const G4String& fileName)
-  which checks for the environmental variable GATEHOME and may potentially load the material database and other files from there
-- check if qt4-mac is enabled for Geant4, else prevent compilation (or make a Gate variant without qt4)
+- get variables from geant port
 - Should examples go to share/doc/gate or to share/gate/doc?
-- replace "../../GateMaterials.db" with "GateMaterials.db" in examples
-- remove CMake files from examples (possibly add material database, but I guess it should not be needed)
-- load gui.mac
+- remove CMake files from examples
+- I end up with /opt/local/share/gate/._gui.mac: why?
 - png icon: less transparency if possible
+- load gui.mac
 
 Upstream feature requests:
+- repository at GitHub
 - CMAKE variable to copy the examples automatically
 - try to prevent crashing by catching errors
 - geant: figure out how file/open & friends menu works (http://geant4.in2p3.fr/spip.php?article84&amp;lang=en)
 - prepare a nice default startup gui
+- enable hardcoded GATEHOME
+  in general/src/GateTools.cc there is
+    G4String GateTools::FindGateFile(const G4String& fileName)
+  which checks for the environmental variable GATEHOME and may potentially load the material database and other files from there
+- png icon
+
+Compile warnings:
+- a handful of unused variables
+- redefinition of endianess
 
 DONE:
 - copy license/LICENSE.txt -> OK
@@ -37,9 +43,10 @@ DONE:
 - maybe put the Gate binary to libexec and create a shell script in ${prefix}/bin/Gate which sets all the necessary variables (data files) and calls the real binary afterwards -> OK
 - try to copy the material database somewhere and set GATEHOME -> OK
 - in case of errors, Gate reports location where the file is built (that weird build path that doesn't exist any more) -> OK
+- replace "../../GateMaterials.db" with "GateMaterials.db" in examples
+- check if qt4-mac is enabled for Geant4, else prevent compilation (or make a Gate variant without qt4)
 
 Something like tho following is needed for running Gate:
-	export LC_NUMERIC=C
 	export G4LEDATA="/opt/local/share/Geant4/Data/G4EMLOW6.32"
 	export G4LEVELGAMMADATA="/opt/local/share/Geant4/Data/PhotonEvaporation2.3"
 	export G4NEUTRONHPDATA="/opt/local/share/Geant4/Data/G4NDL4.2"

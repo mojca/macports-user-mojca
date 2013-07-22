@@ -1,4 +1,5 @@
 TODO:
+- figure out if adding "distname" changes anything (so that all files go to the same folder - maybe they already do)
 - specify expat more precisely
 - resolve dependencies for X11
 	/System/Library/Frameworks/AGL.framework/Versions/A/AGL (compatibility version 1.0.0, current version 1.0.0)
@@ -215,5 +216,16 @@ supplied with X11 on this platform.
 - athena/xaw is now deprecated, so I didn't include it
 
 Bugs:
-- http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1485 "aida-config --implementation" doesn't work
-- http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1487 LC_NUMERIC confuses strtod when Qt is being used
+- http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1485 "aida-config --implementation" doesn't work      (no longer a problem)
+- http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1486 file permissions in G4NEUTRONS1.1                (no longer a problem)
+- http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1487 LC_NUMERIC confuses strtod when Qt is being used (patched in Portfile)
+- http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1494 Antialiasing in Qt/OpenGL makes objects invisible
+- http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1495 Issues and requests for Qt's "Save as ..."
+- http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1497 Qt interface: allow pasting multiple lines
+
+Other feature requests:
+- ability to change program icon (question)
+- open/save files (question)
+- open files with a double-click
+- support for mac applications
+- avoid the need to hardcode data paths

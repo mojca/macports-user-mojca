@@ -7,19 +7,15 @@ PortGroup           app 1.0
 
 # TODO: temporary - if checksums are desired
 PortGroup           github 1.0
-github.setup        mojca gate 635b457f48
+github.setup        mojca gate 6327ec9eb9
 
 ## official repository
 # fetch.type          git
 # git.url             http://git.opengatecollaboration.org/git/opengate-public.git
-# git.branch          635b457f48879af5aec42b88d9058a459352e49b
-
-## previous release (would need quite some patches to start working)
-# distfiles           gate_v6_2_tar_gz_15843.gz
-# master_sites        http://www.opengatecollaboration.org/sites/opengatecollaboration.org/files/gate_release/2012/08/
+# git.branch          6327ec9eb9c523e2b3183ccedb4932156072aeb7
 
 name                gate
-version             6.2
+version             7.0-beta
 categories          science
 maintainers         mojca
 license             LGPL
@@ -30,8 +26,8 @@ long_description    GATE is dedicated to numerical simulations in medical imagin
 homepage            http://www.opengatecollaboration.org
 platforms           darwin
 
-checksums           rmd160  c83b9d5e16d8527089fa6513732f0281a30d6f11 \
-                    sha256  d0b34aa7db1eee7ebb3df2b15d887e63c2a0460d9908f2969e5b1915e5867a4b
+checksums           rmd160  549d40b0900dd62d67046cad9c805210977a62d7 \
+                    sha256  7053d86eaa550217cc8df683fc42d63e7ea35dd91258c3c923abcb998c194327
 
 set geant.data_versions_9.6 {
     G4NDL              4.2   G4NDL                G4NEUTRONHPDATA
@@ -74,11 +70,15 @@ depends_lib         port:qt4-mac
 post-patch {
     # patch examples if needed
     if {[variant_isset examples]} {
-        # TODO: this must be done in a better way
-        # replace "/vis/open OGLIX" with "/vis/open OGLIQt" (not sure about the difference between OGLIQt and OGLSQt; maybe even just OGL)
-        foreach examplefile {gpumacros/ct/mac/visu.mac gpumacros/optical/macro_biolum_cpu.mac gpumacros/optical/macro_biolum_gpu.mac gpumacros/pet/mac/visu.mac gpumacros/photradthera/mac/visu.mac example_CT/classic/visu.mac example_CT/fast/visu.mac example_CT/vrt/visu.mac example_OPTICAL/macro/Visualisation.mac example_PET/PET_CylindricalPET_System.mac example_PET/PET_Ecat_System.mac example_PHANTOM_SOURCE/Voxelized_Phantom_Source/mainMacro.mac example_SPECT/vis.mac example_TimeActivityCurve/vis.mac example_TrackerDetector/visu.mac} {
-            reinplace "s|OGLIX|OGLIQt|g" ${worksrcpath}/examples/${examplefile}
-            reinplace "s|OGLSX|OGLIQt|g" ${worksrcpath}/examples/${examplefile}
+        foreach f [exec find "${worksrcpath}/examples" -type f -name "*.mac"] {
+            # gpumacros/ct/mac/visu.mac gpumacros/optical/macro_biolum_cpu.mac gpumacros/optical/macro_biolum_gpu.mac gpumacros/pet/mac/visu.mac gpumacros/photradthera/mac/visu.mac example_CT/classic/visu.mac example_CT/fast/visu.mac example_CT/vrt/visu.mac example_OPTICAL/macro/Visualisation.mac example_PET/PET_CylindricalPET_System.mac example_PET/PET_Ecat_System.mac example_PHANTOM_SOURCE/Voxelized_Phantom_Source/mainMacro.mac example_SPECT/vis.mac example_TimeActivityCurve/vis.mac example_TrackerDetector/visu.mac
+            # replace "/vis/open OGLIX" with "/vis/open OGLIQt" (not sure about the difference between OGLIQt and OGLSQt; maybe even just OGL)
+            # just in case we could check that the statement actually starts with /vis/open
+            reinplace "s|OGLIX|OGLIQt|g" ${f}
+            reinplace "s|OGLSX|OGLSQt|g" ${f}
+            # TODO: create a single expression to cover both, possibly storing the variables to simplify the replacement part
+            reinplace "s|/gate/geometry/setMaterialDatabase.*GateMaterials.db|/gate/geometry/setMaterialDatabase GateMaterials.db|g" ${f}
+            reinplace "s|/gate/geometry/setMaterialDatabase.*GateMaterialsGPU.db|/gate/geometry/setMaterialDatabase GateMaterialsGPU.db|g" ${f}
         }
     }
 }
@@ -102,7 +102,7 @@ pre-destroot {
 }
 
 post-destroot {
-    # TODO: the share folder is already set in another phase and should not repeat
+    # TODO: the share folder is already set in another phase and should not repeat (actually, all the pre-destroot actions could go to post-destroot)
     set sharedir ${prefix}/share/${name}
     # move the binary and set environmental variables
     set destexecutable ${destroot}${prefix}/bin/Gate
@@ -111,43 +111,38 @@ post-destroot {
     xinstall -m 755 -d ${destlibexecdir}
     move ${destexecutable} ${destlibexecdir}
     system "echo '#!/bin/bash' > ${destexecutable}"
-    system "echo export GATEHOME=${sharedir} >> ${destexecutable}"
-    system "echo export G4DATADIR=${geant.datadir} >> ${destexecutable}"
+    system "echo export GATEHOME=\\\"${sharedir}\\\" >> ${destexecutable}"
+    system "echo export G4DATADIR=\\\"${geant.datadir}\\\" >> ${destexecutable}"
     foreach {data.name data.version data.filename data.envvariable} ${geant.data_versions} {
-        system "echo export ${data.envvariable}=\\\$G4DATADIR/${data.name}${data.version} >> ${destexecutable}"
+        system "echo export ${data.envvariable}=\\\"\\\$G4DATADIR/${data.name}${data.version}\\\" >> ${destexecutable}"
     }
-    system "echo export LC_NUMERIC=C >> ${destexecutable}"
-    system "echo 'if \[\[ \$1 == -psn_* ]]; then' >> ${destexecutable}"
-    system "echo ${libexecdir}/Gate --qt >> ${destexecutable}"
-    system "echo else >> ${destexecutable}"
     system "echo ${libexecdir}/Gate \\\$@ >> ${destexecutable}"
-    system "echo fi >> ${destexecutable}"
     system "chmod 755 ${destexecutable}"
-
-    # TODO:
-    # - check if qt_menu.nib is actually needed (it is needed for static qt library)
-    # - check that qt_menu.nib actually exists
-    # - the second folder should probably come from PortGroup?
-    copy $prefix/lib/Resources/qt_menu.nib ${destroot}${applications_dir}/${app.name}.app/Contents
 }
 
 variant examples description {Install examples to doc} {
 }
 variant geant495 conflicts geant496 description {Use Geant4 9.5} {
-    depends_lib-append port:geant4-9.5
     # TODO: this can probably be done in a more elegant way
+    #       how to copy this from geant4 suports?
     set geant.data_versions ${geant.data_versions_9.5}
-    set geant.datadir ${prefix}/share/Geant4/Data/Geant4.9.5
-    # TODO: how to copy this from geant4 suports?
-    configure.args-append -DGeant4_DIR=${prefix}/lib/Geant4/Geant4.9.6/Geant4-9.5.2
+    set geant.datadir       ${prefix}/share/Geant4/Data/Geant4.9.5
+    set geant.cmakedir      ${prefix}/lib/Geant4/Geant4.9.6/Geant4-9.5.2
+
+    depends_lib-append      port:geant4-9.5
+    require_active_variants geant4-9.5 qt
+    configure.args-append   -DGeant4_DIR=${geant.cmakedir}
 }
 variant geant496 conflicts geant495 description {Use Geant4 9.6} {
-    depends_lib-append port:geant4-9.6
     # TODO: this can probably be done in a more elegant way
+    #       how to copy this from geant4 suports?
     set geant.data_versions ${geant.data_versions_9.6}
-    set geant.datadir ${prefix}/share/Geant4/Data/Geant4.9.6
-    # TODO: how to copy this from geant4 suports?
-    configure.args-append -DGeant4_DIR=${prefix}/lib/Geant4/Geant4.9.6/Geant4-9.6.2
+    set geant.datadir       ${prefix}/share/Geant4/Data/Geant4.9.6
+    set geant.cmakedir      ${prefix}/lib/Geant4/Geant4.9.6/Geant4-9.6.2
+
+    depends_lib-append      port:geant4-9.6
+    require_active_variants geant4-9.6 qt
+    configure.args-append   -DGeant4_DIR=${geant.cmakedir}
 }
 if {![variant_isset geant495] && ![variant_isset geant496]} {
     default_variants +geant496
