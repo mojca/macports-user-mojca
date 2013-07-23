@@ -5,6 +5,7 @@
 
 PortSystem          1.0
 PortGroup           cmake 1.0
+PortGroup           select 1.0
 
 # TODO: this will probably be called geant4
 name                geant
@@ -160,6 +161,11 @@ foreach {geant.version geant.revision geant.datarevision geant.patchlevel geant.
         # I don't see any option to switch aida support on or off, so I'm not exactly sure how to handle the dependency
         # in a proper way other than making it a requirement
         # geant4.9.4 port provided the default +aida option
+        depends_run         port:geant4_select
+
+        select.group        geant4
+        select.file         ${filespath}/geant${geant.version_simple}
+        # TODO: if renamed, ${filespath}/${subport}
 
         configure.args-append -DGEANT4_USE_SYSTEM_EXPAT=ON
 

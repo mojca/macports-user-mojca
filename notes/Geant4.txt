@@ -1,7 +1,6 @@
 TODO:
 - decide on a precise name (geant/geant4 and geant4.9.6/geant4-9.6)
 - What licence is needed to make sure that Geant can be installed as a binary package?
-- install geant4-config via "port select"
 - print out a notice about setting up the environmental variables (this port uses a nonstandard way to set them up)
 
 - specify expat more precisely
@@ -9,7 +8,7 @@ TODO:
 	/System/Library/Frameworks/AGL.framework/Versions/A/AGL (compatibility version 1.0.0, current version 1.0.0)
 	/System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL (compatibility version 1.0.0, current version 1.0.0)
 
-	should these come from macports?
+	should these come from macports? Try mesa:
 		/usr/X11/lib/libGL.1.dylib (compatibility version 1.2.0, current version 1.2.0)
 		/usr/X11/lib/libGLU.1.dylib (compatibility version 1.3.0, current version 1.3.0)
 	
@@ -161,6 +160,7 @@ DONE:
 - Test if setting EXECUTABLE_OUTPUT_PATH helps move examples to a different place -> NO
 - What is /opt/local/lib/Geant4/Geant4.10.0/Geant4-10.0.0/Darwin-clang doing there? -> needed by GNUmake and needs to stay there
 - geant4-config could use absolute paths instead of -L/opt/local/libexec/Geant4/Geant4.9.6/../../../lib/Geant4/Geant4.9.6 -> it does when absolute paths are specified as options
+- install geant4-config via "port select"
 
 
 Release dates and package dependencies:
