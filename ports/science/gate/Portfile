@@ -1,9 +1,11 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 # $Id$
 
+# Keep in sync with Geant4
+
 PortSystem          1.0
-PortGroup           cmake 1.0
 PortGroup           app 1.0
+PortGroup           cmake 1.0
 PortGroup           active_variants 1.0 
 
 # TODO: temporary - if checksums are desired
@@ -30,6 +32,16 @@ platforms           darwin
 checksums           rmd160  f33ac2fad53cf94c2dd1a8307ea476030d3b6749 \
                     sha256  fe342d3d34e06d23d2ada53048aba1d218e02b32aa50a309121f7c3480076d07
 
+set geant.data_versions_10.0 {
+    G4NDL              4.3   G4NDL                G4NEUTRONHPDATA
+    G4EMLOW            6.33  G4EMLOW              G4LEDATA
+    PhotonEvaporation  2.3   G4PhotonEvaporation  G4LEVELGAMMADATA
+    RadioactiveDecay   3.7   G4RadioactiveDecay   G4RADIOACTIVEDATA
+    G4NEUTRONXS        1.3   G4NEUTRONXS          G4NEUTRONXSDATA
+    G4PII              1.3   G4PII                G4PIIDATA
+    RealSurface        1.0   RealSurface          G4REALSURFACEDATA
+    G4SAIDDATA         1.1   G4SAIDDATA           G4SAIDXSDATA
+}
 set geant.data_versions_9.6 {
     G4NDL              4.2   G4NDL                G4NEUTRONHPDATA
     G4EMLOW            6.32  G4EMLOW              G4LEDATA
@@ -125,26 +137,33 @@ variant examples description {Install examples to doc} {
 }
 variant geant495 conflicts geant496 description {Use Geant4 9.5} {
     # TODO: this can probably be done in a more elegant way
-    #       how to copy this from geant4 suports?
+    #       how to copy datadir and cmakedir from geant4 without duplication?
     set geant.data_versions ${geant.data_versions_9.5}
     set geant.datadir       ${prefix}/share/Geant4/Data/Geant4.9.5
-    set geant.cmakedir      ${prefix}/lib/Geant4/Geant4.9.6/Geant4-9.5.2
+    set geant.cmakedir      ${prefix}/lib/Geant4-9.5.2
 
     depends_lib-append      port:geant4-9.5
     require_active_variants geant4-9.5 qt
     configure.args-append   -DGeant4_DIR=${geant.cmakedir}
 }
 variant geant496 conflicts geant495 description {Use Geant4 9.6} {
-    # TODO: this can probably be done in a more elegant way
-    #       how to copy this from geant4 suports?
     set geant.data_versions ${geant.data_versions_9.6}
     set geant.datadir       ${prefix}/share/Geant4/Data/Geant4.9.6
-    set geant.cmakedir      ${prefix}/lib/Geant4/Geant4.9.6/Geant4-9.6.2
+    set geant.cmakedir      ${prefix}/lib/Geant4-9.6.2
 
     depends_lib-append      port:geant4-9.6
     require_active_variants geant4-9.6 qt
     configure.args-append   -DGeant4_DIR=${geant.cmakedir}
 }
+# variant geant4100 conflicts geant495 geant496 description {Use Geant4 10.0 (doesn't work yet)} {
+#     set geant.data_versions ${geant.data_versions_10.0}
+#     set geant.datadir       ${prefix}/share/Geant4/Data/Geant4.10.0
+#     set geant.cmakedir      ${prefix}/lib/Geant4-10.0.0
+# 
+#     depends_lib-append      port:geant4-10.0
+#     require_active_variants geant4-10.0 qt
+#     configure.args-append   -DGeant4_DIR=${geant.cmakedir}
+# }
 if {![variant_isset geant495] && ![variant_isset geant496]} {
     default_variants +geant496
 }

@@ -1,26 +1,9 @@
-TODO (high priority):
-- proper expansion of variables
-- Try to move /opt/local/lib/Geant4/Geant4.10.0/Geant4-10.0.0 to a better place
-	according to http://www.cmake.org/Wiki/CMake/Tutorials/Packaging it should be
-	/opt/local/lib/Geant4-10.0.0, so maybe one should not change path to
-	/opt/local/lib/Geant4/Geant4.10.0 after all
-  Try if setting GEANT4_CMAKE_DIR (or rather: patching its definition in cmake/Modules/Geant4BuildProjectConfig.cmake helps)
-	set(GEANT4_CMAKE_DIR ${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}-${${PROJECT_NAME}_VERSION}) -> NO
-
-  One thing than works is the following (but is an ugly hack):
-  0.) remove
-  1.) move /opt/local/lib/Geant4/Geant4.9.6/Geant4-9.6.2 to /opt/local/lib/Geant4-9.6.2
-      or rather all files but the symlink Darwin-clang which needs to stay for the sake of the old way of compiling programs
-  2.) in Geant4Config.cmake in that directory replace
-      - get_filename_component(Geant4_INCLUDE_DIR "${_thisdir}/../../../../include/Geant4/Geant4.9.6/Geant4" ABSOLUTE)
-      + get_filename_component(Geant4_INCLUDE_DIR "/opt/local/include/Geant4/Geant4.9.6/Geant4" ABSOLUTE)
-  3.) in Geant4LibraryDepends-release.cmake remove two lines (12&13)
-	  - GET_FILENAME_COMPONENT(_IMPORT_PREFIX "${_IMPORT_PREFIX}" PATH)
-	  - GET_FILENAME_COMPONENT(_IMPORT_PREFIX "${_IMPORT_PREFIX}" PATH)
-      (apparently each line goes one level up)
-
 TODO:
-- figure out if adding "distname" changes anything (so that all files go to the same folder - maybe they already do)
+- decide on a precise name (geant/geant4 and geant4.9.6/geant4-9.6)
+- What licence is needed to make sure that Geant can be installed as a binary package?
+- install geant4-config via "port select"
+- print out a notice about setting up the environmental variables (this port uses a nonstandard way to set them up)
+
 - specify expat more precisely
 - resolve dependencies for X11 (proper checks)
 	/System/Library/Frameworks/AGL.framework/Versions/A/AGL (compatibility version 1.0.0, current version 1.0.0)
@@ -49,13 +32,13 @@ TODO:
 		/opt/local/lib/libQtOpenGL.4.dylib (compatibility version 4.8.0, current version 4.8.2)
 		/opt/local/lib/libQtGui.4.dylib (compatibility version 4.8.0, current version 4.8.2)
 		/opt/local/lib/libQtCore.4.dylib (compatibility version 4.8.0, current version 4.8.2)
-
-- Try to move /opt/local/share/Geant4/Geant4-10.0.0/geant4make/config to a better place
 - Check if /opt/local/share/Geant4/Geant4-10.0.0/geant4make/geant4make.sh works
-- Fix scripts in /opt/local/libexec/Geant4/Geant4.10.0 (symlinking to them doesn't work, but on the other hand they are probably not needed)
+
+Lower priority:
+- Try to move /opt/local/share/Geant4/Geant4-10.0.0/geant4make/config to a better place
 - Try to get rid of one level in /opt/local/include/Geant4/Geant4.10.0/Geant4 (low priority, maybe not be needed at all)
+- Fix scripts in /opt/local/libexec/Geant4/Geant4.10.0 (symlinking to them doesn't work, but on the other hand they are probably not needed)
 - Carefully check different CMake configuration options
-- geant4-config could use absolute paths instead of -L/opt/local/libexec/Geant4/Geant4.9.6/../../../lib/Geant4/Geant4.9.6
 - figure out if it is possible to hardcode paths into Geant4 sources to some extent
 	example: G4PenelopeOscillatorManage.cc uses
 		char* path = getenv("G4LEDATA");
@@ -78,11 +61,9 @@ CMake Warning at examples/advanced/ChargeExchangeMC/CMakeLists.txt:131 (message)
 -- G4 Examples: GCCXML not found. --> P02 example disabled
 
 
-
 Options:
 - DATAROOTDIR: Geant automatically adds /Geant4-9.6.2 (any way to prevent this?)
 - INCLUDEDIR: /opt/local/include/Geant4/Geant4.9.6/Geant4 (any way to prevent double Geant4?)
-- CMake file are under /opt/local/lib/Geant4/Geant4.10.0/Geant4-9.6.2/*.cmake (there should be no Geant4/Geant4.10.0)
 - CMAKE_INSTALL_BINDIR: this installs binaries to a non-default location;
 -     port select could be used to get the default installation, but all three scripts in bindir need patching to properly detect their location
 
@@ -152,11 +133,34 @@ DONE:
 	-rwxr-xr-x  1 macports  admin   406B  8 feb 20:44 History
 	-rwxr-xr-x  1 macports  admin   547B  8 feb 20:43 README
 	./PhotonEvaporation2.2:
+- proper expansion of variables (kind-of)
+- Try to move /opt/local/lib/Geant4/Geant4.10.0/Geant4-10.0.0 to a better place
+	according to http://www.cmake.org/Wiki/CMake/Tutorials/Packaging it should be
+	/opt/local/lib/Geant4-10.0.0, so maybe one should not change path to
+	/opt/local/lib/Geant4/Geant4.10.0 after all
+  Try if setting GEANT4_CMAKE_DIR (or rather: patching its definition in cmake/Modules/Geant4BuildProjectConfig.cmake helps) -> OK
+	--- cmake/Modules/Geant4BuildProjectConfig.cmake
+	+++ cmake/Modules/Geant4BuildProjectConfig.cmake
+	-set(GEANT4_CMAKE_DIR ${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}-${${PROJECT_NAME}_VERSION})
+	+set(GEANT4_CMAKE_DIR lib/${PROJECT_NAME}-${${PROJECT_NAME}_VERSION})
+
+  One thing than works is the following (but is an ugly hack):
+  0.) remove
+  1.) move /opt/local/lib/Geant4/Geant4.9.6/Geant4-9.6.2 to /opt/local/lib/Geant4-9.6.2
+      or rather all files but the symlink Darwin-clang which needs to stay for the sake of the old way of compiling programs
+  2.) in Geant4Config.cmake in that directory replace
+      - get_filename_component(Geant4_INCLUDE_DIR "${_thisdir}/../../../../include/Geant4/Geant4.9.6/Geant4" ABSOLUTE)
+      + get_filename_component(Geant4_INCLUDE_DIR "/opt/local/include/Geant4/Geant4.9.6/Geant4" ABSOLUTE)
+  3.) in Geant4LibraryDepends-release.cmake remove two lines (12&13)
+	  - GET_FILENAME_COMPONENT(_IMPORT_PREFIX "${_IMPORT_PREFIX}" PATH)
+	  - GET_FILENAME_COMPONENT(_IMPORT_PREFIX "${_IMPORT_PREFIX}" PATH)
+      (apparently each line goes one level up)
 
 - Try to build examples and test whether they work -> seems OK
 - Test if examples still work if they are manually moved to libexec -> OK
 - Test if setting EXECUTABLE_OUTPUT_PATH helps move examples to a different place -> NO
 - What is /opt/local/lib/Geant4/Geant4.10.0/Geant4-10.0.0/Darwin-clang doing there? -> needed by GNUmake and needs to stay there
+- geant4-config could use absolute paths instead of -L/opt/local/libexec/Geant4/Geant4.9.6/../../../lib/Geant4/Geant4.9.6 -> it does when absolute paths are specified as options
 
 
 Release dates and package dependencies:

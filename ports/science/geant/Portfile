@@ -1,6 +1,8 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 # $Id$
 
+# Keep in sync with Gate
+
 PortSystem          1.0
 PortGroup           cmake 1.0
 
@@ -10,7 +12,7 @@ name                geant
 version             4.0
 categories          science
 maintainers         mojca openmaintainer
-# TODO: what licence is needed to make sure that Geant can be installed as a binary package
+# TODO: what licence is needed to make sure that Geant can be installed as a binary package?
 license             Geant4
 description         Geant4 is a toolkit for the simulation of the passage of particles through matter.
 long_description    Geant4 is a toolkit for the simulation of the passage of particles through matter. \
@@ -24,12 +26,13 @@ master_sites        http://geant4.cern.ch/support/source/
 
 # - version
 # - revision (used internally in MacPorts to force updates)
+# - revision of data files (used internally in MacPorts to force updates)
 # - patchlevel (also used in directory names)
 # - version string (used for fetching the source)
 set geant.versions_info {
-     9.5  0  2  4.9.5.p02    33413f6233b75c003254af5888f4af32d17f515d  adb04fce9472228bb10d78cbc7f40493bfb37454beee22e7c80d630646cd3777
-     9.6  0  2  4.9.6.p02    9ae32c3f8769e303b41df164693f77a74ca6db97  cf5df83b7e2c99e6729449b32d3ecb0727b4692317426b66fc7fd41951c7351f
-    10.0  0  0  4.10.00.b01  14820eca2893ffa7a27cd44f51c6c9b4b125b491  0fa7c9b0e1b09fd11b682523b839b4c6c67f4c3cd5bc9a9357512c37ea4a9e1e
+     9.5  0  0  2  4.9.5.p02    33413f6233b75c003254af5888f4af32d17f515d  adb04fce9472228bb10d78cbc7f40493bfb37454beee22e7c80d630646cd3777
+     9.6  0  0  2  4.9.6.p02    9ae32c3f8769e303b41df164693f77a74ca6db97  cf5df83b7e2c99e6729449b32d3ecb0727b4692317426b66fc7fd41951c7351f
+    10.0  0  0  0  4.10.00.b01  14820eca2893ffa7a27cd44f51c6c9b4b125b491  0fa7c9b0e1b09fd11b682523b839b4c6c67f4c3cd5bc9a9357512c37ea4a9e1e
 }
 set geant.data_versions_10.0 {
     G4NDL              4.3   G4NDL                G4NEUTRONHPDATA    55493e74cba90e6cb167a5008e138cd7  d7559295e71e373246f90db9ab8ce652a1bb71c2  169dbc6d6c1c5b7bb57ee676687ae5b830847cf4e75fecb1e35187172f472e6a
@@ -62,30 +65,31 @@ set geant.data_versions_9.5 {
     RealSurface        1.0   RealSurface          G4REALSURFACEDATA  0dde95e00fcd3bcd745804f870bb6884  030513fe340e0cccbfe0b9ae9acb3ba6b5291ebb  3e2d2506600d2780ed903f1f2681962e208039329347c58ba1916740679020b1
 }
 
-foreach {geant.version geant.revision geant.patchlevel geant.version_full geant.rmd160 geant.sha256} ${geant.versions_info} {
-    set geant.version_simple 4.${geant.version}
+foreach {geant.version geant.revision geant.datarevision geant.patchlevel geant.version_full geant.rmd160 geant.sha256} ${geant.versions_info} {
+
     # or perhaps share/Geant4/Geant${geant.version_simple}/Data
     # note that gmk files go to share/Geant4/Geant4-${geant.version}.${geant.patchlevel}
-    set geant.datadir ${prefix}/share/Geant4/Data/Geant${geant.version_simple}
+    set geant.datadir_x ${prefix}/share/Geant4/Data/Geant4.${geant.version}
 
     subport geant4-${geant.version}-data {
-        # TODO: not sure which version should be used (updating patchlevel of geant doesn't necessarily change this)
-        version  ${geant.version_simple}
-        # TODO: also set revision from some variable to allow rebuilding data file only when they are really needed
-        revision 0
+        set                 geant.version_simple 4.${geant.version}
+        set                 geant.datadir ${geant.datadir_x}
+        version             ${geant.version_simple}
+        revision            ${geant.datarevision}
         supported_archs     noarch
-        description         Data files for Geant4
+        description         Data files for Geant${version}
         long_description    ${description}
- 
+
+
         # TODO: use an array (hash) to implement this without if-else
         if {${geant.version} == "10.0" } {
-            set geant.data_versions ${geant.data_versions_10.0}
+            set geant.data_versions     ${geant.data_versions_10.0}
         }
         if {${geant.version} == "9.6" } {
-            set geant.data_versions ${geant.data_versions_9.6}
-            }
+            set geant.data_versions     ${geant.data_versions_9.6}
+        }
         if {${geant.version} == "9.5" } {
-            set geant.data_versions ${geant.data_versions_9.5}
+            set geant.data_versions     ${geant.data_versions_9.5}
         }
         # TODO: is it possible to make the distfiles list empty in some way?
         distfiles-delete ${name}-${version}${extract.suffix}
@@ -102,39 +106,35 @@ foreach {geant.version geant.revision geant.patchlevel geant.version_full geant.
         use_configure no
         build {}
 
-        set dr {
-            destroot {
-                xinstall -m 755 -d ${destroot}${geant.datadir}
-                # create a script to initialize environmental variables for locating the data files & move data files to destination
-                #
-                # TODO: maybe a better name or a better location, possibly including version, possibly symlinked in bin
-                # the filename of this file should probably come frome the portgroup
-                # one option is also to install this as part of geant4 core installation
-                xinstall -m 755 -d ${destroot}${prefix}/libexec/Geant4/Geant${geant.version_simple}
-                set filename ${destroot}${prefix}/libexec/Geant4/Geant${geant.version_simple}/geant4data
-                system "echo #!/bin/sh  > ${filename}.sh"
-                system "echo #!/bin/csh > ${filename}.csh"
-                system "echo export G4DATADIR=\\\"${geant.datadir}\\\" >> ${filename}.sh"
-                system "echo setenv G4DATADIR=\\\"${geant.datadir}\\\" >> ${filename}.csh"
-                foreach {data.name data.version data.filename data.envvariable data.md5 data.rmd160 data.sha256} ${geant.data_versions} {
-                    # move data files to destination
-                    move ${workpath}/${data.name}${data.version} ${destroot}${geant.datadir}
-                    # add environmental variable to locate it
-                    system "echo export ${data.envvariable}=\\\"\\\$G4DATADIR/${data.name}${data.version}\\\" >> ${filename}.sh"
-                    system "echo setenv ${data.envvariable} \\\"\\\$G4DATADIR/${data.name}${data.version}\\\" >> ${filename}.csh"
-                }
+        destroot {
+            xinstall -m 755 -d ${destroot}${geant.datadir}
+            # create a script to initialize environmental variables for locating the data files & move data files to destination
+            #
+            # TODO: maybe a better name or a better location, possibly including version, possibly symlinked in bin
+            # the filename of this file should probably come frome the portgroup
+            # one option is also to install this as part of geant4 core installation
+            xinstall -m 755 -d ${destroot}${prefix}/libexec/Geant4/Geant${geant.version_simple}
+            set filename ${destroot}${prefix}/libexec/Geant4/Geant${geant.version_simple}/geant4data
+            system "echo #!/bin/sh  > ${filename}.sh"
+            system "echo #!/bin/csh > ${filename}.csh"
+            system "echo export G4DATADIR=\\\"${geant.datadir}\\\" >> ${filename}.sh"
+            system "echo setenv G4DATADIR=\\\"${geant.datadir}\\\" >> ${filename}.csh"
+            foreach {data.name data.version data.filename data.envvariable data.md5 data.rmd160 data.sha256} ${geant.data_versions} {
+                # move data files to destination
+                move ${workpath}/${data.name}${data.version} ${destroot}${geant.datadir}
+                # add environmental variable to locate it
+                system "echo export ${data.envvariable}=\\\"\\\$G4DATADIR/${data.name}${data.version}\\\" >> ${filename}.sh"
+                system "echo setenv ${data.envvariable} \\\"\\\$G4DATADIR/${data.name}${data.version}\\\" >> ${filename}.csh"
             }
         }
-        # weird tcl trickery to store the right version of Geant4
-        set dr_map [list \${geant.datadir} [list ${geant.datadir}] \
-                         \${geant.version_simple} [list ${geant.version_simple}]]
-        eval [string map $dr_map $dr]
     }
 
     # TODO: should probably eventually become ${name}.${geant.version} (geant4.9.6)
     # (or maybe something else, I'm open to suggestions)
     subport geant4-${geant.version} {
-        set                 geant.distfilename geant${geant.version_full}${extract.suffix}
+        set                 geant.version_simple 4.${geant.version}
+        set                 geant.distfilename   geant${geant.version_full}${extract.suffix}
+        set                 geant.datadir        ${geant.datadir_x}
         # TODO: check whether x.b01 -> x -> x.p01 -> x.p02 works properly
         version             ${geant.version_full}
         revision            ${geant.revision}
@@ -166,18 +166,26 @@ foreach {geant.version geant.revision geant.patchlevel geant.version_full geant.
         # GEANT4_USE_SYSTEM_CLHEP=OFF
 
         # - patch-source-interfaces-common-src-G4Qt.cc.diff: http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1487
-        if {${geant.version} == "10.0" || ${geant.version} == "9.6"} {
-            patchfiles      patch-source-interfaces-common-src-G4Qt.cc.diff
+        if {${geant.version} == "10.0"} {
+            patchfiles      patch-source-interfaces-common-src-G4Qt.cc.diff \
+                            patch-cmake-Modules-Geant4BuildProjectConfig.cmake.4100.diff
+        }
+        if {${geant.version} == "9.6"} {
+            patchfiles      patch-source-interfaces-common-src-G4Qt.cc.diff \
+                            patch-cmake-Modules-Geant4BuildProjectConfig.cmake.496.diff
         }
         if {${geant.version} == "9.5"} {
-            patchfiles      patch-source-interfaces-common-src-G4Qt.cc.495.diff
+            patchfiles      patch-source-interfaces-common-src-G4Qt.cc.495.diff \
+                            patch-cmake-Modules-Geant4BuildProjectConfig.cmake.495.diff
         }
 
+        # arguments to -DCMAKE_INSTALL_* could be written without ${prefix}
+        # however the ${prefix} triggers the NON_RELOCATABLE flag which has some advantages like less cryptic path names
         configure.args-append -DGEANT4_INSTALL_DATA=OFF \
-                              -DCMAKE_INSTALL_BINDIR=libexec/Geant4/Geant${geant.version_simple} \
-                              -DCMAKE_INSTALL_DATAROOTDIR=share/Geant4 \
-                              -DCMAKE_INSTALL_INCLUDEDIR=include/Geant4/Geant${geant.version_simple} \
-                              -DCMAKE_INSTALL_LIBDIR=lib/Geant4/Geant${geant.version_simple}
+                              -DCMAKE_INSTALL_BINDIR=${prefix}/libexec/Geant4/Geant${geant.version_simple} \
+                              -DCMAKE_INSTALL_DATAROOTDIR=${prefix}/share/Geant4 \
+                              -DCMAKE_INSTALL_INCLUDEDIR=${prefix}/include/Geant4/Geant${geant.version_simple} \
+                              -DCMAKE_INSTALL_LIBDIR=${prefix}/lib/Geant4/Geant${geant.version_simple}
 
         if {${geant.version} != "9.5"} {
             configure.args-append -DGEANT4_INSTALL_DATADIR=${geant.datadir} \
@@ -253,6 +261,7 @@ foreach {geant.version geant.revision geant.patchlevel geant.version_full geant.
         }
 
         # TODO: figure out how to install binaries somewhere else
+        # this option should be used with care
         variant examples requires clhep description {Build and install examples} {
             # optional
             # depends_lib-append    port:gccxml-devel
@@ -260,11 +269,6 @@ foreach {geant.version geant.revision geant.patchlevel geant.version_full geant.
                                   -DGEANT4_INSTALL_EXAMPLES=ON
         }
 
-        # DATAROOTDIR: Geant automatically adds /Geant4-9.6.2 (any way to prevent this?)
-        # INCLUDEDIR: /opt/local/include/Geant4/Geant4.9.6/Geant4 (any way to prevent double Geant4?)
-        # CMake files are under /opt/local/lib/Geant4/Geant4.9.6/Geant4-9.6.2/*.cmake
-        # CMAKE_INSTALL_BINDIR: this installs binaries to a non-default location;
-        #     port select could be used to get the default installation, but all three scripts in bindir need patching to properly detect their location
         default_variants +qt +clhep
         # +gdml could be added to default flags
     }
