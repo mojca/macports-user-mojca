@@ -1,0 +1,86 @@
+--- source/interfaces/basic/src/G4UIQt.cc	2011-12-19 13:34:32.000000000 +0100
++++ source/interfaces/basic/src/G4UIQt.cc	2011-12-19 15:57:56.000000000 +0100
+@@ -32,6 +32,7 @@
+ #ifdef G4UI_BUILD_QT_SESSION
+ 
+ #include "G4Types.hh"
++#include "G4strstreambuf.hh"
+ 
+ #include <string.h>
+ 
+@@ -65,7 +66,7 @@
+ #include <qmenu.h>
+ #include <qlistwidget.h>
+ #include <qtreewidget.h>
+-
++#include <QMessageBox>
+ 
+ 
+ #include <stdlib.h>
+@@ -534,6 +535,11 @@
+ G4UIsession* G4UIQt::SessionStart (
+ )
+ {
++backup_cout = std::cout.rdbuf();
++backup_cerr = std::cerr.rdbuf();
++std::cout.rdbuf( &G4coutbuf );
++std::cerr.rdbuf( &G4cerrbuf );
++
+ #ifdef G4DEBUG_INTERFACES_BASIC
+   printf("G4UIQt::G4UIQt SessionStart\n");
+ #endif
+@@ -609,6 +615,8 @@
+ void G4UIQt::SessionTerminate (
+ )
+ {
++  std::cout.rdbuf( backup_cout);
++  std::cerr.rdbuf( backup_cerr);
+   G4Qt* interactorManager = G4Qt::getInstance ();
+   fMainWindow->close();
+   ((QApplication*)interactorManager->GetMainInteractor())->exit(); 
+@@ -674,6 +682,14 @@
+  G4String aString
+  )
+ {
++  /* 
++   * "Unfreeze" the GUI each time we receive a string in G4cout..
++   * ... but the best solution will be to implement a thread for the simulation
++   * keeping the main thread for compute and refresh the GUI.
++   * Jerome Suhard, jerome@suhard.fr
++   */
++  QCoreApplication::processEvents();
++
+   if (!aString) return 0;
+   
+   QStringList newStr;
+@@ -707,6 +723,18 @@
+ {
+   if (!aString) return 0;
+ 
++  QString aQString((char*)aString.data());
++  aQString = aQString.trimmed();
++  if (aQString.isEmpty()) return 0;
++  
++  /*
++   * The MessageBox keep the focus and prevent the thread for quitting
++   * allowing people to see the error message before the GUI disapeared
++   * Jerome Suhard, jerome@suhard.fr
++   */
++  QMessageBox::critical ( fMainWindow, tr("Error"), aQString);
++
++
+   QStringList newStr;
+ 
+   // Add to stringList
+--- source/interfaces/basic/include/G4UIQt.hh	2011-12-19 13:34:22.000000000 +0100
++++ source/interfaces/basic/include/G4UIQt.hh	2011-12-19 15:41:53.000000000 +0100
+@@ -178,6 +178,9 @@
+   int fLastQTabSizeX;
+   int fLastQTabSizeY;
+ 
++  std::streambuf *backup_cout;
++  std::streambuf *backup_cerr;
++
+ private Q_SLOTS :
+   void ExitSession();
+   void ClearButtonCallback();

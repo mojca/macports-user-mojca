@@ -1,0 +1,80 @@
+--- source/interfaces/basic/src/G4UIQt.cc	2011-12-19 13:34:32.000000000 +0100
++++ source/interfaces/basic/src/G4UIQt.cc	2011-12-19 14:22:07.000000000 +0100
+@@ -65,7 +65,7 @@
+ #include <qmenu.h>
+ #include <qlistwidget.h>
+ #include <qtreewidget.h>
+-
++#include <QFileDialog>
+ 
+ 
+ #include <stdlib.h>
+@@ -214,11 +214,14 @@
+ 
+   fMainWindow->setCentralWidget(mainWidget);
+ 
+-
+   // Add a quit subMenu
+   QMenu *fileMenu = fMainWindow->menuBar()->addMenu("File");
+-  fileMenu->addAction("Quit", this, SLOT(ExitSession()));
+-
++  fileMenu->addAction("Open macro...", this, SLOT(OpenMacro()));
++  QAction *aboutAction = fileMenu->addAction("About", this, SLOT(About()));
++  aboutAction->setMenuRole(QAction::AboutRole);
++fileMenu->addSeparator();
++  QAction *quitAction = fileMenu->addAction("Quit", this, SLOT(ExitSession()));
++  quitAction->setMenuRole(QAction::QuitRole);
+ 
+   AddInteractor ("file",(G4Interactor)fileMenu);
+ #ifdef G4DEBUG_INTERFACES_BASIC
+@@ -739,10 +742,9 @@
+   if (aName == NULL) return;
+   if (aLabel == NULL) return;
+ 
+-  QMenu *fileMenu = new QMenu(aLabel);
+-  fMainWindow->menuBar()->insertMenu(fMainWindow->menuBar()->actions().last(),fileMenu); 
+-
+-  AddInteractor (aName,(G4Interactor)fileMenu);
++  QMenu *aMenu = new QMenu(aLabel);
++  fMainWindow->menuBar()->addMenu(aMenu);
++  AddInteractor (aName,(G4Interactor)aMenu);
+ }
+ 
+ 
+@@ -1192,6 +1194,25 @@
+   SessionTerminate();
+ }
+ 
++void G4UIQt::OpenMacro (
++)
++{
++        QString fileName = QFileDialog::getOpenFileName(fMainWindow, tr("Open Macro"), QDir::homePath(), tr("Macro (*.mac *.g4m);;All (*.*)"), 0, QFileDialog::ReadOnly|QFileDialog::DontResolveSymlinks);
++        if (!fileName.isEmpty()) {
++                fMainWindow->setWindowTitle( fileName);
++                QFileInfo *fileInfo = new QFileInfo(fileName);
++                QDir::setCurrent(fileInfo->absolutePath());
++                ApplyShellCommand("/control/execute "+fileName.toStdString(),exitSession,exitPause);
++        }
++
++}
++
++void G4UIQt::About(
++)
++{
++QMessageBox::about ( fMainWindow, tr("Gate"), QString("\t\tGATE 6.1\n\tCopyright : OpenGATE Collaboration\nReference : Phys. Med. Biol. 49 (2004) 4543-4561\nReference : Phys. Med. Biol. 56 (2011) 881-901\n WWW : http://www.opengatecollaboration.org/") );
++}
++
+ void G4UIQt::ExitHelp(
+ )
+ {
+--- source/interfaces/basic/include/G4UIQt.hh	2011-12-19 13:34:22.000000000 +0100
++++ source/interfaces/basic/include/G4UIQt.hh	2011-12-19 14:23:27.000000000 +0100
+@@ -180,6 +180,8 @@
+ 
+ private Q_SLOTS :
+   void ExitSession();
++  void OpenMacro();
++  void About();
+   void ClearButtonCallback();
+   void CommandEnteredCallback();
+   void ButtonCallback(const QString&);

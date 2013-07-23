@@ -1,0 +1,27 @@
+--- source/physics/src/GateVSource.cc	2011-03-01 16:51:02.000000000 +0100
++++ source/physics/src/GateVSource.cc	2011-12-19 16:59:18.000000000 +0100
+@@ -124,7 +124,7 @@
+      G4cout << "Invalid count; 2000 used.\n";
+   }
+ 
+-  if(fSize <=0 || fSize > 20) {
++  if(fSize <=0) {
+     G4cout << "Invalid size; 3.0 used.\n";
+   }
+ 
+@@ -137,13 +137,13 @@
+   G4VisAttributes attribs(colorMapIt->second);
+ 
+   G4Circle circle;
+-  circle.SetScreenSize(fSize);
++  circle.SetWorldSize(fSize);
+   circle.SetFillStyle(G4Circle::filled);
+   circle.SetVisAttributes(attribs);
+ 
+   for (int k=0; k<iCount; ++k){
+     //m_sps->GeneratePositionStuff();
+-    circle.SetPosition( m_sps->GetParticlePosition() );
++    circle.SetPosition( m_posSPS->GenerateOne() );
+     visman->Draw(circle);
+   }
+ 

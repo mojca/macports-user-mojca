@@ -1,0 +1,13 @@
+--- source/general/include/GateMessageManager.hh	2011-03-01 16:51:22.000000000 +0100
++++ source/general/include/GateMessageManager.hh	2011-12-19 16:19:08.000000000 +0100
+@@ -392,8 +392,8 @@
+       f_ << __FILE__ << " (l."<<__LINE__<<"): ";\
+       G4String str_f = f_.str();		\
+       G4String str_s = s_.str();		\
+-      std::cout << str_f << str_s << std::endl; \
+-      exit(-1);					\
++      std::cerr << str_f << str_s << std::endl; \
++      abort();					\
+       G4Exception(str_f,str_s,			\
+ 		  FatalException," ");		\
+     }						\

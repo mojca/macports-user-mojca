@@ -1,0 +1,18 @@
+--- core/unix/src/TUnixSystem.cxx	2011-08-18 16:45:41.000000000 +0200
++++ core/unix/src/TUnixSystem.cxx	2011-12-19 16:36:52.000000000 +0100
+@@ -3566,6 +3566,7 @@
+ //______________________________________________________________________________
+ void TUnixSystem::UnixSignal(ESignals sig, SigHandler_t handler)
+ {
++/*
+    // Set a signal handler for a signal.
+ 
+    if (gSignalMap[sig].fHandler != handler) {
+@@ -3596,6 +3597,7 @@
+                     gSignalMap[sig].fOldHandler) < 0)
+          ::SysError("TUnixSystem::UnixSignal", "sigaction");
+    }
++*/
+ }
+ 
+ //______________________________________________________________________________
