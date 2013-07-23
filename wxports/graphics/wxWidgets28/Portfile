@@ -3,9 +3,11 @@
 
 PortSystem          1.0
 PortGroup           archcheck 1.0
+PortGroup           select 1.0
 
-name                wxWidgets
-conflicts           wxgtk wxWidgets-python
+name                wxWidgets28
+# What is the wxWidgets-python conflict?
+conflicts           wxgtk wxWidgets-python wxWidgets30
 epoch               3
 version             2.8.12
 revision            3
@@ -43,6 +45,11 @@ depends_lib         port:jpeg \
                     port:expat \
                     path:lib/pkgconfig/sdl.pc:libsdl \
                     port:libsdl_mixer
+
+depends_run         port:wxWidgets_select
+
+select.group        wxWidgets
+select.file         ${filespath}/${name}
 
 archcheck.files     lib/libjpeg.dylib \
                     lib/libtiff.dylib \
@@ -132,9 +139,10 @@ post-destroot {
     readme-gtk.txt readme-mac.txt \
     readme-mgl.txt readme-motif.txt readme-x11.txt \
     ${destroot}${prefix}/share/doc/${name}
+    # TODO: ${installtype is not yet supported in the port select, it uses 'release' only; this should be fixed}
     set confscript ${prefix}/lib/wx/config/mac-unicode-${installtype}-2.8
     reinplace "s|-L${build.dir}/lib||" ${destroot}${confscript}
-    ln -sf ${confscript} ${destroot}${prefix}/bin/wx-config
+    #ln -sf ${confscript} ${destroot}${prefix}/bin/wx-config
 }
 
 variant aui description {add support for AUI docking library} {

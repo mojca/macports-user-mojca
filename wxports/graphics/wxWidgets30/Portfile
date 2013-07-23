@@ -2,9 +2,10 @@
 # $Id$
 
 PortSystem          1.0
+PortGroup           select 1.0
 
 name                wxWidgets30
-conflicts           wxgtk wxWidgets
+conflicts           wxgtk wxWidgets28
 version             2.9.5
 epoch               20130717
 
@@ -39,6 +40,11 @@ depends_lib         port:jpeg \
                     port:zlib \
                     port:libiconv \
                     port:expat
+
+depends_run         port:wxWidgets_select
+
+select.group        wxWidgets
+select.file         ${filespath}/${name}
 
 if {${os.major} < 10} {
    pre-fetch {
@@ -84,8 +90,7 @@ variant universal {
 configure.ccache    no
 
 post-destroot {
-    set confscript ${prefix}/lib/wx/config/osx_cocoa-unicode-2.9
-    ln -sf ${confscript} ${destroot}${prefix}/bin/wx-config
+    # delete ${destroot}${prefix}/bin/wxrc
 }
 
 post-patch {
