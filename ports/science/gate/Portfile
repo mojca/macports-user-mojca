@@ -4,15 +4,16 @@
 PortSystem          1.0
 PortGroup           cmake 1.0
 PortGroup           app 1.0
+PortGroup           active_variants 1.0 
 
 # TODO: temporary - if checksums are desired
 PortGroup           github 1.0
-github.setup        mojca gate 6327ec9eb9
+github.setup        mojca gate 0bd5cc471e
 
 ## official repository
 # fetch.type          git
 # git.url             http://git.opengatecollaboration.org/git/opengate-public.git
-# git.branch          6327ec9eb9c523e2b3183ccedb4932156072aeb7
+# git.branch          0bd5cc471ecaf0032f38dba82b8204501bd20fb7
 
 name                gate
 version             7.0-beta
@@ -26,8 +27,8 @@ long_description    GATE is dedicated to numerical simulations in medical imagin
 homepage            http://www.opengatecollaboration.org
 platforms           darwin
 
-checksums           rmd160  549d40b0900dd62d67046cad9c805210977a62d7 \
-                    sha256  7053d86eaa550217cc8df683fc42d63e7ea35dd91258c3c923abcb998c194327
+checksums           rmd160  f33ac2fad53cf94c2dd1a8307ea476030d3b6749 \
+                    sha256  fe342d3d34e06d23d2ada53048aba1d218e02b32aa50a309121f7c3480076d07
 
 set geant.data_versions_9.6 {
     G4NDL              4.2   G4NDL                G4NEUTRONHPDATA
