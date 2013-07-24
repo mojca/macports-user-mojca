@@ -24,8 +24,8 @@ use_configure       no
 build               {}
 
 destroot {
-    select::install geant4 ${filespath}/base
-    select::install geant4 ${filespath}/none
+    select::install wxWidgets ${filespath}/base
+    select::install wxWidgets ${filespath}/none
 }
 
 livecheck.type	    none
