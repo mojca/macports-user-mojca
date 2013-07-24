@@ -75,26 +75,25 @@ configure.args      --mandir=${prefix}/share/man \
                     --disable-sdltest \
                     --enable-unicode \
                     --enable-display \
-                    --enable-xrc
+                    --enable-xrc \
+                    --with-macosx-sdk=no \
+                    --with-macosx-version-min=no
 
 build.target
 
 use_parallel_build  yes
 
 variant universal {
-    configure.args-append   --enable-universal_binary \
-                            --with-macosx-sdk=${configure.sdkroot}/ \
-                            --with-macosx-version-min=${macosx_deployment_target}
+    set archs [join ${configure.universal_archs} ,]
+    configure.args-append   --enable-universal_binary=${archs}
 }
 
 configure.ccache    no
 
 post-destroot {
-    # delete ${destroot}${prefix}/bin/wxrc
-}
-
-post-patch {
-    reinplace "s|@@MP_ARCH_FLAGS@@|[get_canonical_archflags]|g" ${worksrcpath}/../configure
+    # TODO: available via port select, but there might be a more elegant way to do this
+    delete ${destroot}${prefix}/bin/wxrc
+    delete ${destroot}${prefix}/bin/wx-config
 }
 
 default_variants    +sdl
