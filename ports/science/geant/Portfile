@@ -10,11 +10,10 @@ PortGroup           select 1.0
 # TODO: this will probably be called geant4
 name                geant
 # TODO: not sure what the version should be (version should be specific to each subport)
-version             4.0
+version             4
 categories          science
 maintainers         mojca openmaintainer
-# TODO: what licence is needed to make sure that Geant can be installed as a binary package?
-license             Geant4
+license             Restrictive/Distributable Geant4
 description         Geant4 is a toolkit for the simulation of the passage of particles through matter.
 long_description    Geant4 is a toolkit for the simulation of the passage of particles through matter. \
                     Its areas of application include high energy, nuclear and accelerator physics, as well as studies in medical and space science. \
@@ -111,7 +110,7 @@ foreach {geant.version geant.revision geant.datarevision geant.patchlevel geant.
             xinstall -m 755 -d ${destroot}${geant.datadir}
             # create a script to initialize environmental variables for locating the data files & move data files to destination
             #
-            # TODO: maybe a better name or a better location, possibly including version, possibly symlinked in bin
+            # TODO: maybe a better name or a better location, possibly including version
             # the filename of this file should probably come frome the portgroup
             # one option is also to install this as part of geant4 core installation
             xinstall -m 755 -d ${destroot}${prefix}/libexec/Geant4/Geant${geant.version_simple}
@@ -136,7 +135,7 @@ foreach {geant.version geant.revision geant.datarevision geant.patchlevel geant.
         set                 geant.version_simple 4.${geant.version}
         set                 geant.distfilename   geant${geant.version_full}${extract.suffix}
         set                 geant.datadir        ${geant.datadir_x}
-        # TODO: check whether x.b01 -> x -> x.p01 -> x.p02 works properly
+        # x -> x.p01 -> x.p02 works properly, but the beta x.b01 would come after x and would need an increase in epoch
         version             ${geant.version_full}
         revision            ${geant.revision}
         distfiles           ${geant.distfilename}
@@ -151,7 +150,7 @@ foreach {geant.version geant.revision geant.datarevision geant.patchlevel geant.
         }
         configure.post_args ${worksrcpath}
 
-        # TODO: a few more dependencies
+        # TODO: check if these are all the dependencies
         depends_lib         port:${subport}-data \
                             port:zlib \
                             port:expat \
@@ -268,7 +267,7 @@ foreach {geant.version geant.revision geant.datarevision geant.patchlevel geant.
 
         # TODO: figure out how to install binaries somewhere else
         # this option should be used with care
-        variant examples requires clhep description {Build and install examples} {
+        variant examples requires clhep description {Build and install examples (not recommended)} {
             # optional
             # depends_lib-append    port:gccxml-devel
             configure.args-append -DGEANT4_BUILD_EXAMPLES=ON \

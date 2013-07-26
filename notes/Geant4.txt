@@ -31,6 +31,108 @@ TODO:
 		/opt/local/lib/libQtOpenGL.4.dylib (compatibility version 4.8.0, current version 4.8.2)
 		/opt/local/lib/libQtGui.4.dylib (compatibility version 4.8.0, current version 4.8.2)
 		/opt/local/lib/libQtCore.4.dylib (compatibility version 4.8.0, current version 4.8.2)
+
+    OPENGL_INCLUDE_DIR               /System/Library/Frameworks/OpenGL.framework
+    OPENGL_X11_INCLUDE_DIR           /usr/X11R6/include
+    OPENGL_X11_gl_LIBRARY            /usr/X11R6/lib/libGL.dylib
+    OPENGL_X11_glu_LIBRARY           /usr/X11R6/lib/libGLU.dylib
+    OPENGL_gl_LIBRARY                /System/Library/Frameworks/OpenGL.framework
+    OPENGL_glu_LIBRARY               /System/Library/Frameworks/AGL.framework
+
+    X11_ICE_INCLUDE_PATH             /opt/local/include
+    X11_ICE_LIB                      /opt/local/lib/libICE.dylib
+    X11_SM_INCLUDE_PATH              /opt/local/include
+    X11_SM_LIB                       /opt/local/lib/libSM.dylib
+    X11_X11_INCLUDE_PATH             /opt/local/include
+    X11_X11_LIB                      /opt/local/lib/libX11.dylib
+    X11_XRes_INCLUDE_PATH            /usr/include
+    X11_XRes_LIB                     /usr/X11R6/lib/libXRes.dylib
+    X11_XShm_INCLUDE_PATH            /opt/local/include
+    X11_XSync_INCLUDE_PATH           /opt/local/include
+    X11_XTest_INCLUDE_PATH           /usr/include
+    X11_XTest_LIB                    /usr/X11R6/lib/libXtst.dylib
+    X11_Xaccessrules_INCLUDE_PATH    /opt/local/include
+    X11_Xaccessstr_INCLUDE_PATH      /opt/local/include
+    X11_Xau_INCLUDE_PATH             /opt/local/include
+    X11_Xau_LIB                      /opt/local/lib/libXau.dylib
+    X11_Xcomposite_INCLUDE_PATH      /opt/local/include
+    X11_Xcomposite_LIB               /opt/local/lib/libXcomposite.dylib
+    X11_Xcursor_INCLUDE_PATH         /opt/local/include
+    X11_Xcursor_LIB                  /opt/local/lib/libXcursor.dylib
+    X11_Xdamage_INCLUDE_PATH         /opt/local/include
+    X11_Xdamage_LIB                  /opt/local/lib/libXdamage.dylib
+    X11_Xdmcp_INCLUDE_PATH           /opt/local/include
+    X11_Xdmcp_LIB                    /opt/local/lib/libXdmcp.dylib
+    X11_Xext_LIB                     /opt/local/lib/libXext.dylib
+    X11_Xfixes_INCLUDE_PATH          /opt/local/include
+    X11_Xfixes_LIB                   /opt/local/lib/libXfixes.dylib
+    X11_Xft_INCLUDE_PATH             /opt/local/include
+    X11_Xft_LIB                      /opt/local/lib/libXft.dylib
+    X11_Xi_INCLUDE_PATH              /opt/local/include
+    X11_Xi_LIB                       /opt/local/lib/libXi.dylib
+    X11_Xinerama_INCLUDE_PATH        /opt/local/include
+    X11_Xinerama_LIB                 /opt/local/lib/libXinerama.dylib
+    X11_Xinput_INCLUDE_PATH          /opt/local/include
+    X11_Xinput_LIB                   /opt/local/lib/libXi.dylib
+    X11_Xkb_INCLUDE_PATH             /opt/local/include
+    X11_Xkbfile_INCLUDE_PATH         /opt/local/include
+    X11_Xkbfile_LIB                  /opt/local/lib/libxkbfile.dylib
+    X11_Xkblib_INCLUDE_PATH          /opt/local/include
+    X11_Xlib_INCLUDE_PATH            /opt/local/include
+    X11_Xmu_INCLUDE_PATH             /opt/local/include
+    X11_Xmu_LIB                      /opt/local/lib/libXmu.dylib
+    X11_Xmu_LIBRARY                  /opt/local/lib/libXmu.dylib - why duplicate?
+    X11_Xpm_INCLUDE_PATH             /opt/local/include
+    X11_Xpm_LIB                      /opt/local/lib/libXpm.dylib
+    X11_Xrandr_INCLUDE_PATH          /opt/local/include
+    X11_Xrandr_LIB                   /opt/local/lib/libXrandr.dylib
+    X11_Xrender_INCLUDE_PATH         /opt/local/include
+    X11_Xrender_LIB                  /opt/local/lib/libXrender.dylib
+    X11_Xscreensaver_INCLUDE_PATH    /opt/local/include
+    X11_Xscreensaver_LIB             /opt/local/lib/libXss.dylib
+    X11_Xshape_INCLUDE_PATH          /opt/local/include
+    X11_Xt_INCLUDE_PATH              /opt/local/include
+    X11_Xt_LIB                       /opt/local/lib/libXt.dylib
+    X11_Xutil_INCLUDE_PATH           /opt/local/include
+    X11_Xv_INCLUDE_PATH              /usr/include
+    X11_Xv_LIB                       /usr/X11R6/lib/libXv.dylib
+    X11_Xxf86misc_LIB                /usr/X11R6/lib/libXxf86misc.dylib
+    X11_Xxf86vm_LIB                  /opt/local/lib/libXxf86vm.dylib
+    X11_dpms_INCLUDE_PATH            /opt/local/include
+    X11_xf86misc_INCLUDE_PATH        /usr/include
+    X11_xf86vmode_INCLUDE_PATH       /opt/local/include
+	
+	/usr/X11R6/lib/libGL.dylib         mesa
+	/usr/X11R6/lib/libGLU.dylib        mesa
+	/usr/X11R6/lib/libXRes.dylib       xorg-libXres
+	/usr/X11R6/lib/libXtst.dylib       xorg-libXtst
+	/usr/X11R6/lib/libXv.dylib         xorg-libXv
+	/usr/X11R6/lib/libXxf86misc.dylib  xorg-libXxf86misc
+
+	/opt/local/lib/libICE.dylib        is provided by: xorg-libice
+	/opt/local/lib/libSM.dylib         is provided by: xorg-libsm
+	/opt/local/lib/libX11.dylib        is provided by: xorg-libX11
+	/opt/local/lib/libXau.dylib        is provided by: xorg-libXau
+	/opt/local/lib/libXcomposite.dylib is provided by: xorg-libXcomposite
+	/opt/local/lib/libXcursor.dylib    is provided by: xorg-libXcursor
+	/opt/local/lib/libXdamage.dylib    is provided by: xorg-libXdamage
+	/opt/local/lib/libXdmcp.dylib      is provided by: xorg-libXdmcp
+	/opt/local/lib/libXext.dylib       is provided by: xorg-libXext
+	/opt/local/lib/libXfixes.dylib     is provided by: xorg-libXfixes
+	/opt/local/lib/libXft.dylib        is provided by: Xft2
+	/opt/local/lib/libXi.dylib         is provided by: xorg-libXi
+	/opt/local/lib/libXinerama.dylib   is provided by: xorg-libXinerama
+	/opt/local/lib/libXi.dylib         is provided by: xorg-libXi
+	/opt/local/lib/libxkbfile.dylib    is provided by: xorg-libxkbfile
+	/opt/local/lib/libXmu.dylib        is provided by: xorg-libXmu
+	/opt/local/lib/libXmu.dylib        is provided by: xorg-libXmu
+	/opt/local/lib/libXpm.dylib        is provided by: xpm
+	/opt/local/lib/libXrandr.dylib     is provided by: xorg-libXrandr
+	/opt/local/lib/libXrender.dylib    is provided by: xrender
+	/opt/local/lib/libXss.dylib        is provided by: xorg-libXScrnSaver
+	/opt/local/lib/libXt.dylib         is provided by: xorg-libXt
+	/opt/local/lib/libXxf86vm.dylib    is provided by: xorg-libXxf86vm
+
 - Check if /opt/local/share/Geant4/Geant4-10.0.0/geant4make/geant4make.sh works
 
 Lower priority:
@@ -229,6 +331,9 @@ Bugs:
 - http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1494 Antialiasing in Qt/OpenGL makes objects invisible
 - http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1495 Issues and requests for Qt's "Save as ..."
 - http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1497 Qt interface: allow pasting multiple lines
+- http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1500 Graceful error handling in Qt interface
+- http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1501 XrayFluoAnalysisManager: use of undeclared identifier 'MeV'; did you mean 'CLHEP::MeV' (problem only on 10.0 with +examples)
+- http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1502 P01 compiled with CMake loading nonexistent libExP01ClassesDict.so
 
 Other feature requests:
 - ability to change program icon (question)
