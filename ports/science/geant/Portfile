@@ -24,11 +24,14 @@ platforms           darwin
 
 master_sites        http://geant4.cern.ch/support/source/
 
+# meaning of the fields:
 # - version
 # - revision (used internally in MacPorts to force updates)
 # - revision of data files (used internally in MacPorts to force updates)
 # - patchlevel (also used in directory names)
 # - version string (used for fetching the source)
+#
+# if we start distributing betas, epoch will have to be added for the transition from version 4.x.y.b01 to 4.x.y
 set geant.versions_info {
      9.5  0  0  2  4.9.5.p02    33413f6233b75c003254af5888f4af32d17f515d  adb04fce9472228bb10d78cbc7f40493bfb37454beee22e7c80d630646cd3777
      9.6  0  0  2  4.9.6.p02    9ae32c3f8769e303b41df164693f77a74ca6db97  cf5df83b7e2c99e6729449b32d3ecb0727b4692317426b66fc7fd41951c7351f
@@ -171,8 +174,10 @@ foreach {geant.version geant.revision geant.datarevision geant.patchlevel geant.
         # GEANT4_USE_SYSTEM_CLHEP=OFF
 
         # - patch-source-interfaces-common-src-G4Qt.cc.diff: http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1487
+        # - patch-examples-advanced-xray_fluorescence.4100.diff: http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1501
         if {${geant.version} == "10.0"} {
             patchfiles      patch-source-interfaces-common-src-G4Qt.cc.diff \
+                            patch-examples-advanced-xray_fluorescence.4100.diff \
                             patch-cmake-Modules-Geant4BuildProjectConfig.cmake.4100.diff
         }
         if {${geant.version} == "9.6"} {
