@@ -46,7 +46,7 @@ set geant.data_versions_10.0 {
     G4PII              1.3   G4PII                G4PIIDATA          05f2471dbcdf1a2b17cbff84e8e83b37  313a2615903b0682b8aabc344bedde82c345704b  6225ad902675f4381c98c6ba25fc5a06ce87549aa979634d3d03491d6616e926
     RealSurface        1.0   RealSurface          G4REALSURFACEDATA  0dde95e00fcd3bcd745804f870bb6884  030513fe340e0cccbfe0b9ae9acb3ba6b5291ebb  3e2d2506600d2780ed903f1f2681962e208039329347c58ba1916740679020b1
     G4SAIDDATA         1.1   G4SAIDDATA           G4SAIDXSDATA       d88a31218fdf28455e5c5a3609f7216f  7f0c75c86eea3d227379d3dfe77e4600752f99a2  a38cd9a83db62311922850fe609ecd250d36adf264a88e88c82ba82b7da0ed7f
-}                    
+}
 set geant.data_versions_9.6 {
     G4NDL              4.2   G4NDL                G4NEUTRONHPDATA    2302d7ffeef1a450955302f027ee1cf4  5289896235ccb84f551f642447372f286084a695  173f60a506b9176d7ff531d6a5f6195dcec74df30ffafc09644f47f979bd641b
     G4EMLOW            6.32  G4EMLOW              G4LEDATA           9d3302072ba694b1d4505c330ed89d89  d5b1c435fb4925339175188472f1453637c98b0d  bdb3c00af89b18c21553d79fd823110429fdcf1e83c029aa450185d9caf4a7cf
@@ -201,9 +201,19 @@ foreach {geant.version geant.revision geant.datarevision geant.patchlevel geant.
             configure.args-append -DGEANT4_INSTALL_DATADIR=${geant.datadir} \
         }
 
-        # there is no option to build/install the examples elsewhere, so we move them to libexec (they have nothing to do in bin)
         # this is only needed when +examples is used
         post-destroot {
+            # two examples with some broken links
+            if [file exists ${destroot}${prefix}/bin/exampleP01] {
+                delete ${destroot}${prefix}/bin/exampleP01
+            }
+            if [file exists ${destroot}${prefix}/bin/exampleP02] {
+                delete ${destroot}${prefix}/bin/exampleP02
+            }
+            if [file exists ${destroot}${prefix}/bin/readHits] {
+                delete ${destroot}${prefix}/bin/readHits
+            }
+            # there is no option to build/install the examples elsewhere, so we move them to libexec (they have nothing to do in bin)
             if [file exists ${destroot}${prefix}/bin] {
                 move ${destroot}${prefix}/bin ${destroot}${prefix}/libexec/Geant4/Geant${geant.version_simple}/examples
             }
