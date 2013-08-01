@@ -136,15 +136,19 @@ TODO:
 - Check if /opt/local/share/Geant4/Geant4-10.0.0/geant4make/geant4make.sh works
 
 Lower priority:
+- implement livecheck
 - Try to move /opt/local/share/Geant4/Geant4-10.0.0/geant4make/config to a better place
 - Try to get rid of one level in /opt/local/include/Geant4/Geant4.10.0/Geant4 (low priority, maybe not be needed at all)
 - Fix scripts in /opt/local/libexec/Geant4/Geant4.10.0 (symlinking to them doesn't work, but on the other hand they are probably not needed)
 - Carefully check different CMake configuration options
+- Do default arguments need to be turned off explicitly?
+	configure.args-append/delete -DGEANT4_USE_OPENGL_X11=OFF
 - figure out if it is possible to hardcode paths into Geant4 sources to some extent
 	example: G4PenelopeOscillatorManage.cc uses
 		char* path = getenv("G4LEDATA");
 - Test how setting CMAKE_INSTALL_IS_NONRELOCATABLE influences different components,
   in particular GEANT4_RELATIVE_HEADER_PATH, GEANT4_INCLUDE_DIR_SETUP (cmake/Modules/Geant4BuildProjectConfig.cmake)
+- Try to patch the sources to move examples to libexec without manually moving them in post-destroot
 
 -- Libraries -L/opt/local/lib/root -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lpthread -lm -ldl were added to the linkage list
 CMake Warning at examples/advanced/ChargeExchangeMC/CMakeLists.txt:131 (message):
@@ -160,6 +164,11 @@ CMake Warning at examples/advanced/ChargeExchangeMC/CMakeLists.txt:131 (message)
 -- G4 Examples: Pythia6 package not found. --> decayer6 example disabled
 -- G4 Examples: GCCXML not found. --> P01 example disabled
 -- G4 Examples: GCCXML not found. --> P02 example disabled
+
+AIDA:
+  Geant4 compiles just fine without iAIDA
+  I don't see any option to switch aida support on or off, so I'm not exactly sure how to handle the dependency in a proper way other than making it a requirement
+  geant4.9.4 port provided the default +aida option
 
 
 Options:

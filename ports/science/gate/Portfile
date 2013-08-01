@@ -1,7 +1,7 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 # $Id$
 
-# Keep in sync with Geant4
+# Keep in sync with Geant4 (and/or implement a PortGroup)
 
 PortSystem          1.0
 PortGroup           app 1.0
@@ -18,7 +18,7 @@ github.setup        mojca gate 0bd5cc471e
 # git.branch          0bd5cc471ecaf0032f38dba82b8204501bd20fb7
 
 name                gate
-version             7.0-beta
+version             6.3-beta
 categories          science
 maintainers         mojca
 license             LGPL
@@ -142,8 +142,8 @@ variant geant495 conflicts geant496 description {Use Geant4 9.5} {
     set geant.datadir       ${prefix}/share/Geant4/Data/Geant4.9.5
     set geant.cmakedir      ${prefix}/lib/Geant4-9.5.2
 
-    depends_lib-append      port:geant4-9.5
-    require_active_variants geant4-9.5 qt
+    depends_lib-append      port:geant4.9.5
+    require_active_variants geant4.9.5 qt
     configure.args-append   -DGeant4_DIR=${geant.cmakedir}
 }
 variant geant496 conflicts geant495 description {Use Geant4 9.6} {
@@ -151,8 +151,8 @@ variant geant496 conflicts geant495 description {Use Geant4 9.6} {
     set geant.datadir       ${prefix}/share/Geant4/Data/Geant4.9.6
     set geant.cmakedir      ${prefix}/lib/Geant4-9.6.2
 
-    depends_lib-append      port:geant4-9.6
-    require_active_variants geant4-9.6 qt
+    depends_lib-append      port:geant4.9.6
+    require_active_variants geant4.9.6 qt
     configure.args-append   -DGeant4_DIR=${geant.cmakedir}
 }
 # variant geant4100 conflicts geant495 geant496 description {Use Geant4 10.0 (doesn't work yet)} {
