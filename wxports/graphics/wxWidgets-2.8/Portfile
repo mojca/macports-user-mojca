@@ -5,12 +5,10 @@ PortSystem          1.0
 PortGroup           archcheck 1.0
 PortGroup           select 1.0
 
-name                wxWidgets28
+name                wxWidgets-2.8
 # What is the wxWidgets-python conflict?
 conflicts           wxgtk wxWidgets-python
-epoch               3
 version             2.8.12
-revision            3
 set branch          [join [lrange [split ${version} .] 0 1] .]
 
 categories          graphics devel
