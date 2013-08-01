@@ -5,9 +5,10 @@ PortSystem          1.0
 PortGroup           select 1.0
 
 name                wxWidgets30
-conflicts           wxgtk wxWidgets28
+conflicts           wxgtk
 version             2.9.5
 epoch               20130717
+set branch          [join [lrange [split ${version} .] 0 1] .]
 
 license             wxwidgets-3.1
 categories          graphics devel
@@ -33,7 +34,7 @@ dist_subdir         ${distname}/${version}
 
 checksums           rmd160  f5c91099b2cf3e39eadbcf99df0dd9a97017d47f \
                     sha256  b74ba96ca537cc5d049d21ec9ab5eb2670406a4aa9f1ea4845ea84a9955a6e02
-                    
+
 depends_lib         port:jpeg \
                     port:tiff \
                     port:libpng \
@@ -46,6 +47,7 @@ depends_run         port:wxWidgets_select
 select.group        wxWidgets
 select.file         ${filespath}/${name}
 
+# TODO: why 10.6 and not 10.5?
 if {${os.major} < 10} {
    pre-fetch {
        ui_error "${name} requires Mac OS X 10.6 or later."
@@ -63,7 +65,10 @@ patchfiles          patch-configure-change_install_names.diff
 configure.cmd       ../configure
 configure.ldflags   -L${build.dir}/lib -L${prefix}/lib
 
+# TODO: localedir doesn't seem to work
 configure.args      --mandir=${prefix}/share/man \
+                    --datadir=${prefix}/share/${distname}/${branch} \
+                    --localedir=${prefix}/share/locale \
                     --with-libiconv-prefix=${prefix} \
                     --with-libjpeg \
                     --with-libtiff \
@@ -94,9 +99,12 @@ post-destroot {
     # TODO: available via port select, but there might be a more elegant way to do this
     delete ${destroot}${prefix}/bin/wxrc
     delete ${destroot}${prefix}/bin/wx-config
-}
 
-default_variants    +sdl
+    set destlibexecdir ${destroot}${prefix}/libexec/${distname}/${branch}
+    xinstall -d -m 755 ${destlibexecdir}
+    set confscript ${prefix}/lib/wx/config/osx_cocoa-unicode-2.9
+    ln -sf ${confscript} ${destlibexecdir}/wx-config
+}
 
 variant monolithic description {build only one library} {
     configure.args-append   --enable-monolithic
@@ -106,20 +114,13 @@ variant debug description {add debug info to libraries} {
     configure.args-append   --enable-debug
 }
 
-variant sdl description {Use SDL for audio on Unix} { 
-    depends_lib-append      path:lib/pkgconfig/sdl.pc:libsdl 
-    depends_lib-append      port:libsdl_mixer 
-    configure.args-delete   --without-sdl 
-    configure.args-append   --with-sdl 
-} 
-     
-variant stdlib description {add support for various standard library features} { 
+variant stdlib description {add support for various standard library features} {
     configure.args-append   --enable-stl \
                             --enable-std_containers \
                             --enable-std_iostreams \
                             --enable-std_string \
                             --enable-std_string_conv_in_wxstring
-} 
+}
 
 variant aui description {add support for AUI docking library} {
     configure.args-append   --enable-aui
