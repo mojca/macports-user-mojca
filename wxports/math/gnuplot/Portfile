@@ -5,6 +5,7 @@ PortSystem                  1.0
 PortGroup                   xcodeversion 1.0
 PortGroup                   texlive 1.0
 PortGroup                   elisp 1.0
+PortGroup                   wxwidgets 1.0
 
 name                        gnuplot
 version                     4.6.3
@@ -128,9 +129,10 @@ if {[variant_isset wxwidgets]} {
 }
 
 variant wxwidgets30 conflicts wxwidgets wxwidgets_devel description "Enable wxt terminal (using wxWidgets 2.9, supports 64-bit)" {
+    wxWidgets.use_version   3.0
     depends_lib-append      port:wxWidgets30 path:lib/pkgconfig/pango.pc:pango
     configure.args-delete   --disable-wxwidgets
-    configure.args-append   --with-wx-config=${prefix}/bin/wx-config
+    configure.args-append   --with-wx-config=${wxWidgets.confpath}
 }
 
 variant wxwidgets_devel conflicts wxwidgets wxwidgets30 description "Enable wxt terminal (using wxWidgets devel, supports 64-bit)" {
