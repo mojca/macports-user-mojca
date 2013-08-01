@@ -128,6 +128,9 @@ post-destroot {
         system "cd ${build.dir} && make -C contrib/src/${c} install ${destroot.destdir}"
     }
 
+    delete ${destroot}${prefix}/bin/wxrc
+    delete ${destroot}${prefix}/bin/wx-config
+
     set destdocdir ${destroot}${prefix}/share/doc/${distname}/${branch}
     set destlibexecdir ${destroot}${prefix}/libexec/${distname}/${branch}
     xinstall -d -m 755 ${destdocdir}
