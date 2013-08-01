@@ -173,24 +173,36 @@ foreach {geant.version geant.revision geant.datarevision geant.patchlevel geant.
 
         # GEANT4_USE_SYSTEM_CLHEP=OFF
 
-        # - patch-source-interfaces-common-src-G4Qt.cc.diff: http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1487
-        # - patch-examples-advanced-xray_fluorescence.4100.diff: http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1501
+        # - patch-source-interfaces-common-src-G4Qt.cc:
+        #       http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1487
+        # - patch-examples-advanced-xray_fluorescence:
+        #       http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1501
+        # - patch-cmake-Modules-Geant4InterfaceOptions.cmake:
+        #       prevents linking against X11 in /usr (maybe less aggressive patch would also work)
+        # - patch-cmake-Modules-Geant4BuildProjectConfig.cmake:
+        #       allows placing *.cmake files to a different location than LIBDIR
         if {${geant.version} == "10.0"} {
             patchfiles      patch-source-interfaces-common-src-G4Qt.cc.diff \
                             patch-examples-advanced-xray_fluorescence.diff \
+                            patch-cmake-Modules-Geant4InterfaceOptions.cmake.4100.diff \
                             patch-cmake-Modules-Geant4BuildProjectConfig.cmake.4100.diff
         }
         if {${geant.version} == "9.6"} {
             patchfiles      patch-source-interfaces-common-src-G4Qt.cc.diff \
                             patch-examples-advanced-xray_fluorescence.diff \
+                            patch-cmake-Modules-Geant4InterfaceOptions.cmake.496.diff \
                             patch-cmake-Modules-Geant4BuildProjectConfig.cmake.496.diff
         }
         if {${geant.version} == "9.5"} {
             patchfiles      patch-source-interfaces-common-src-G4Qt.cc.495.diff \
                             patch-examples-advanced-xray_fluorescence.diff \
+                            patch-cmake-Modules-Geant4InterfaceOptions.cmake.495.diff \
                             patch-cmake-Modules-Geant4BuildProjectConfig.cmake.495.diff
         }
 
+        post-patch {
+             reinplace "s|@PREFIX@|${prefix}|" ${worksrcpath}/cmake/Modules/Geant4InterfaceOptions.cmake
+        }
         # arguments to -DCMAKE_INSTALL_* could be written without ${prefix}
         # however the ${prefix} triggers the NON_RELOCATABLE flag which has some advantages like less cryptic path names
         configure.args-append -DGEANT4_INSTALL_DATA=OFF \
@@ -237,7 +249,8 @@ foreach {geant.version geant.revision geant.datarevision geant.patchlevel geant.
         # or simply x11? The option name in geant4-config is opengl-x11
         variant opengl_x11 description {Build with X11 visualisation drivers} {
             # dependencies were determined experimentally (by checking which libraries were linked against)
-            depends_lib-append    port:xorg-libice \
+            depends_lib-append    port:mesa \
+                                  port:xorg-libice \
                                   port:xorg-libsm \
                                   port:xorg-libX11 \
                                   port:xorg-libXext \
