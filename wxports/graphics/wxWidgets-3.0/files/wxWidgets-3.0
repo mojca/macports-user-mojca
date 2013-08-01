@@ -1,2 +1,8 @@
 libexec/wxWidgets/2.9/wx-config
 bin/wxrc-2.9
+share/wxWidgets/2.9/aclocal/wxwin.m4
+share/wxWidgets/2.9/bakefile/presets/wx.bkl
+share/wxWidgets/2.9/bakefile/presets/wx_presets.py
+share/wxWidgets/2.9/bakefile/presets/wx_unix.bkl
+share/wxWidgets/2.9/bakefile/presets/wx_win32.bkl
+share/wxWidgets/2.9/bakefile/presets/wx_xrc.bkl
