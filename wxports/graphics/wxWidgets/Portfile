@@ -6,9 +6,9 @@ PortSystem          1.0
 replaced_by         wxWidgets-2.8
 PortGroup           obsolete 1.0
 
-name                wxWidgets_devel
+name                wxWidgets
 version             2.8.12
-revision            1
+epoch               4
 
 homepage            http://www.wxwidgets.org/
 categories          graphics devel
