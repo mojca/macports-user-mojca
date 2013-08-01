@@ -96,7 +96,7 @@ configure.cppflags-append    -arch ${configure.build_arch}
 platform darwin 11 {
     pre-fetch {
         if {[vercmp $xcodeversion 4.4] >= 0} {
-            return -code return "${name} cannot build on 10.7 with Xcode >= 4.4, please use port ${name}-devel instead"
+            return -code return "${name} cannot build on 10.7 with Xcode >= 4.4, please use port ${distname}-3.0 instead"
         }
     }
 
@@ -113,7 +113,7 @@ platform darwin 11 {
 
 platform darwin 12 {
     pre-fetch {
-        return -code return "${name} does not build on 10.8 due to missing Carbon support, please use port ${name}30 instead"
+        return -code return "${name} does not build on 10.8 due to missing Carbon support, please use port ${distname}-3.0 instead"
     }
 }
 
