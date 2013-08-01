@@ -14,7 +14,7 @@ set branch          [join [lrange [split ${version} .] 0 1] .]
 categories          graphics devel
 license             LGPL-2+
 platforms           darwin
-maintainers         jwa
+maintainers         jwa mojca
 description         mature cross-platform C++ GUI framework
 long_description    wxWidgets is a mature open-source cross-platform C++ \
                     GUI framework for Mac OS, Unix, Linux, Windows. It can \
