@@ -137,7 +137,6 @@ variant wxwidgets30 conflicts wxwidgets description "Enable wxt terminal (using 
 }
 
 variant qt description "Enable qt terminal" {
-variant qt description "Enable qt terminal" {
     depends_lib-append      port:qt4-mac
     configure.args-append   --enable-qt
 }
