@@ -78,6 +78,14 @@ configure.args              --with-readline=${prefix} \
 
 configure.ccache            no
 
+# TODO: just temporary
+pre-fetch {
+    ui_info "some debugging:"
+    ui_info "    wxWidgets.use_version: '${wxWidgets.use_version}'"
+    ui_info "    supported_archs:       '${supported_archs}'"
+    ui_info "    wxWidgets.confpath:    '${wxWidgets.confpath}'"
+}
+
 variant aquaterm description "Enable AquaTerm terminal" {
     depends_lib-append      port:aquaterm
     configure.args-delete   --without-aquaterm
@@ -115,25 +123,20 @@ variant pangocairo description "Enable cairo-based terminals" {
 # If it is acceptable to depend on wxWidgets-devel only,
 # one could delete the variant that depends on wxWidgets 2.8.
 variant wxwidgets conflicts wxwidgets30 description "Enable wxt terminal (wxWidgets 2.8, 32-bit only)" {
+    # port lint Warning: Dependency path:lib/pkgconfig/pango.pc:pango specified multiple times in depends_lib
+    # Does the wxwidgets variant depend on the pangocairo variant?
+    # depends_lib-delete      path:lib/pkgconfig/pango.pc:pango
     wxWidgets.use_version   2.8
     depends_lib-append      port:wxWidgets-2.8 path:lib/pkgconfig/pango.pc:pango
     configure.args-delete   --disable-wxwidgets
-    configure.args-append   --with-wx-config=${prefix}/libexec/wxWidgets/2.8
-    #configure.args-append   --with-wx-config=${wxWidgets.confpath}
-}
-if {[variant_isset wxwidgets]} {
-    # wxWidgets is not universal and is 32-bit only
-    universal_variant       no
-    supported_archs         i386 ppc
+    configure.args-append   --with-wx-config=${wxWidgets.confpath}
 }
 
 variant wxwidgets30 conflicts wxwidgets description "Enable wxt terminal (using wxWidgets 2.9, supports 64-bit)" {
     wxWidgets.use_version   3.0
     depends_lib-append      port:wxWidgets-3.0 path:lib/pkgconfig/pango.pc:pango
     configure.args-delete   --disable-wxwidgets
-    configure.args-append   --with-wx-config=${prefix}/libexec/wxWidgets/2.9
-    ## doesn't work yet
-    #configure.args-append   --with-wx-config=${wxWidgets.confpath}
+    configure.args-append   --with-wx-config=${wxWidgets.confpath}
 }
 
 variant qt description "Enable qt terminal" {
