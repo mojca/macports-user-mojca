@@ -175,13 +175,15 @@ foreach {geant.version geant.revision geant.datarevision geant.patchlevel geant.
         # - patch-cmake-Modules-Geant4BuildProjectConfig.cmake:
         #       allows placing *.cmake files to a different location than LIBDIR
         if {${geant.version} == "10.0"} {
-            patchfiles      patch-source-interfaces-common-src-G4Qt.cc.diff \
+            patchfiles      patch-source-interfaces-basic-src-G4Qt.cc.4100.diff \
+                            patch-source-interfaces-common-src-G4Qt.cc.diff \
                             patch-examples-advanced-xray_fluorescence.diff \
                             patch-cmake-Modules-Geant4InterfaceOptions.cmake.4100.diff \
                             patch-cmake-Modules-Geant4BuildProjectConfig.cmake.4100.diff
         }
         if {${geant.version} == "9.6"} {
-            patchfiles      patch-source-interfaces-common-src-G4Qt.cc.diff \
+            patchfiles      patch-source-interfaces-basic-src-G4Qt.cc.496.diff \
+                            patch-source-interfaces-common-src-G4Qt.cc.diff \
                             patch-examples-advanced-xray_fluorescence.diff \
                             patch-cmake-Modules-Geant4InterfaceOptions.cmake.496.diff \
                             patch-cmake-Modules-Geant4BuildProjectConfig.cmake.496.diff
