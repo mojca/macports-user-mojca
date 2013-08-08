@@ -4,10 +4,11 @@
 PortSystem          1.0
 PortGroup           python 1.0
 
-name				py-robotframework-ride
-set internal_name	robotframework-ride
+name                py-robotframework-ride
+set internal_name   robotframework-ride
 
 version             1.1
+revision            1
 
 license             Apache-2
 
@@ -16,14 +17,11 @@ maintainers         jwa
 description         Robot Framework test case editor
 long_description    ${description}
 
-homepage	http://code.google.com/p/${internal_name}
+homepage            http://code.google.com/p/${internal_name}
 
 platforms           darwin
-python.versions		26 27
-python.default_version	27
-
-universal_variant	no
-supported_archs	i386
+python.versions     26 27
+python.default_version 27
 
 master_sites        googlecode:${internal_name}
 distname            ${internal_name}-${version}
@@ -34,27 +32,19 @@ checksums           rmd160  8b299cf3876e109664b89b94fe24c4845a279061 \
 if {$subport != $name} {
     build.cmd           ${python.bin} setup.py
     destroot.cmd        ${python.bin} setup.py
-    depends_lib-append	port:py${python.version}-robotframework \
-        port:py${python.version}-wxpython \
+    depends_lib-append  port:py${python.version}-robotframework \
+        port:py${python.version}-wxpython-3.0 \
         port:py${python.version}-paver
-
-    platform darwin 12 {
-        supported_archs    x86_64
-        depends_lib-delete port:py${python.version}-wxpython
-        depends_lib-append port:py${python.version}-wxpython30
-    }
 
     post-extract {
         reinplace "s/pybot/pybot-${python.branch}/g" $worksrcpath/src/robotide/contrib/testrunner/runprofiles.py
     }
-
-    notes "To run, use 'arch -i386 ride.py-${python.branch}' to use 32bit architecture"
 }
 
 if {$subport == $name} {
-    livecheck.type     regex
-    livecheck.url      ${homepage}
-    livecheck.regex    ${internal_name}-(\[0-9.\]+)\\.tar\\.\[bg\]z
+    livecheck.type      regex
+    livecheck.url       ${homepage}
+    livecheck.regex     ${internal_name}-(\[0-9.\]+)\\.tar\\.\[bg\]z
 } else {
-    livecheck.type		none
+    livecheck.type      none
 }
