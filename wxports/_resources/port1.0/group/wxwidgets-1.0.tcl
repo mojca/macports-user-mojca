@@ -33,7 +33,7 @@ proc wxWidgets._set_version {option action args} {
     }
 
     if {${args} == "2.8"} {
-        wxWidgets.confpath   ${prefix}/libexec/wxWidgets/2.8
+        wxWidgets.confpath   ${frameworks_dir}/wxWidgets.framework/Versions/wxWidgets/2.8/bin
         # wxWidgets is not universal and is 32-bit only
         universal_variant    no
         supported_archs      i386 ppc
@@ -60,11 +60,11 @@ proc wxWidgets._set_version {option action args} {
         #     }
         # }
     } elseif {${args} == "3.0"} {
-        wxWidgets.confpath   ${prefix}/libexec/wxWidgets/2.9
+        wxWidgets.confpath   ${frameworks_dir}/wxWidgets.framework/Versions/wxWidgets/2.9/bin
     } else {
         # throw an error
     }
-    wxWidgets.confscript {${wxWidgets.confpath}/wx-config}
+    wxWidgets.confscript ${wxWidgets.confpath}/wx-config
 }
 
 # default that can be overridden

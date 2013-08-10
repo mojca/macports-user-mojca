@@ -1,0 +1,11 @@
+--- configure.orig
++++ configure
+@@ -16169,7 +16169,7 @@ See \`config.log' for more details." >&2;}
+ echo "$as_me: WARNING: Please use --with-macosx-sdk=PATH and --enable-universal_binary without an argument" >&2;}
+             fi
+         fi
+-                OSX_UNIV_OPTS="-arch ppc -arch i386"
++                OSX_UNIV_OPTS="@@ARCHS@@"
+         CXXFLAGS="$OSX_UNIV_OPTS $CXXFLAGS"
+         CFLAGS="$OSX_UNIV_OPTS $CFLAGS"
+         OBJCXXFLAGS="$OSX_UNIV_OPTS $OBJCXXFLAGS"
