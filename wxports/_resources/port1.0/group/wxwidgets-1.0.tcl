@@ -27,7 +27,7 @@ proc wxWidgets._set_supported_versions {option action args} {
 }
 
 proc wxWidgets._set_version {option action args} {
-    global prefix
+    global prefix frameworks_dir
     if {"set" != ${action}} {
         return
     }
