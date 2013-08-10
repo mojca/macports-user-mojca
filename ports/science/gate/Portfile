@@ -80,6 +80,11 @@ configure.post_args ${worksrcpath}
 
 depends_lib         port:qt4-mac
 
+# Geant4.9.5 probably doesn't support icon bars
+if {![variant_isset geant495]} {
+    patchfiles      patch-addmenu.diff
+}
+
 post-patch {
     # patch examples if needed
     if {[variant_isset examples]} {
@@ -110,8 +115,9 @@ pre-destroot {
     xinstall -m 755 -d ${destsharedir}
     copy ${worksrcpath}/GateMaterials.db ${destsharedir}
     copy ${worksrcpath}/GateMaterialsGPU.db ${destsharedir}
-    # copy the initial macro file with basic setup
-    copy ${filespath}/gui.mac ${destsharedir}
+    # copy the initial macro files with basic setup
+    copy ${filespath}/gui.mac   ${destsharedir}
+    copy ${filespath}/icons.mac ${destsharedir}
 }
 
 post-destroot {
