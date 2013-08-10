@@ -25,7 +25,6 @@ Upstream feature requests:
 - repository at GitHub
 - CMAKE variable to copy the examples automatically
 - try to prevent crashing by catching errors
-- geant: figure out how file/open & friends menu works (http://geant4.in2p3.fr/spip.php?article84&amp;lang=en)
 - prepare a nice default startup gui
 - enable hardcoded GATEHOME
   in general/src/GateTools.cc there is
@@ -35,7 +34,6 @@ Upstream feature requests:
 
 Compile warnings:
 - a handful of unused variables
-- redefinition of endianess
 
 DONE:
 - copy license/LICENSE.txt -> OK

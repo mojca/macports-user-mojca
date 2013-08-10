@@ -339,10 +339,13 @@ Bugs:
 - http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1487 LC_NUMERIC confuses strtod when Qt is being used (patched in Portfile)
 - http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1494 Antialiasing in Qt/OpenGL makes objects invisible
 - http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1495 Issues and requests for Qt's "Save as ..."
-- http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1497 Qt interface: allow pasting multiple lines
 - http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1500 Graceful error handling in Qt interface
 - http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1501 XrayFluoAnalysisManager: use of undeclared identifier 'MeV'; did you mean 'CLHEP::MeV' (problem only on 10.0 with +examples)
 - http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1502 P01 compiled with CMake loading nonexistent libExP01ClassesDict.so
+
+Fixed:
+- http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1497 Qt interface: allow pasting multiple lines       (patched in Portfile for 4.9.6, not officially released yet)
+
 
 Other feature requests:
 - ability to change program icon (question)
