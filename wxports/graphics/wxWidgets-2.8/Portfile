@@ -74,6 +74,8 @@ set installtype     release
 # build.target
 
 # SDK
+set conf_sdk "no"
+set conf_macosx_version_min "no"
 pre-fetch {
     # 10.8 (or later) -or- 10.7 with Xcode 4.4 (or later)
     if {${os.major} >= 12 || [vercmp $xcodeversion 4.4] >= 0} {
@@ -86,11 +88,11 @@ pre-fetch {
             } else {
                 set sdks_dir "${developer_dir}/Platforms/MacOSX.platform/Developer/SDKs"
             }
-            set sdk "${sdks_dir}/MacOSX10.6.sdk"
-            set macosx_version_min "10.6"
-        } else {
-            set sdk "no"
-            set macosx_version_min "no"
+            set conf_sdk "${sdks_dir}/MacOSX10.6.sdk"
+            set conf_macosx_version_min "10.6"
+    #   } else {
+    #       set conf_sdk "no"
+    #       set conf_macosx_version_min "no"
         }
     }
 }
@@ -109,8 +111,8 @@ configure.args      --prefix=${installdir} \
                     --enable-unicode \
                     --enable-display \
                     --enable-graphics_ctx \
-                    --with-macosx-sdk=${sdk} \
-                    --with-macosx-version-min=${macosx_version_min} \
+                    --with-macosx-sdk=${conf_sdk} \
+                    --with-macosx-version-min=${conf_macosx_version_min} \
                     --enable-universal_binary
 
 supported_archs     i386 ppc
