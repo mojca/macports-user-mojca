@@ -80,8 +80,8 @@ pre-fetch {
     # 10.8 (or later) -or- 10.7 with Xcode 4.4 (or later)
     if {${os.major} >= 12 || [vercmp $xcodeversion 4.4] >= 0} {
         return -code return "${name} cannot be built on Moc OS X >= 10.7 with Xcode >= 4.4, please use port ${distname}-3.0 instead"
-    # 10.7
     } else {
+        # 10.7
         if {${os.major} == 11} {
             if {[vercmp $xcodeversion 4.3] < 0} {
                 set sdks_dir "${developer_dir}/SDKs"
@@ -90,9 +90,6 @@ pre-fetch {
             }
             set conf_sdk "${sdks_dir}/MacOSX10.6.sdk"
             set conf_macosx_version_min "10.6"
-    #   } else {
-    #       set conf_sdk "no"
-    #       set conf_macosx_version_min "no"
         }
     }
 }
