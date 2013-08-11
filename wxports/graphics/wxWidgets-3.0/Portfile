@@ -5,6 +5,8 @@ PortSystem          1.0
 PortGroup           select 1.0
 
 name                wxWidgets-3.0
+# temporary conflict to prevent wrong linking
+conflicts           wxgtk wxWidgets wxWidgets-python wxWidgets30 wxWidgets-devel
 version             2.9.5
 set branch          [join [lrange [split ${version} .] 0 1] .]
 
