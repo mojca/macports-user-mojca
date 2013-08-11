@@ -2,10 +2,13 @@
 # $Id$
 
 PortSystem          1.0
+PortGroup           active_variants 1.1
 PortGroup           archcheck 1.0
 PortGroup           select 1.0
 
 name                wxWidgets-2.8
+# temporary conflict to prevent wrong linking
+conflicts           wxgtk wxWidgets wxWidgets-python wxWidgets30 wxWidgets-devel
 version             2.8.12
 set branch          [join [lrange [split ${version} .] 0 1] .]
 
@@ -36,6 +39,8 @@ checksums           rmd160  928e221abe1a00cd2d72d2a4fd3640ba639b9915 \
                     sha256  3b0ac1d2d017683851841501c8e1b744b97242d684a1668ded61809b0504f707
 
 # TODO: put this into PortGroup
+# TODO: create a subport wxGTK-2.8 in addition to wxWidgets-2.8 and put it under
+#                   ${frameworks_dir}/wxWidgets.framework/Versions/wxGTK/${branch}
 set installdir      ${frameworks_dir}/wxWidgets.framework/Versions/${distname}/${branch}
 
 depends_lib         port:jpeg \
@@ -59,11 +64,13 @@ archcheck.files     lib/libjpeg.dylib \
 
 set worksrcdir      ${distname}-${version}/build
 
-patchfiles          patch-chkconf.diff patch-configure.diff
+patchfiles          patch-chkconf.diff \
+                    patch-configure.diff
 patch.dir           ${workpath}/${distname}-${version}
 
 post-patch {
     reinplace "s|@@ARCHS@@|[get_canonical_archflags]|g" ${workpath}/${distname}-${version}/configure
+    reinplace "s|@@PREFIX@@|${prefix}|g"                ${workpath}/${distname}-${version}/configure
 }
 
 compiler.blacklist  clang
@@ -71,25 +78,25 @@ compiler.blacklist  clang
 set contrib         "gizmos stc ogl"
 set installtype     release
 
-# build.target
-
 # SDK
 set conf_sdk "no"
 set conf_macosx_version_min "no"
 pre-fetch {
-    # 10.8 (or later) -or- 10.7 with Xcode 4.4 (or later)
-    if {${os.major} >= 12 || [vercmp $xcodeversion 4.4] >= 0} {
-        return -code return "${name} cannot be built on Moc OS X >= 10.7 with Xcode >= 4.4, please use port ${distname}-3.0 instead"
-    } else {
-        # 10.7
-        if {${os.major} == 11} {
-            if {[vercmp $xcodeversion 4.3] < 0} {
-                set sdks_dir "${developer_dir}/SDKs"
-            } else {
-                set sdks_dir "${developer_dir}/Platforms/MacOSX.platform/Developer/SDKs"
+    if {[variant_isset carbon]} {
+        # 10.8 (or later) -or- 10.7 with Xcode 4.4 (or later)
+        if {${os.major} >= 12 || [vercmp $xcodeversion 4.4] >= 0} {
+            return -code return "${name} cannot be built on Moc OS X >= 10.7 with Xcode >= 4.4, please use port ${distname}-3.0 instead"
+        } else {
+            # 10.7
+            if {${os.major} == 11} {
+                if {[vercmp $xcodeversion 4.3] < 0} {
+                    set sdks_dir "${developer_dir}/SDKs"
+                } else {
+                    set sdks_dir "${developer_dir}/Platforms/MacOSX.platform/Developer/SDKs"
+                }
+                set conf_sdk "${sdks_dir}/MacOSX10.6.sdk"
+                set conf_macosx_version_min "10.6"
             }
-            set conf_sdk "${sdks_dir}/MacOSX10.6.sdk"
-            set conf_macosx_version_min "10.6"
         }
     }
 }
@@ -102,7 +109,6 @@ configure.args      --prefix=${installdir} \
                     --with-libpng \
                     --with-zlib \
                     --with-opengl \
-                    --with-mac \
                     --without-sdl \
                     --disable-sdltest \
                     --enable-unicode \
@@ -111,9 +117,6 @@ configure.args      --prefix=${installdir} \
                     --with-macosx-sdk=${conf_sdk} \
                     --with-macosx-version-min=${conf_macosx_version_min} \
                     --enable-universal_binary
-
-supported_archs     i386 ppc
-use_parallel_build  no
 
 post-build {
     foreach c { ${contrib} } {
@@ -138,6 +141,34 @@ post-destroot {
     ln -sf ${confscript} ${destroot}${installdir}/bin/wx-config
 }
 
+variant carbon conflicts gtk x11 quartz description {} {
+    supported_archs         i386 ppc
+    use_parallel_build      no
+    configure.args-append   --with-mac
+}
+variant gtk conflicts carbon description {} {
+    depends_lib-append      port:cairo \
+                            port:gtk2
+    # TODO: try to make sdl work
+    #                       path:lib/pkgconfig/sdl.pc:libsdl \
+    #                       port:libsdl_mixer
+    #configure.args-delete  --without-sdl
+    configure.args-append   --with-gtk
+}
+variant x11 requires gtk conflicts carbon quartz description {} {
+    # TODO: not sure about freeglut
+    depends_lib-append      port:mesa \
+                            port:freeglut
+
+    require_active_variants cairo x11
+    require_active_variants gtk2  x11
+}
+variant quartz requires gtk conflicts carbon x11 description {} {
+    # TODO: doesn't work
+    require_active_variants cairo quartz
+    require_active_variants gtk2  quartz
+}
+
 variant aui description {add support for AUI docking library} {
     configure.args-append    --enable-aui
 }
@@ -149,6 +180,10 @@ variant monolithic description {build only one library} {
 variant debug description {add debug info to libraries} {
     configure.args-append    --enable-debug
     set installtype debug
+}
+
+if {![variant_isset carbon] && ![variant_isset gtk] && ![variant_isset x11] && ![variant_isset quartz]} {
+    default_variants +carbon
 }
 
 livecheck.type  regex
