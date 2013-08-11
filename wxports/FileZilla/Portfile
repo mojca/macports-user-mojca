@@ -1,0 +1,58 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           wxwidgets 1.0
+
+name                FileZilla
+version             3.7.3
+revision            1
+categories          www aqua
+platforms           darwin
+maintainers         strasweb.fr:rudloff openmaintainer
+license             GPL-2+
+
+description         Open-source FTP, FTPS, and SFTP client
+
+long_description    FileZilla Client is a fast and reliable cross-platform \
+                    FTP, FTPS and SFTP client with lots of useful features \
+                    and an intuitive graphical user interface.
+
+homepage            http://filezilla-project.org/
+master_sites        sourceforge:project/filezilla/FileZilla_Client/${version}
+
+checksums           sha1    34c3dd1943816a916c54e49cbbea51c97ef3f583 \
+                    rmd160  8fefebae9f2024dedab9841dc6fe3876305f8d2f
+
+depends_build       port:pkgconfig
+
+wxWidgets.use_version 2.8
+
+# TODO: depend on wxGTK
+depends_lib         port:wxWidgets-2.8 \
+                    port:libidn \
+                    port:gettext \
+                    port:libgpg-error \
+                    port:libgcrypt \
+                    port:gnutls \
+                    port:sqlite3 \
+                    port:xdg-utils
+
+distname            ${name}_${version}_src
+use_bzip2           yes
+worksrcdir          filezilla-${version}
+
+# http://sourceforge.net/tracker/index.php?func=detail&aid=3031828&group_id=13559&atid=313559
+configure.args      --with-tinyxml=builtin \
+                    --disable-manualupdatecheck \
+                    --disable-autoupdatecheck \
+                    --with-wxdir=${wxWidgets.confpath}
+configure.env       WXRC=${wxWidgets.confpath}/wxrc
+
+# ???
+# cp: fzputtygen: No such file or directory
+
+# TODO: when FileZilla is built against wxGTK, it doesn't create an app; this needs fixing
+# destroot {
+#     copy ${worksrcpath}/FileZilla.app ${destroot}${applications_dir}
+# }
