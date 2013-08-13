@@ -12,14 +12,15 @@ options     wxWidgets.wxrc
 options     wxWidgets.sdk
 options     wxWidgets.macosx_version_min
 
-wxWidgets.name               ""
-wxWidgets.trueversion        ""
-wxWidgets.prefix             ""
-wxWidgets.wxdir              ""
-wxWidgets.wxconfig           ""
-wxWidgets.wxrc               ""
-wxWidgets.sdk                ""
-wxWidgets.macosx_version_min ""
+# set to empty
+wxWidgets.name
+wxWidgets.trueversion
+wxWidgets.prefix
+wxWidgets.wxdir
+wxWidgets.wxconfig
+wxWidgets.wxrc
+wxWidgets.sdk
+wxWidgets.macosx_version_min
 
 # Poedit also needs
 # build.env-append  GETTEXT_PREFIX=${prefix} WX_ROOT=${prefix}
