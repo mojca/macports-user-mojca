@@ -44,6 +44,8 @@ proc wxWidgets._set {option action args} {
     if {"set" != ${action}} {
         return
     }
+    wxWidgets.sdk ""
+    wxWidgets.macosx_version_min ""
 
     if {${args} == "wxWidgets-2.8"} {
         wxWidgets.name          "wxWidgets"
@@ -96,6 +98,8 @@ proc wxWidgets._set {option action args} {
         }
     } else {
         # throw an error
+        ui_error "invalid parameter for wxWidgets.use; use one of: wxWidgets-2.8/wxGTK-2.8/wxWidgets-3.0/wxPython-3.0"
+        return -code return "invalid parameter for wxWidgets.use"
     }
     wxWidgets.prefix    ${frameworks_dir}/wxWidgets.framework/Versions/${wxWidgets.name}/${wxWidgets.trueversion}
 
