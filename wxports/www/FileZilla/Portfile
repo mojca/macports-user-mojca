@@ -26,7 +26,7 @@ checksums           sha1    34c3dd1943816a916c54e49cbbea51c97ef3f583 \
 
 depends_build       port:pkgconfig
 
-wxWidgets.use_version 2.8
+wxWidgets.use       wxWidgets-2.8
 
 # TODO: depend on wxGTK
 depends_lib         port:wxWidgets-2.8 \
@@ -46,8 +46,8 @@ worksrcdir          filezilla-${version}
 configure.args      --with-tinyxml=builtin \
                     --disable-manualupdatecheck \
                     --disable-autoupdatecheck \
-                    --with-wxdir=${wxWidgets.confpath}
-configure.env       WXRC=${wxWidgets.confpath}/wxrc
+                    --with-wxdir=${wxWidgets.wxdir}
+configure.env       WXRC=${wxWidgets.wxrc}
 
 # ???
 # cp: fzputtygen: No such file or directory
