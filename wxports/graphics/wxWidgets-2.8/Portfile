@@ -110,11 +110,11 @@ if {${wxWidgets.sdk} == ""} {
                             --with-macosx-version-min=${wxWidgets.macosx_version_min}
 }
 
+# wxgtk-2.8
 if {$subport != $name && $subport != ""} {
     depends_lib-append      port:cairo \
                             port:gtk2 \
                             port:mesa \
-                            port:freeglut \
                             path:lib/pkgconfig/sdl.pc:libsdl \
                             port:libsdl_mixer
 
