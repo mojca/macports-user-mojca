@@ -31,7 +31,6 @@ use_bzip2           yes
 checksums           rmd160  94eae06087bdd930e21bf90cc6672f93a1f5a17a \
                     sha256  1f3f153d9f1504c6ce2d2c4b23e940b8f58b81f4cba35cda1a5bb31142243cd0
 
-# TODO: there is no need to provide all of these; at the moment this is just for testing
 python.versions     24 25 26 27
 python.default_version 27
 
@@ -43,26 +42,6 @@ worksrcdir          ${distname}-src-${version}/wxPython
 extract.post_args   "| tar -xf - ${worksrcdir} ${distname}-src-${version}/docs"
 
 if {$subport != $name} {
-    variant carbon conflicts gtk description {use 32-bit carbon-based wxWidgets} {
-        wxWidgets.use       wxWidgets-2.8
-        depends_lib-append  port:wxWidgets-2.8
-    }
-
-    variant gtk conflicts carbon description {use wxGTK} {
-        wxWidgets.use       wxGTK-2.8
-        depends_lib-append  port:wxgtk-2.8
-    }
-
-    # TODO: think a bit more about it
-    if {![variant_isset carbon] && ![variant_isset gtk]} {
-        # gtk is the default variant on >= 10.7, carbon on <= 10.6
-        if {${os.major} >= 11} {
-            default_variants-append gtk
-        } else {
-            default_variants-append carbon
-        }
-    }
-
     # TODO: this patch and reinplace both need a review
     patchfiles      patch-config.py.diff
 
@@ -74,12 +53,10 @@ if {$subport != $name} {
         }
     }
 
-    # TODO: is it possible to use build arguments instead of redefining the whole command?
-    build.cmd       ${python.bin} setup.py WX_CONFIG="${wxWidgets.wxconfig}"
-    destroot.cmd    ${python.bin} setup.py WX_CONFIG="${wxWidgets.wxconfig}"
-
     livecheck.type  none
 } else {
+    build.cmd {}
+    destroot.cmd {}
     post-destroot {
         xinstall -d -m 755 ${destroot}${prefix}/share/doc/
         file copy ${worksrcpath}/docs ${destroot}${prefix}/share/doc/${name}
@@ -89,4 +66,34 @@ if {$subport != $name} {
     livecheck.type  regex
     livecheck.url   ${homepage}
     livecheck.regex wxPython(?: | \\(classic\\) )(2\\.\[0-9\]+\\.\[0-9\]+\\.\[0-9\]+)
+}
+
+# TODO: should variants be part of the port or part of subports?
+# it doesn't make any difference on how the docs are installed,
+# but user sees the option when asking for 'port info py-wxpython-2.8'
+# TODO: check whether build.cm/destroot.cmd need to be reset for the main port
+variant carbon conflicts gtk description {use 32-bit carbon-based wxWidgets} {
+    wxWidgets.use       wxWidgets-2.8
+    depends_lib-append  port:wxWidgets-2.8
+    # TODO: the following line would end up with --no-user-cfg
+    #build.args         WX_CONFIG="${wxWidgets.wxconfig}"
+    build.cmd           ${python.bin} setup.py WX_CONFIG="${wxWidgets.wxconfig}"
+    destroot.cmd        ${python.bin} setup.py WX_CONFIG="${wxWidgets.wxconfig}"
+}
+
+variant gtk conflicts carbon description {use wxGTK} {
+    wxWidgets.use       wxGTK-2.8
+    depends_lib-append  port:wxgtk-2.8
+    build.cmd           ${python.bin} setup.py WX_CONFIG="${wxWidgets.wxconfig}"
+    destroot.cmd        ${python.bin} setup.py WX_CONFIG="${wxWidgets.wxconfig}"
+}
+
+# TODO: think a bit more about it
+if {![variant_isset carbon] && ![variant_isset gtk]} {
+    # gtk is the default variant on >= 10.7, carbon on <= 10.6
+    if {${os.major} >= 11} {
+        default_variants-append +gtk
+    } else {
+        default_variants-append +carbon
+    }
 }

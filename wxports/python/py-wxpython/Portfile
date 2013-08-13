@@ -4,21 +4,21 @@
 PortSystem          1.0
 PortGroup           python 1.0
 
-replaced_by         py-wxpython-3.0
+replaced_by         py-wxpython-2.8
 PortGroup           obsolete 1.0
 
-name                py-wxpython30
-version             2.9.4.0
-revision            1
+name                py-wxpython
+version             2.8.12.1
+revision            2
 
 homepage            http://www.wxpython.org/
 categories          python graphics
 license             wxwidgets-3.1
 
-python.versions     27
+python.versions     24 25 26 27
 
 foreach {v} ${python.versions} {
     subport py${v}-wxpython {
-        replaced_by py${v}-wxpython-3.0
+        replaced_by py${v}-wxpython-2.8
     }
 }
