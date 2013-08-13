@@ -5,10 +5,12 @@ PortSystem          1.0
 PortGroup           active_variants 1.1
 PortGroup           archcheck 1.0
 PortGroup           select 1.0
+# temporary conflict to prevent wrong linking
+PortGroup           conflicts_build 1.0
 
 name                wxWidgets-2.8
-# temporary conflict to prevent wrong linking
-conflicts           wxgtk wxWidgets wxWidgets-python wxWidgets30 wxWidgets-devel
+# (temporary)
+conflicts_build     wxgtk wxWidgets wxWidgets-python wxWidgets30 wxWidgets-devel
 version             2.8.12
 set branch          [join [lrange [split ${version} .] 0 1] .]
 
