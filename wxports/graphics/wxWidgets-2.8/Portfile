@@ -38,10 +38,16 @@ dist_subdir         ${distname}/${version}
 checksums           rmd160  928e221abe1a00cd2d72d2a4fd3640ba639b9915 \
                     sha256  3b0ac1d2d017683851841501c8e1b744b97242d684a1668ded61809b0504f707
 
+set installname     ${distname}
+set wxtype          mac
+
+subport wxgtk-2.8 {
+    set installname wxGTK
+    set wxtype      gtk2
+}
+
 # TODO: put this into PortGroup
-# TODO: create a subport wxGTK-2.8 in addition to wxWidgets-2.8 and put it under
-#                   ${frameworks_dir}/wxWidgets.framework/Versions/wxGTK/${branch}
-set installdir      ${frameworks_dir}/wxWidgets.framework/Versions/${distname}/${branch}
+set installdir      ${frameworks_dir}/wxWidgets.framework/Versions/${installname}/${branch}
 
 depends_lib         port:jpeg \
                     port:tiff \
@@ -53,7 +59,7 @@ depends_lib         port:jpeg \
 depends_run         port:wxWidgets_select
 
 select.group        wxWidgets
-select.file         ${filespath}/${name}
+select.file         ${filespath}/${subport}
 
 archcheck.files     lib/libjpeg.dylib \
                     lib/libtiff.dylib \
@@ -65,7 +71,8 @@ archcheck.files     lib/libjpeg.dylib \
 set worksrcdir      ${distname}-${version}/build
 
 patchfiles          patch-chkconf.diff \
-                    patch-configure.diff
+                    patch-configure.diff \
+                    patch-sdl.diff
 patch.dir           ${workpath}/${distname}-${version}
 
 post-patch {
@@ -78,31 +85,12 @@ compiler.blacklist  clang
 set contrib         "gizmos stc ogl"
 set installtype     release
 
-# SDK
-set conf_sdk "no"
+set conf_sdk        "no"
 set conf_macosx_version_min "no"
-pre-fetch {
-    if {[variant_isset carbon]} {
-        # 10.8 (or later) -or- 10.7 with Xcode 4.4 (or later)
-        if {${os.major} >= 12 || [vercmp $xcodeversion 4.4] >= 0} {
-            return -code return "${name} cannot be built on Moc OS X >= 10.7 with Xcode >= 4.4, please use port ${distname}-3.0 instead"
-        } else {
-            # 10.7
-            if {${os.major} == 11} {
-                if {[vercmp $xcodeversion 4.3] < 0} {
-                    set sdks_dir "${developer_dir}/SDKs"
-                } else {
-                    set sdks_dir "${developer_dir}/Platforms/MacOSX.platform/Developer/SDKs"
-                }
-                set conf_sdk "${sdks_dir}/MacOSX10.6.sdk"
-                set conf_macosx_version_min "10.6"
-            }
-        }
-    }
-}
 
 configure.cmd       ../configure
 configure.args      --prefix=${installdir} \
+                    --with-mac \
                     --with-libiconv-prefix=${prefix} \
                     --with-libjpeg \
                     --with-libtiff \
@@ -129,44 +117,14 @@ post-destroot {
         system "cd ${build.dir} && make -C contrib/src/${c} install ${destroot.destdir}"
     }
 
-    set destdocdir ${destroot}${prefix}/share/doc/${distname}/${branch}
+    set destdocdir ${destroot}${installdir}/share/doc/${distname}
     xinstall -d -m 755 ${destdocdir}
     xinstall -m 644 -W ${workpath}/${distname}-${version} \
-    install-mac.txt install-mgl.txt install-motif.txt \
-    INSTALL-OS2.txt install-x11.txt readme-cocoa.txt \
-    readme-gtk.txt readme-mac.txt \
-    readme-mgl.txt readme-motif.txt readme-x11.txt \
-    ${destdocdir}
-    set confscript ${installdir}/lib/wx/config/mac-unicode-${installtype}-2.8
+    install-mac.txt readme-mac.txt \
+    install-gtk.txt readme-gtk.txt ${destdocdir}
+
+    set confscript ${installdir}/lib/wx/config/${wxtype}-unicode-${installtype}-2.8
     ln -sf ${confscript} ${destroot}${installdir}/bin/wx-config
-}
-
-variant carbon conflicts gtk x11 quartz description {} {
-    supported_archs         i386 ppc
-    use_parallel_build      no
-    configure.args-append   --with-mac
-}
-variant gtk conflicts carbon description {} {
-    depends_lib-append      port:cairo \
-                            port:gtk2
-    # TODO: try to make sdl work
-    #                       path:lib/pkgconfig/sdl.pc:libsdl \
-    #                       port:libsdl_mixer
-    #configure.args-delete  --without-sdl
-    configure.args-append   --with-gtk
-}
-variant x11 requires gtk conflicts carbon quartz description {} {
-    # TODO: not sure about freeglut
-    depends_lib-append      port:mesa \
-                            port:freeglut
-
-    require_active_variants cairo x11
-    require_active_variants gtk2  x11
-}
-variant quartz requires gtk conflicts carbon x11 description {} {
-    # TODO: doesn't work
-    require_active_variants cairo quartz
-    require_active_variants gtk2  quartz
 }
 
 variant aui description {add support for AUI docking library} {
@@ -182,10 +140,44 @@ variant debug description {add debug info to libraries} {
     set installtype debug
 }
 
-if {![variant_isset carbon] && ![variant_isset gtk] && ![variant_isset x11] && ![variant_isset quartz]} {
-    default_variants +carbon
+if {$subport == $name || $subport == ""} {
+    supported_archs         i386 ppc
+    use_parallel_build      no
+    # SDK
+    pre-fetch {
+        # 10.8 (or later) -or- 10.7 with Xcode 4.4 (or later)
+        if {${os.major} >= 12 || [vercmp $xcodeversion 4.4] >= 0} {
+            return -code return "${name} cannot be built on Moc OS X >= 10.7 with Xcode >= 4.4, please use port wxWidgets-3.0 or wxgtk-2.8 instead"
+        } else {
+            # 10.7
+            if {${os.major} == 11} {
+                if {[vercmp $xcodeversion 4.3] < 0} {
+                    set sdks_dir "${developer_dir}/SDKs"
+                } else {
+                    set sdks_dir "${developer_dir}/Platforms/MacOSX.platform/Developer/SDKs"
+                }
+                set conf_sdk "${sdks_dir}/MacOSX10.6.sdk"
+                set conf_macosx_version_min "10.6"
+            }
+        }
+    }
+} else {
+    depends_lib-append      port:cairo \
+                            port:gtk2 \
+                            port:mesa \
+                            port:freeglut \
+                            path:lib/pkgconfig/sdl.pc:libsdl \
+                            port:libsdl_mixer
+
+    require_active_variants cairo x11
+    require_active_variants gtk2  x11
+
+    configure.args-delete   --with-mac \
+                            --without-sdl
+    configure.args-append   --with-gtk \
+                            --with-sdl
 }
 
-livecheck.type  regex
-livecheck.url   ${homepage}/downloads/
-livecheck.regex Current Stable Release.*(2\\.\[0-9\]\\.\[0-9\]+)
+livecheck.type      regex
+livecheck.url       ${homepage}/downloads/
+livecheck.regex     Current Stable Release.*(2\\.\[0-9\]\\.\[0-9\]+)
