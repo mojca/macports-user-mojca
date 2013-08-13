@@ -2,10 +2,10 @@
 # $Id$
 
 PortSystem                  1.0
-PortGroup                   xcodeversion 1.0
-PortGroup                   texlive 1.0
-PortGroup                   elisp 1.0
-PortGroup                   wxwidgets 1.0
+PortGroup                   xcodeversion    1.0
+PortGroup                   texlive         1.0
+PortGroup                   elisp           1.0
+PortGroup                   wxwidgets       1.0
 
 name                        gnuplot
 version                     4.6.3
@@ -81,9 +81,10 @@ configure.ccache            no
 # TODO: just temporary
 pre-fetch {
     ui_info "some debugging:"
-    ui_info "    wxWidgets.use_version: '${wxWidgets.use_version}'"
+    ui_info "    wxWidgets.use_version: '${wxWidgets.use}'"
     ui_info "    supported_archs:       '${supported_archs}'"
-    ui_info "    wxWidgets.confpath:    '${wxWidgets.confpath}'"
+    ui_info "    wxWidgets.wxdir:       '${wxWidgets.wxdir}'"
+    ui_info "    wxWidgets.wxrc:        '${wxWidgets.wxrc}'"
 }
 
 variant aquaterm description "Enable AquaTerm terminal" {
@@ -116,28 +117,15 @@ variant pangocairo description "Enable cairo-based terminals" {
     configure.args-delete   --without-cairo
 }
 
-# TODO: it should be enough to depend on wxWidgets-3.0, remove all other wxWidgets variants
-
-# One can in principle choose between wxWidgets, wxwidgets30 and wxWidgets-devel,
-# but only 2.9 allows building 64-bit binaries.
-# If it is acceptable to depend on wxWidgets-devel only,
-# one could delete the variant that depends on wxWidgets 2.8.
-variant wxwidgets conflicts wxwidgets30 description "Enable wxt terminal (wxWidgets 2.8, 32-bit only)" {
-    # port lint Warning: Dependency path:lib/pkgconfig/pango.pc:pango specified multiple times in depends_lib
-    # Does the wxwidgets variant depend on the pangocairo variant?
-    # depends_lib-delete      path:lib/pkgconfig/pango.pc:pango
-    wxWidgets.use_version   2.8
-    depends_lib-append      port:wxWidgets-2.8 path:lib/pkgconfig/pango.pc:pango
-    configure.args-delete   --disable-wxwidgets
-    configure.args-append   --with-wx-config=${wxWidgets.confpath}
-}
-
-variant wxwidgets30 conflicts wxwidgets description "Enable wxt terminal (using wxWidgets 2.9, supports 64-bit)" {
-    wxWidgets.use_version   3.0
+# TODO: this should be placed inside the variant, but it doesn't work that way for some strange reason
+wxWidgets.use           wxWidgets-3.0
+variant wxwidgets description "Enable wxt terminal" {
     depends_lib-append      port:wxWidgets-3.0 path:lib/pkgconfig/pango.pc:pango
     configure.args-delete   --disable-wxwidgets
-    configure.args-append   --with-wx-config=${wxWidgets.confpath}
+    configure.args-append   --with-wx-config=${wxWidgets.wxdir}
 }
+variant wxwidgets30     description "Legacy compatibility variant" {}
+variant wxwidgets_devel description "Legacy compatibility variant" {}
 
 variant qt description "Enable qt terminal" {
     depends_lib-append      port:qt4-mac
@@ -152,6 +140,10 @@ variant old_bitmap_terminals description "Enable PBM (Portable Bit Map) and othe
 }
 
 default_variants            +aquaterm +luaterm +pangocairo +x11
+
+if {[variant_isset wxwidgets30] || [variant_isset wxwidgets_devel]} {
+    default_variants-append +wxwidgets
+}
 
 # Building and installing TeX macro files for TikZ could/should be done by gnuplot's Makefile,
 # but without a patch that would require a dependency on texlive.
