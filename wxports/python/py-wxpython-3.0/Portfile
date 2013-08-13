@@ -2,7 +2,8 @@
 # $Id$
 
 PortSystem          1.0
-PortGroup           python 1.0
+PortGroup           python      1.0
+PortGroup           wxwidgets   1.0
 
 name                py-wxpython-3.0
 version             2.9.4.0
@@ -34,17 +35,6 @@ checksums           rmd160  35e823d9161dc99083f3025383567000680e012f \
 python.versions     24 25 26 27
 python.default_version 27
 
-# TODO: copy these variables from wxPython port or wxWidgets PortGroup
-set installdir      ${frameworks_dir}/wxWidgets.framework/Versions/${distname}/${branch}
-set confscript      ${installdir}/bin/wx-config
-
-if {${os.major} < 9} {
-   pre-fetch {
-       ui_error "${name} requires Mac OS X 10.5 or later."
-       return -code error "incompatible Mac OS X version"
-   }
-}
-
 distfiles           ${distname}-src-${version}${extract.suffix}
 dist_subdir         ${distname}/${version}
 worksrcdir          ${distname}-src-${version}/wxPython
@@ -53,13 +43,14 @@ worksrcdir          ${distname}-src-${version}/wxPython
 extract.post_args   "| tar -xf - ${worksrcdir} ${distname}-src-${version}/docs"
 
 if {$subport != $name} {
+    wxWidgets.use       wxPython-3.0
     depends_lib-append  port:wxPython-3.0
 
     patchfiles      patch-config.py.diff
 
     # TODO: is it possible to use build arguments instead of redefining the whole command?
-    build.cmd       ${python.bin} setup.py WX_CONFIG="${confscript}"
-    destroot.cmd    ${python.bin} setup.py WX_CONFIG="${confscript}"
+    build.cmd       ${python.bin} setup.py WX_CONFIG="${wxWidgets.wxconfig}"
+    destroot.cmd    ${python.bin} setup.py WX_CONFIG="${wxWidgets.wxconfig}"
 
     livecheck.type  none
 } else {

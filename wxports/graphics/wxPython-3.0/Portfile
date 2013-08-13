@@ -2,11 +2,13 @@
 # $Id$
 
 PortSystem          1.0
-PortGroup           select 1.0
+PortGroup           select          1.0
+PortGroup           wxwidgets       1.0
 # temporary conflict to prevent wrong linking
 PortGroup           conflicts_build 1.0
 
 name                wxPython-3.0
+wxWidgets.use       wxPython-3.0
 # (temporary)
 conflicts_build     wxgtk wxWidgets wxWidgets-python wxWidgets30 wxWidgets-devel
 version             2.9.4.0
@@ -38,8 +40,6 @@ dist_subdir         ${distname}/${version}
 checksums           rmd160  35e823d9161dc99083f3025383567000680e012f \
                     sha256  78c35c19e85a17cb9c730b86b49d6a479198d76d19e0b13e86db0b55707004be
 
-set installdir      ${frameworks_dir}/wxWidgets.framework/Versions/${distname}/${branch}
-
 depends_lib         port:jpeg \
                     port:tiff \
                     port:libpng \
@@ -52,20 +52,10 @@ depends_run         port:wxWidgets_select
 select.group        wxWidgets
 select.file         ${filespath}/${name}
 
-if {${os.major} < 9} {
-   pre-fetch {
-       ui_error "${name} requires Mac OS X 10.5 or later."
-       return -code error "incompatible Mac OS X version"
-   }
-}
-
-pre-fetch {
-    puts "branch: ${branch}"
-}
 worksrcdir          ${distname}-src-${version}/build
 configure.cmd       ../configure
 
-configure.args      --prefix=${installdir} \
+configure.args      --prefix=${wxWidgets.prefix} \
                     --with-libjpeg \
                     --with-libtiff \
                     --with-libpng \
@@ -81,13 +71,12 @@ configure.args      --prefix=${installdir} \
                     --with-macosx-sdk=no \
                     --with-macosx-version-min=no
 
-# build.target
-
 variant universal {
     set archs [join ${configure.universal_archs} ,]
     configure.args-append   --enable-universal_binary=${archs}
 }
 
+# TODO: what is this?
 configure.ccache    no
 
 # variant monolithic description {build only one library} {
@@ -115,7 +104,7 @@ post-build {
     # libwx_baseu_xml-2.9.4.0.0.dylib and libwx_baseu-2.9.4.0.0.dylib
 
     foreach {lib} "libwx_baseu_xml-${version}.0.dylib and libwx_baseu-${version}.0.dylib" {
-        system "install_name_tool -change ${build.dir}/lib/${lib} ${installdir}/lib/${lib} ${build.dir}/utils/wxrc/wxrc"
+        system "install_name_tool -change ${build.dir}/lib/${lib} ${wxWidgets.prefix}/lib/${lib} ${build.dir}/utils/wxrc/wxrc"
     }
 }
 
@@ -129,8 +118,8 @@ post-destroot {
     #    changes.txt gpl.txt lgpl.txt licence.txt preamble.txt readme.txt \
     #    osx/install.txt osx/readme.txt
     #    ${destroot}${prefix}/share/doc/${name}
-    set confscript ${installdir}/lib/wx/config/osx_cocoa-unicode-${branch}
-    ln -sf ${confscript} ${destroot}${installdir}/bin/wx-config
+    set confscript ${wxWidgets.prefix}/lib/wx/config/osx_cocoa-unicode-${branch}
+    ln -sf ${confscript} ${destroot}${wxWidgets.prefix}/bin/wx-config
 }
 
 livecheck.type      regex

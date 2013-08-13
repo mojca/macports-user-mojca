@@ -1,8 +1,16 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 # $Id$
 
-options     wxWidgets.confpath
-options     wxWidgets.confscript
+options     wxWidgets.name
+options     wxWidgets.trueversion
+options     wxWidgets.prefix
+
+options     wxWidgets.wxdir
+options     wxWidgets.wxconfig
+options     wxWidgets.wxrc
+
+options     wxWidgets.sdk
+options     wxWidgets.macosx_version_min
 
 # Poedit also needs
 # build.env-append  GETTEXT_PREFIX=${prefix} WX_ROOT=${prefix}
@@ -10,8 +18,11 @@ options     wxWidgets.confscript
 options     wxWidgets.supported_versions
 option_proc wxWidgets.supported_versions wxWidgets._set_supported_versions
 
-options     wxWidgets.use_version
-option_proc wxWidgets.use_version wxWidgets._set_version
+options     wxWidgets.use
+option_proc wxWidgets.use wxWidgets._set
+
+# options     wxWidgets.use_version
+# option_proc wxWidgets.use_version wxWidgets._set_version
 
 # TODO
 # - parameters can be "2.8", "3.0" or "2.8 3.0"
@@ -26,46 +37,69 @@ option_proc wxWidgets.use_version wxWidgets._set_version
 proc wxWidgets._set_supported_versions {option action args} {
 }
 
-proc wxWidgets._set_version {option action args} {
-    global prefix frameworks_dir
+# parameters: "wxWidgets-2.8" "wxGTK-2.8" "wxWidgets-3.0" "wxPython-3.0"
+proc wxWidgets._set {option action args} {
+    global prefix frameworks_dir os.major
+    global wxWidgets.name wxWidgets.trueversion wxWidgets.prefix wxWidgets.wxdir
     if {"set" != ${action}} {
         return
     }
 
-    if {${args} == "2.8"} {
-        wxWidgets.confpath   ${frameworks_dir}/wxWidgets.framework/Versions/wxWidgets/2.8/bin
+    if {${args} == "wxWidgets-2.8"} {
+        wxWidgets.name          "wxWidgets"
+        wxWidgets.trueversion   "2.8"
+
         # wxWidgets is not universal and is 32-bit only
-        universal_variant    no
-        supported_archs      i386 ppc
-        # TODO
-        # - doesn't build on 10.8 (darwin 12) or later
-        # - probably doesn't built on 10.7 (darwin 11) with Xcode 4.4 or later
-        # - needs to use 10.6 SDK on 10.7 with earlier versions of Xcode
-        #   wxWidgets itself uses
-        #       --with-macosx-version-min=10.6
-        #       --with-macosx-sdk=${developer_dir}/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk
-        #       --with-macosx-sdk=${developer_dir}/SDKs/MacOSX10.6.sdk
-        #   some ports use
-        #       configure.cxxflags-append -isysroot ${developer_dir}/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk
-        #       configure.cxxflags-append -isysroot ${developer_dir}/SDKs/MacOSX10.6.sdk
-        # example from a port (needs a review/patch):
-        #
-        # platform darwin 11 {
-        #     if {[vercmp $xcodeversion 4.4] >= 0} {
-        #         # doesn't work!!!
-        #     } elseif {[vercmp $xcodeversion 4.3] >= 0} {
-        #         configure.cxxflags-append -isysroot ${developer_dir}/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk
-        #     } else {
-        #         configure.cxxflags-append -isysroot ${developer_dir}/SDKs/MacOSX10.6.sdk
-        #     }
-        # }
-    } elseif {${args} == "3.0"} {
-        wxWidgets.confpath   ${frameworks_dir}/wxWidgets.framework/Versions/wxWidgets/2.9/bin
+        universal_variant       no
+        supported_archs         i386 ppc
+        compiler.blacklist      clang
+
+        puts "wxWidgets-2.8"
+        pre-fetch {
+            # 10.8 (or later) -or- 10.7 with Xcode 4.4 (or later)
+            if {${os.major} >= 12 || [vercmp $xcodeversion 4.4] >= 0} {
+                ui_error "wxWidgets-2.8 cannot be built on Moc OS X >= 10.7 with Xcode >= 4.4, please use port wxWidgets-3.0 or wxgtk-2.8 instead"
+                return -code return "wxWidgets-2.8 cannot be built on Moc OS X >= 10.7 with Xcode >= 4.4, please use port wxWidgets-3.0 or wxgtk-2.8 instead"
+            } else {
+                # 10.7
+                if {${os.major} == 11} {
+                    if {[vercmp $xcodeversion 4.3] < 0} {
+                        set sdks_dir "${developer_dir}/SDKs"
+                    } else {
+                        set sdks_dir "${developer_dir}/Platforms/MacOSX.platform/Developer/SDKs"
+                    }
+                    wxWidgets.sdk "${sdks_dir}/MacOSX10.6.sdk"
+                    wxWidgets.macosx_version_min "10.6"
+                }
+            }
+        }
+    } elseif {${args} == "wxGTK-2.8"} {
+        wxWidgets.name          "wxGTK"
+        wxWidgets.trueversion   "2.8"
+    } elseif {${args} == "wxWidgets-3.0"} {
+        wxWidgets.name          "wxWidgets"
+        wxWidgets.trueversion   "2.9"
+        if {${os.major} < 9} {
+            pre-fetch {
+                ui_error "wxWidgets-3.0 requires Mac OS X 10.5 or later."
+                return -code error "incompatible Mac OS X version"
+            }
+        }
+    } elseif {${args} == "wxPython-3.0"} {
+        wxWidgets.name          "wxPython"
+        wxWidgets.trueversion   "2.9"
+        if {${os.major} < 9} {
+            pre-fetch {
+                ui_error "wxPython-3.0 requires Mac OS X 10.5 or later."
+                return -code error "incompatible Mac OS X version"
+            }
+        }
     } else {
         # throw an error
     }
-    wxWidgets.confscript ${wxWidgets.confpath}/wx-config
-}
+    wxWidgets.prefix    ${frameworks_dir}/wxWidgets.framework/Versions/${wxWidgets.name}/${wxWidgets.trueversion}
 
-# default that can be overridden
-wxWidgets.use_version   3.0
+    wxWidgets.wxdir     ${wxWidgets.prefix}/bin
+    wxWidgets.wxconfig  ${wxWidgets.wxdir}/wx-config
+    wxWidgets.wxrc      ${wxWidgets.wxdir}/wxrc
+}

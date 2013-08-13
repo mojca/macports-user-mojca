@@ -2,7 +2,8 @@
 # $Id$
 
 PortSystem          1.0
-PortGroup           python 1.0
+PortGroup           python      1.0
+PortGroup           wxwidgets   1.0
 
 name                py-wxpython-2.8
 version             2.8.12.1
@@ -34,18 +35,6 @@ checksums           rmd160  94eae06087bdd930e21bf90cc6672f93a1f5a17a \
 python.versions     24 25 26 27
 python.default_version 27
 
-# TODO: copy these variables from wxPython port or wxWidgets PortGroup
-set installdir      ${frameworks_dir}/wxWidgets.framework/Versions/wxWidgets/${branch}
-set confscript      ${installdir}/bin/wx-config
-
-pre-fetch {
-    # 10.8 (or later) -or- 10.7 with Xcode 4.4 (or later)
-    if {${os.major} >= 12 || [vercmp $xcodeversion 4.4] >= 0} {
-        return -code return "${name} cannot be built on Moc OS X >= 10.7 with Xcode >= 4.4, please use port ${distname}-3.0 instead"
-    }
-}
-
-
 distfiles           ${distname}-src-${version}${extract.suffix}
 dist_subdir         ${distname}/${version}
 worksrcdir          ${distname}-src-${version}/wxPython
@@ -54,8 +43,9 @@ worksrcdir          ${distname}-src-${version}/wxPython
 extract.post_args   "| tar -xf - ${worksrcdir} ${distname}-src-${version}/docs"
 
 if {$subport != $name} {
+    # TODO: a variant for wxgtk-2.8
+    wxWidgets.use       wxWidgets-2.8
     depends_lib-append  port:wxWidgets-2.8
-    supported_archs     i386 ppc
     
     patchfiles      patch-config.py.diff
 
@@ -68,8 +58,8 @@ if {$subport != $name} {
     }
 
     # TODO: is it possible to use build arguments instead of redefining the whole command?
-    build.cmd       ${python.bin} setup.py WX_CONFIG="${confscript}"
-    destroot.cmd    ${python.bin} setup.py WX_CONFIG="${confscript}"
+    build.cmd       ${python.bin} setup.py WX_CONFIG="${wxWidgets.wxconfig}"
+    destroot.cmd    ${python.bin} setup.py WX_CONFIG="${wxWidgets.wxconfig}"
 
     livecheck.type  none
 } else {

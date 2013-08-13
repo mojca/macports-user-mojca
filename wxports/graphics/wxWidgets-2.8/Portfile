@@ -3,8 +3,9 @@
 
 PortSystem          1.0
 PortGroup           active_variants 1.1
-PortGroup           archcheck 1.0
-PortGroup           select 1.0
+PortGroup           archcheck       1.0
+PortGroup           select          1.0
+PortGroup           wxwidgets       1.0
 # temporary conflict to prevent wrong linking
 PortGroup           conflicts_build 1.0
 
@@ -40,16 +41,19 @@ dist_subdir         ${distname}/${version}
 checksums           rmd160  928e221abe1a00cd2d72d2a4fd3640ba639b9915 \
                     sha256  3b0ac1d2d017683851841501c8e1b744b97242d684a1668ded61809b0504f707
 
-set installname     ${distname}
-set wxtype          mac
+subport wxgtk-2.8   {}
 
-subport wxgtk-2.8 {
+if {$subport == $name || $subport == ""} {
+    wxWidgets.use   wxWidgets-2.8
+    set installname wxWidgets
+    set wxtype      mac
+} else {
+    wxWidgets.use   wxGTK-2.8
     set installname wxGTK
     set wxtype      gtk2
 }
-
-# TODO: put this into PortGroup
-set installdir      ${frameworks_dir}/wxWidgets.framework/Versions/${installname}/${branch}
+set installtype     release
+set contrib         "gizmos stc ogl"
 
 depends_lib         port:jpeg \
                     port:tiff \
@@ -82,16 +86,8 @@ post-patch {
     reinplace "s|@@PREFIX@@|${prefix}|g"                ${workpath}/${distname}-${version}/configure
 }
 
-compiler.blacklist  clang
-
-set contrib         "gizmos stc ogl"
-set installtype     release
-
-set conf_sdk        "no"
-set conf_macosx_version_min "no"
-
 configure.cmd       ../configure
-configure.args      --prefix=${installdir} \
+configure.args      --prefix=${wxWidgets.prefix} \
                     --with-mac \
                     --with-libiconv-prefix=${prefix} \
                     --with-libjpeg \
@@ -104,66 +100,17 @@ configure.args      --prefix=${installdir} \
                     --enable-unicode \
                     --enable-display \
                     --enable-graphics_ctx \
-                    --with-macosx-sdk=${conf_sdk} \
-                    --with-macosx-version-min=${conf_macosx_version_min} \
                     --enable-universal_binary
 
-post-build {
-    foreach c { ${contrib} } {
-        system "cd ${build.dir} && make -C contrib/src/${c}"
-    }
-}
-
-post-destroot {
-    foreach c { ${contrib} } {
-        system "cd ${build.dir} && make -C contrib/src/${c} install ${destroot.destdir}"
-    }
-
-    set destdocdir ${destroot}${installdir}/share/doc/${distname}
-    xinstall -d -m 755 ${destdocdir}
-    xinstall -m 644 -W ${workpath}/${distname}-${version} \
-    install-mac.txt readme-mac.txt \
-    install-gtk.txt readme-gtk.txt ${destdocdir}
-
-    set confscript ${installdir}/lib/wx/config/${wxtype}-unicode-${installtype}-2.8
-    ln -sf ${confscript} ${destroot}${installdir}/bin/wx-config
-}
-
-variant aui description {add support for AUI docking library} {
-    configure.args-append    --enable-aui
-}
-
-variant monolithic description {build only one library} {
-    configure.args-append    --enable-monolithic
-}
-
-variant debug description {add debug info to libraries} {
-    configure.args-append    --enable-debug
-    set installtype debug
-}
-
-if {$subport == $name || $subport == ""} {
-    supported_archs         i386 ppc
-    use_parallel_build      no
-    # SDK
-    pre-fetch {
-        # 10.8 (or later) -or- 10.7 with Xcode 4.4 (or later)
-        if {${os.major} >= 12 || [vercmp $xcodeversion 4.4] >= 0} {
-            return -code return "${name} cannot be built on Moc OS X >= 10.7 with Xcode >= 4.4, please use port wxWidgets-3.0 or wxgtk-2.8 instead"
-        } else {
-            # 10.7
-            if {${os.major} == 11} {
-                if {[vercmp $xcodeversion 4.3] < 0} {
-                    set sdks_dir "${developer_dir}/SDKs"
-                } else {
-                    set sdks_dir "${developer_dir}/Platforms/MacOSX.platform/Developer/SDKs"
-                }
-                set conf_sdk "${sdks_dir}/MacOSX10.6.sdk"
-                set conf_macosx_version_min "10.6"
-            }
-        }
-    }
+if {${wxWidgets.sdk} == ""} {
+    configure.args-append   --with-macosx-sdk=no \
+                            --with-macosx-version-min=no
 } else {
+    configure.args-append   --with-macosx-sdk=${wxWidgets.sdk} \
+                            --with-macosx-version-min=${wxWidgets.macosx_version_min}
+}
+
+if {$subport != $name && $subport != ""} {
     depends_lib-append      port:cairo \
                             port:gtk2 \
                             port:mesa \
@@ -178,6 +125,40 @@ if {$subport == $name || $subport == ""} {
                             --without-sdl
     configure.args-append   --with-gtk \
                             --with-sdl
+}
+
+post-build {
+    foreach c { ${contrib} } {
+        system "cd ${build.dir} && make -C contrib/src/${c}"
+    }
+}
+
+post-destroot {
+    foreach c { ${contrib} } {
+        system "cd ${build.dir} && make -C contrib/src/${c} install ${destroot.destdir}"
+    }
+
+    set destdocdir ${destroot}${wxWidgets.prefix}/share/doc/${distname}
+    xinstall -d -m 755 ${destdocdir}
+    xinstall -m 644 -W ${workpath}/${distname}-${version} \
+    install-mac.txt readme-mac.txt \
+    install-gtk.txt readme-gtk.txt ${destdocdir}
+
+    set confscript ${wxWidgets.prefix}/lib/wx/config/${wxtype}-unicode-${installtype}-2.8
+    ln -sf ${confscript} ${destroot}${wxWidgets.prefix}/bin/wx-config
+}
+
+variant aui description {add support for AUI docking library} {
+    configure.args-append    --enable-aui
+}
+
+variant monolithic description {build only one library} {
+    configure.args-append    --enable-monolithic
+}
+
+variant debug description {add debug info to libraries} {
+    configure.args-append    --enable-debug
+    set installtype debug
 }
 
 livecheck.type      regex
