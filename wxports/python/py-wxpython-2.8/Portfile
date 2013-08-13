@@ -43,10 +43,27 @@ worksrcdir          ${distname}-src-${version}/wxPython
 extract.post_args   "| tar -xf - ${worksrcdir} ${distname}-src-${version}/docs"
 
 if {$subport != $name} {
-    # TODO: a variant for wxgtk-2.8
-    wxWidgets.use       wxWidgets-2.8
-    depends_lib-append  port:wxWidgets-2.8
-    
+    variant carbon conflicts gtk description {use 32-bit carbon-based wxWidgets} {
+        wxWidgets.use       wxWidgets-2.8
+        depends_lib-append  port:wxWidgets-2.8
+    }
+
+    variant gtk conflicts carbon description {use wxGTK} {
+        wxWidgets.use       wxGTK-2.8
+        depends_lib-append  port:wxgtk-2.8
+    }
+
+    # TODO: think a bit more about it
+    if {![variant_isset carbon] && ![variant_isset gtk]} {
+        # gtk is the default variant on >= 10.7, carbon on <= 10.6
+        if {${os.major} >= 11} {
+            default_variants-append gtk
+        } else {
+            default_variants-append carbon
+        }
+    }
+
+    # TODO: this patch and reinplace both need a review
     patchfiles      patch-config.py.diff
 
     post-patch {

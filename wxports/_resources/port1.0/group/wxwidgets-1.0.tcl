@@ -12,6 +12,15 @@ options     wxWidgets.wxrc
 options     wxWidgets.sdk
 options     wxWidgets.macosx_version_min
 
+wxWidgets.name               ""
+wxWidgets.trueversion        ""
+wxWidgets.prefix             ""
+wxWidgets.wxdir              ""
+wxWidgets.wxconfig           ""
+wxWidgets.wxrc               ""
+wxWidgets.sdk                ""
+wxWidgets.macosx_version_min ""
+
 # Poedit also needs
 # build.env-append  GETTEXT_PREFIX=${prefix} WX_ROOT=${prefix}
 
@@ -44,8 +53,6 @@ proc wxWidgets._set {option action args} {
     if {"set" != ${action}} {
         return
     }
-    wxWidgets.sdk ""
-    wxWidgets.macosx_version_min ""
 
     if {${args} == "wxWidgets-2.8"} {
         wxWidgets.name          "wxWidgets"

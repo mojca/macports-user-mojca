@@ -117,9 +117,8 @@ variant pangocairo description "Enable cairo-based terminals" {
     configure.args-delete   --without-cairo
 }
 
-# TODO: this should be placed inside the variant, but it doesn't work that way for some strange reason
-wxWidgets.use           wxWidgets-3.0
 variant wxwidgets description "Enable wxt terminal" {
+    wxWidgets.use           wxWidgets-3.0
     depends_lib-append      port:wxWidgets-3.0 path:lib/pkgconfig/pango.pc:pango
     configure.args-delete   --disable-wxwidgets
     configure.args-append   --with-wx-config=${wxWidgets.wxdir}
