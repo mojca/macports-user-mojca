@@ -1,9 +1,23 @@
---- config.py	2012-04-08 18:41:21.000000000 +0300
-+++ config.py	2012-04-08 18:44:32.000000000 +0300
-@@ -1031,19 +1031,8 @@
+--- config.py.orig
++++ config.py
+@@ -1024,27 +1024,16 @@ elif os.name == 'posix' or COMPILER == 'mingw32':
+     WXRELEASE  = os.popen(WX_CONFIG + ' --release').read()[:-1]
+     WXPREFIX   = os.popen(WX_CONFIG + ' --prefix').read()[:-1]
+ 
+-
+-    if sys.platform[:6] == "darwin" and WXPORT == 'mac':
++    if sys.platform[:6] == "darwin":
++        libs = ['stdc++']
++        NO_SCRIPTS = 1
++        # @@FLAGS1@@
++        # @@FLAGS2@@
++        # @@FLAGS3@@
++    if WXPORT == 'mac':
+         # Flags and such for a Darwin (Max OS X) build of Python
+         WXPLAT = '__WXMAC__'
          GENDIR = 'mac'
-         libs = ['stdc++']
-         NO_SCRIPTS = 1
+-        libs = ['stdc++']
+-        NO_SCRIPTS = 1
 -        if not ARCH == "":
 -            cflags.append("-arch")
 -            cflags.append(ARCH)
@@ -17,8 +31,22 @@
 -            os.environ["CXX"] = "g++-4.0"
 -            os.environ["CC"]  = "gcc-4.0"
 -            os.environ["CPP"] = "cpp-4.0"
-+        cflags.append("-isysroot")
-+        cflags.append("@developer_dir@/SDKs/MacOSX10.6.sdk")
- 
+-
      else:
          # Set flags for other Unix type platforms
+         GENDIR = WXPORT
+@@ -1070,14 +1059,6 @@ elif os.name == 'posix' or COMPILER == 'mingw32':
+ 
+         cflags += portcfg.split()
+ 
+-        # Some distros (e.g. Mandrake) put libGLU in /usr/X11R6/lib, but
+-        # wx-config doesn't output that for some reason.  For now, just
+-        # add it unconditionally but we should really check if the lib is
+-        # really found there or wx-config should be fixed.
+-        if WXPORT != 'msw':
+-            libdirs.append("/usr/X11R6/lib")
+-
+-
+     # Move the various -I, -D, etc. flags we got from the *config scripts
+     # into the distutils lists.
+     cflags = adjustCFLAGS(cflags, defines, includes)
