@@ -1,0 +1,69 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           github 1.0
+PortGroup           wxwidgets 1.0
+
+# the released version has the extra compgation that it needs to fetch cmpfit-1.2.tar.gz on the fly
+# github.setup        wojdyr fityk 1.2.1 v
+github.setup        wojdyr fityk e63acef802
+name                fityk
+version             1.2.1
+categories          math
+platforms           darwin
+license             GPL-2
+maintainers         nomaintainer
+
+description         fityk is for peak fitting.
+
+long_description    fityk is a program for nonlinear fitting of analytical \
+                    functions (especially peak-shaped) to data (usually \
+                    experimental data). There are also people using it to \
+                    remove the baseline from data, or to display data only.
+
+homepage            http://fityk.nieto.pl/
+
+# additional master site
+# master_sites        http://www.physics.wisc.edu/~craigm/idl/down:cmpfit
+# distfiles-append    cmpfit-1.2.tar.gz:cmpfit
+
+checksums           rmd160  12cbcd703c62439f2d0e95b5394277654249722b \
+                    sha256  2abb978b7f1ee8f800bf4f34a529163460234c873e423cf12fea2bb9260f1c45
+
+wxWidgets.use       wxWidgets-3.0
+
+# WARNING: dvipng command 'dvipng' cannot be run (needed for math display), check the pngmath_dvipng setting
+depends_build       port:swig-lua
+
+depends_lib         port:boost \
+                    port:readline \
+                    port:gnuplot \
+                    port:ncurses \
+                    port:xylib \
+                    port:lua \
+                    port:zlib \
+                    port:python27 \
+                    port:wxWidgets30
+
+# TODO: gnuplot is probably a runtime dependency
+
+pre-configure {
+    # TODO: dependency on autotools
+    system "cd ${worksrcpath} && autoreconf --install --verbose"
+}
+
+pre-build {
+    if {[variant_isset docs]} {
+        depends_build-append port:py27-sphinx
+        # TODO: use a python variable
+        reinplace "s|sphinx-build|${prefix}/Library/Frameworks/Python.framework/Versions/2.7/bin/sphinx-build|" ${worksrcpath}/doc/Makefile
+        system "cd doc && make && cd .."
+    } else {
+        system "mkdir -p ${worksrcpath}/doc/html/placeholder"
+    }
+}
+
+configure.args-append --with-wxdir=${wxWidgets.wxdir}
+
+variant docs description {Build and install documentation} {}
