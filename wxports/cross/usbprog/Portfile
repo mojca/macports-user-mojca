@@ -1,0 +1,80 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4; truncate-lines: t -*- vim:fenc=utf-8:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           wxwidgets 1.0
+PortGroup           bitbucket 1.0
+
+bitbucket.setup     bwalle usbprog-tools-classic 7751c98
+name                usbprog
+version             0.2.1
+categories          cross
+maintainers         lilalinux.net:macports
+description         Tool for uploading and downloading firmwares to the usbprog device
+long_description    Tool for uploading and downloading firmwares to the usbprog device.
+homepage            https://bitbucket.org/bwalle/usbprog-tools-classic
+platforms           darwin
+license             GPL-2+
+
+depends_build	    port:autoconf port:automake
+
+depends_lib-append  port:libusb-compat \
+                    port:libxml2 \
+                    port:readline \
+                    port:curl
+
+checksums           rmd160  4e65113a0b2a61395275df6e4bef1dfce6c71e03 \
+                    sha256  f47f7413758cac08a761595ed8ce2bfc6f0637ce0a767018c242ab0b2f0ec72e
+
+patchfiles          patch-gui-usbprogFrm.cc.diff
+
+# TODO: if wxWidgets 2.9 seem to work fine, just delete all the variants
+variant wxwidgets30 conflicts wxwidgets28 wxgtk28 description {Use wxWidgets 2.9 (migt not be fully functional yet)} {
+    wxWidgets.use           wxWidgets-3.0
+    depends_lib-append      port:${wxWidgets.port}
+    configure.args-append   --with-wxdir=${wxWidgets.wxdir}
+    configure.env-append    WXRC=${wxWidgets.wxrc}
+
+    # TODO: not sure how to prevent duplication of the following code
+    # TODO: if needed, an additional variable could be added to wxwidgets PortGroup for easier access to wxwin.m4
+    pre-configure {
+        system "mkdir ${worksrcpath}/m4"
+        system "cp ${wxWidgets.prefix}/share/aclocal/wxwin.m4 ${worksrcpath}/m4/"
+        system "cd ${worksrcpath} && ./bootstrap"
+    }
+}
+
+variant wxwidgets28 conflicts wxwidgets30 wxgtk28 description {Use 32-bit Carbon-based wxWidgets 2.8} {
+    wxWidgets.use           wxWidgets-2.8
+    depends_lib-append      port:${wxWidgets.port}
+    configure.args-append   --with-wxdir=${wxWidgets.wxdir}
+    configure.env-append    WXRC=${wxWidgets.wxrc}
+
+    pre-configure {
+        system "mkdir ${worksrcpath}/m4"
+        system "cp ${wxWidgets.prefix}/share/aclocal/wxwin.m4 ${worksrcpath}/m4/"
+        system "cd ${worksrcpath} && ./bootstrap"
+    }
+}
+
+variant wxgtk28 conflicts wxwidgets30 wxwidgets28 description {Use wxWidgets 2.8 with GTK} {
+    wxWidgets.use           wxGTK-2.8
+    depends_lib-append      port:${wxWidgets.port}
+    configure.args-append   --with-wxdir=${wxWidgets.wxdir}
+    configure.env-append    WXRC=${wxWidgets.wxrc}
+
+    pre-configure {
+        system "mkdir ${worksrcpath}/m4"
+        system "cp ${wxWidgets.prefix}/share/aclocal/wxwin.m4 ${worksrcpath}/m4"
+        system "cd ${worksrcpath} && ./bootstrap"
+    }
+}
+
+
+if {![variant_isset wxwidgets30] && ![variant_isset wxwidgets28] && ![variant_isset wxgtk28]} {
+    if {[vercmp $xcodeversion 4.4] >= 0} {
+        default_variants +wxgtk28
+    } else {
+        default_variants +wxwidgets28
+    }
+}
