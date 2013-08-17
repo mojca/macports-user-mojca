@@ -3,7 +3,7 @@
 
 options     wxWidgets.name
 options     wxWidgets.port
-options     wxWidgets.trueversion
+options     wxWidgets.version
 options     wxWidgets.prefix
 
 options     wxWidgets.wxdir
@@ -16,7 +16,7 @@ options     wxWidgets.macosx_version_min
 # set to empty
 wxWidgets.name
 wxWidgets.port
-wxWidgets.trueversion
+wxWidgets.version
 wxWidgets.prefix
 wxWidgets.wxdir
 wxWidgets.wxconfig
@@ -52,20 +52,20 @@ proc wxWidgets._set_supported_versions {option action args} {
 # parameters: "wxWidgets-2.8" "wxGTK-2.8" "wxWidgets-3.0" "wxPython-3.0"
 proc wxWidgets._set {option action args} {
     global prefix frameworks_dir os.major
-    global wxWidgets.name wxWidgets.trueversion wxWidgets.prefix wxWidgets.wxdir
+    global wxWidgets.name wxWidgets.version wxWidgets.prefix wxWidgets.wxdir
     if {"set" != ${action}} {
         return
     }
 
     if {${args} == "wxWidgets-2.8"} {
-        wxWidgets.name          "wxWidgets"
-        wxWidgets.trueversion   "2.8"
-        wxWidgets.port          "wxWidgets-2.8"
+        wxWidgets.name      "wxWidgets"
+        wxWidgets.version   "2.8"
+        wxWidgets.port      "wxWidgets-2.8"
 
         # wxWidgets is not universal and is 32-bit only
-        universal_variant       no
-        supported_archs         i386 ppc
-        compiler.blacklist      clang
+        universal_variant   no
+        supported_archs     i386 ppc
+        compiler.blacklist  clang
 
         pre-fetch {
             # 10.8 (or later) -or- 10.7 with Xcode 4.4 (or later)
@@ -86,13 +86,13 @@ proc wxWidgets._set {option action args} {
             }
         }
     } elseif {${args} == "wxGTK-2.8"} {
-        wxWidgets.name          "wxGTK"
-        wxWidgets.trueversion   "2.8"
-        wxWidgets.port          "wxgtk-2.8"
+        wxWidgets.name      "wxGTK"
+        wxWidgets.version   "2.8"
+        wxWidgets.port      "wxgtk-2.8"
     } elseif {${args} == "wxWidgets-3.0"} {
-        wxWidgets.name          "wxWidgets"
-        wxWidgets.trueversion   "2.9"
-        wxWidgets.port          "wxWidgets-3.0"
+        wxWidgets.name      "wxWidgets"
+        wxWidgets.version   "2.9"
+        wxWidgets.port      "wxWidgets-3.0"
         if {${os.major} < 9} {
             pre-fetch {
                 ui_error "${wxWidgets.port} requires Mac OS X 10.5 or later."
@@ -100,9 +100,9 @@ proc wxWidgets._set {option action args} {
             }
         }
     } elseif {${args} == "wxPython-3.0"} {
-        wxWidgets.name          "wxPython"
-        wxWidgets.trueversion   "2.9"
-        wxWidgets.port          "wxPython-3.0"
+        wxWidgets.name      "wxPython"
+        wxWidgets.version   "2.9"
+        wxWidgets.port      "wxPython-3.0"
         if {${os.major} < 9} {
             pre-fetch {
                 ui_error "${wxWidgets.port} requires Mac OS X 10.5 or later."
@@ -114,7 +114,7 @@ proc wxWidgets._set {option action args} {
         ui_error "invalid parameter for wxWidgets.use; use one of: wxWidgets-2.8/wxGTK-2.8/wxWidgets-3.0/wxPython-3.0"
         return -code return "invalid parameter for wxWidgets.use"
     }
-    wxWidgets.prefix    ${frameworks_dir}/wxWidgets.framework/Versions/${wxWidgets.name}/${wxWidgets.trueversion}
+    wxWidgets.prefix    ${frameworks_dir}/wxWidgets.framework/Versions/${wxWidgets.name}/${wxWidgets.version}
 
     wxWidgets.wxdir     ${wxWidgets.prefix}/bin
     wxWidgets.wxconfig  ${wxWidgets.wxdir}/wx-config
