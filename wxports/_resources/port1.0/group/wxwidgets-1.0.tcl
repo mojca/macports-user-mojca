@@ -2,6 +2,7 @@
 # $Id$
 
 options     wxWidgets.name
+options     wxWidgets.port
 options     wxWidgets.trueversion
 options     wxWidgets.prefix
 
@@ -14,6 +15,7 @@ options     wxWidgets.macosx_version_min
 
 # set to empty
 wxWidgets.name
+wxWidgets.port
 wxWidgets.trueversion
 wxWidgets.prefix
 wxWidgets.wxdir
@@ -58,17 +60,17 @@ proc wxWidgets._set {option action args} {
     if {${args} == "wxWidgets-2.8"} {
         wxWidgets.name          "wxWidgets"
         wxWidgets.trueversion   "2.8"
+        wxWidgets.port          "wxWidgets-2.8"
 
         # wxWidgets is not universal and is 32-bit only
         universal_variant       no
         supported_archs         i386 ppc
         compiler.blacklist      clang
 
-        puts "wxWidgets-2.8"
         pre-fetch {
             # 10.8 (or later) -or- 10.7 with Xcode 4.4 (or later)
             if {${os.major} >= 12 || [vercmp $xcodeversion 4.4] >= 0} {
-                ui_error "wxWidgets-2.8 cannot be built on Moc OS X >= 10.7 with Xcode >= 4.4, please use port wxWidgets-3.0 or wxgtk-2.8 instead"
+                ui_error "${wxWidgets.port} cannot be built on Moc OS X >= 10.7 with Xcode >= 4.4, please use port wxWidgets-3.0 or wxgtk-2.8 instead"
                 return -code return "wxWidgets-2.8 cannot be built on Moc OS X >= 10.7 with Xcode >= 4.4, please use port wxWidgets-3.0 or wxgtk-2.8 instead"
             } else {
                 # 10.7
@@ -86,21 +88,24 @@ proc wxWidgets._set {option action args} {
     } elseif {${args} == "wxGTK-2.8"} {
         wxWidgets.name          "wxGTK"
         wxWidgets.trueversion   "2.8"
+        wxWidgets.port          "wxgtk-2.8"
     } elseif {${args} == "wxWidgets-3.0"} {
         wxWidgets.name          "wxWidgets"
         wxWidgets.trueversion   "2.9"
+        wxWidgets.port          "wxWidgets-3.0"
         if {${os.major} < 9} {
             pre-fetch {
-                ui_error "wxWidgets-3.0 requires Mac OS X 10.5 or later."
+                ui_error "${wxWidgets.port} requires Mac OS X 10.5 or later."
                 return -code error "incompatible Mac OS X version"
             }
         }
     } elseif {${args} == "wxPython-3.0"} {
         wxWidgets.name          "wxPython"
         wxWidgets.trueversion   "2.9"
+        wxWidgets.port          "wxPython-3.0"
         if {${os.major} < 9} {
             pre-fetch {
-                ui_error "wxPython-3.0 requires Mac OS X 10.5 or later."
+                ui_error "${wxWidgets.port} requires Mac OS X 10.5 or later."
                 return -code error "incompatible Mac OS X version"
             }
         }
