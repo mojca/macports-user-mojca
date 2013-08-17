@@ -12,6 +12,7 @@ version             4
 categories          science
 maintainers         mojca openmaintainer
 license             Restrictive/Distributable
+# license             Permissive
 #                   http://geant4.web.cern.ch/geant4/license/LICENSE.html
 description         Geant4 is a toolkit for the simulation of the passage of particles through matter.
 long_description    Geant4 is a toolkit for the simulation of the passage of particles through matter. \
@@ -155,8 +156,7 @@ foreach {geant.version geant.revision geant.datarevision geant.patchlevel geant.
         depends_lib         port:${subport}-data \
                             port:zlib \
                             port:expat \
-                            port:root \
-                            port:iAIDA
+                            port:root
         depends_run         port:geant4_select
 
         select.group        geant4
