@@ -1,7 +1,5 @@
-diff --git a/gui/usbprogFrm.cc b/gui/usbprogFrm.cc
-index bc1acbf..14e7ff0 100644
---- a/gui/usbprogFrm.cc
-+++ b/gui/usbprogFrm.cc
+--- gui/usbprogFrm.cc
++++ gui/usbprogFrm.cc
 @@ -296,7 +296,7 @@ void usbprogFrm::CreateGUIControls()
  
      // file dialog
