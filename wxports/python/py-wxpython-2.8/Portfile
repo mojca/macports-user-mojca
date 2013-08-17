@@ -48,7 +48,7 @@ if {$subport != $name} {
 
     variant carbon conflicts gtk description {use 32-bit carbon-based wxWidgets} {
         wxWidgets.use       wxWidgets-2.8
-        depends_lib-append  port:wxWidgets-2.8
+        depends_lib-append  port:${wxWidgets.port}
         # TODO: the following line would end up with --no-user-cfg
         #build.args         WX_CONFIG="${wxWidgets.wxconfig}"
         build.cmd           ${python.bin} setup.py WXPORT="mac" WX_CONFIG="${wxWidgets.wxconfig}"
@@ -66,7 +66,7 @@ if {$subport != $name} {
 
     variant gtk conflicts carbon description {use wxGTK} {
         wxWidgets.use       wxGTK-2.8
-        depends_lib-append  port:wxgtk-2.8
+        depends_lib-append  port:${wxWidgets.port}
         build.cmd           ${python.bin} setup.py WXPORT="gtk2" WX_CONFIG="${wxWidgets.wxconfig}"
         destroot.cmd        ${python.bin} setup.py WXPORT="gtk2" WX_CONFIG="${wxWidgets.wxconfig}"
 

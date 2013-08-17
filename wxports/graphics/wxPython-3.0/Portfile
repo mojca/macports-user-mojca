@@ -7,8 +7,8 @@ PortGroup           wxwidgets       1.0
 # temporary conflict to prevent wrong linking
 PortGroup           conflicts_build 1.0
 
-name                wxPython-3.0
 wxWidgets.use       wxPython-3.0
+name                ${wxWidgets.port}
 # (temporary)
 conflicts_build     wxgtk wxWidgets wxWidgets-python wxWidgets30 wxWidgets-devel
 version             2.9.4.0

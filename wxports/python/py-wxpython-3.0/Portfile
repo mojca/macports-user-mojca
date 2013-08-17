@@ -44,7 +44,7 @@ extract.post_args   "| tar -xf - ${worksrcdir} ${distname}-src-${version}/docs"
 
 if {$subport != $name} {
     wxWidgets.use       wxPython-3.0
-    depends_lib-append  port:wxPython-3.0
+    depends_lib-append  port:${wxWidgets.port}
 
     patchfiles      patch-config.py.diff
 

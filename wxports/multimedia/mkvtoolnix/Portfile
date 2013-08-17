@@ -58,7 +58,7 @@ configure.args      --mandir=${prefix}/share/man \
                     --disable-wxwidgets
 
 variant wxwidgets description {Build with the wxWidgets GUI} {
-    depends_lib-append port:wxWidgets-3.0
+    depends_lib-append port:${wxWidgets.port}
 
     configure.args-delete \
         --diable-gui \

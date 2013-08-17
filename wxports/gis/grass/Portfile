@@ -196,7 +196,7 @@ variant ffmpeg description {Add ffmpeg support} {
 }
 
 variant wxwidgets description {Add WXWidgets support} {
-    depends_lib-append    port:wxPython-3.0
+    depends_lib-append    port:${wxWidgets.port}
     configure.args-delete --disable-wxwidgets
     configure.args-append --with-wxwidgets=${wxWidgets.wxconfig}
 }

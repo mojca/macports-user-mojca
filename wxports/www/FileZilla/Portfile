@@ -48,21 +48,21 @@ configure.args      --with-tinyxml=builtin \
 
 variant wxwidgets30 conflicts wxgtk28 wxwidgets28 description {Use wxWidgets 2.9 (not fully functional yet)} {
     wxWidgets.use           wxWidgets-3.0
-    depends_lib-append      port:wxWidgets-3.0
+    depends_lib-append      port:${wxWidgets.port}
     configure.args-append   --with-wxdir=${wxWidgets.wxdir}
     configure.env-append    WXRC=${wxWidgets.wxrc}
 }
 
 variant wxwidgets28 conflicts wxgtk28 wxwidgets30 description {Use 32-bit Carbon-based wxWidgets 2.8} {
     wxWidgets.use           wxWidgets-2.8
-    depends_lib-append      port:wxWidgets-2.8
+    depends_lib-append      port:${wxWidgets.port}
     configure.args-append   --with-wxdir=${wxWidgets.wxdir}
     configure.env-append    WXRC=${wxWidgets.wxrc}
 }
 
 variant wxgtk28 conflicts wxwidgets28 wxwidgets30 description {Use wxWidgets 2.8 with GTK} {
     wxWidgets.use           wxGTK-2.8
-    depends_lib-append      port:wxgtk-2.8
+    depends_lib-append      port:${wxWidgets.port}
     configure.args-append   --with-wxdir=${wxWidgets.wxdir}
     configure.env-append    WXRC=${wxWidgets.wxrc}
 }
@@ -74,7 +74,7 @@ if {![variant_isset wxgtk28]} {
     }
 }
 
-if {![variant_isset wxgtk28] && ![variant_isset wxwidgets28] && ![variant_isset wxwidgets30]} {
+if {![variant_isset wxwidgets30] && ![variant_isset wxwidgets28] && ![variant_isset wxgtk28]} {
     if {[vercmp $xcodeversion 4.4] >= 0} {
         default_variants +wxgtk28
     } else {

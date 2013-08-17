@@ -339,7 +339,7 @@ if {![variant_isset qtgui]} {
 variant wxgui description "Install GNU Radio with support for Wx GUI" {
 
     depends_lib-append \
-        port:wxPython-3.0
+        port:${wxWidgets.port}
 
     configure.args-append \
         -DENABLE_GR_WXGUI=ON

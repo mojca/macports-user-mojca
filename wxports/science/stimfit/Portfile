@@ -24,7 +24,7 @@ wxWidgets.use       wxPython-3.0
 depends_lib         port:boost \
                     port:fftw-3 \
                     port:hdf5-18 \
-                    port:wxPython-3.0
+                    port:${wxWidgets.port}
 
 configure.args      --with-wx-config=${wxWidgets.wxconfig} \
                     --disable-dependency-tracking \

@@ -37,10 +37,10 @@ patchfiles          patch-wxStandardPaths.diff
 depends_lib         port:openssl \
                     port:libxml2 \
                     port:libxslt \
-                    port:wxWidgets-3.0
+                    port:${wxWidgets.port}
 
 configure.args      --with-wx=${wxWidgets.prefix} \
-                    --with-wx-version=2.9 \
+                    --with-wx-version=${wxWidgets.version} \
                     --with-libxml2=${prefix} \
                     --with-libxslt=${prefix} \
                     --with-arch-x86_64 \

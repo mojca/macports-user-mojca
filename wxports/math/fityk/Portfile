@@ -44,7 +44,7 @@ depends_lib         port:boost \
                     port:lua \
                     port:zlib \
                     port:python27 \
-                    port:wxWidgets30
+                    port:${wxWidgets.port}
 
 # TODO: gnuplot is probably a runtime dependency
 

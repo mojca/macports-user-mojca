@@ -119,7 +119,7 @@ variant pangocairo description "Enable cairo-based terminals" {
 
 variant wxwidgets description "Enable wxt terminal" {
     wxWidgets.use           wxWidgets-3.0
-    depends_lib-append      port:wxWidgets-3.0 path:lib/pkgconfig/pango.pc:pango
+    depends_lib-append      port:${wxWidgets.port} path:lib/pkgconfig/pango.pc:pango
     configure.args-delete   --disable-wxwidgets
     configure.args-append   --with-wx-config=${wxWidgets.wxdir}
 }

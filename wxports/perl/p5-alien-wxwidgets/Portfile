@@ -30,7 +30,7 @@ wxWidgets.use       wxWidgets-3.0
 perl5.use_module_build
 
 if {${perl5.major} != ""} {
-    depends_lib-append  port:wxWidgets-3.0
+    depends_lib-append  port:${wxWidgets.port}
 
     # author says that Makefile.PL shouldn't be there
     # this line is not really needed, but it's a guard
