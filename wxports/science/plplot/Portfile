@@ -2,11 +2,11 @@
 #$Id$
 
 PortSystem      1.0
-PortGroup       wxwxdgets 1.0
+PortGroup       wxwidgets 1.0
 
 name            plplot
 version         5.9.9
-revision        15
+revision        16
 platforms       darwin
 maintainers     takeshi openmaintainer
 categories      science
