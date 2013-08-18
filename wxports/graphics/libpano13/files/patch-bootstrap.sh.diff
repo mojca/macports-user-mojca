@@ -1,0 +1,37 @@
+--- bootstrap.orig
++++ bootstrap
+@@ -60,7 +60,7 @@ if $AUTOMAKE --version < /dev/null > /dev/null 2>&1 ; then
+ 	automake_version=`$AUTOMAKE --version | sed 's/^[^0-9]*\([0-9.][0-9.]*\).*/\1/'`
+ #	echo automake version: $automake_version
+ 	case $automake_version in
+-	    1.7*|1.8*|1.9*|1.10*|1.11*|1.12*)
++	    1.7*|1.8*|1.9*|1.12*|1.13*|1.14*0*|1.11*|1.12*|1.13*|1.14*)
+ 		have_automake=true
+ 		;;
+ 	esac
+@@ -98,25 +98,3 @@ $AUTOMAKE --add-missing --copy || exit $?
+ $AUTOCONF || exit $?
+ 
+ cd $ORIGDIR || exit $?
+-
+-echo
+-echo "I am going to run ./configure with the following arguments:"
+-echo
+-echo "  --enable-maintainer-mode $AUTOGEN_CONFIGURE_ARGS $@"
+-echo
+-
+-if test -z "$*"; then
+-  echo "If you wish to pass additional arguments, please specify them "
+-  echo "on the $0 command line or set the AUTOGEN_CONFIGURE_ARGS "
+-  echo "environment variable."
+-  echo
+-fi
+-				
+-$srcdir/configure --enable-maintainer-mode $AUTOGEN_CONFIGURE_ARGS "$@"
+-RC=$?
+-if test $RC -ne 0; then
+-  echo
+-  echo "Configure failed or did not finish!"
+-  exit $RC
+-fi
+-	  
