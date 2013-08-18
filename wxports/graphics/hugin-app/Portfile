@@ -1,6 +1,8 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 # $Id$
 
+# 2013 RC is out, but this port is broken anyway because of boost incompatibilities with Apple
+
 PortSystem              1.0
 PortGroup               cmake 1.0
 PortGroup               wxwidgets 1.0
@@ -53,10 +55,15 @@ depends_lib             port:boost \
 #       but after it has been detected, it required swig-python
 #       and additional python definitions, else it failed to bulid
 
-# TODO: try to define or see where MAC_SELF_CONTAINED_BUNDLE gets defined
+# TODO: try to see where MAC_SELF_CONTAINED_BUNDLE gets defined
 
+# patch-src-foreign-vigra-vigra-cachedfileimage.hxx.patch - https://bugs.launchpad.net/bugs/1213586
+# patch-src-foreign-zthread-include-zthread-Guard.h.diff  - https://bugs.launchpad.net/bugs/1213585
+# patch-src-hugin1-hugin1.pch.diff                        - doesn't really help (at least not for clang)
+# patch-src-hugin1-base_wx-platform.h.diff                - fixed upstream
 patchfiles              patch-src-foreign-vigra-vigra-cachedfileimage.hxx.patch \
                         patch-src-foreign-zthread-include-zthread-Guard.h.diff \
+                        patch-src-hugin1-hugin1.pch.diff \
                         patch-src-hugin1-base_wx-platform.h.diff
 
 depends_run             port:enblend \
@@ -95,11 +102,7 @@ variant wxgtk28 conflicts wxwidgets28 wxwidgets30 description {Use wxWidgets 2.8
 }
 
 if {![variant_isset wxwidgets30] && ![variant_isset wxwidgets28] && ![variant_isset wxgtk28]} {
-    if {[vercmp $xcodeversion 4.4] >= 0} {
-        default_variants    +wxgtk28
-    } else {
-        default_variants    +wxwidgets28
-    }
+    default_variants        +wxwidgets30
 }
 
 livecheck.type          regex
