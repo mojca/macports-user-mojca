@@ -103,15 +103,6 @@ platform darwin 10 {
     # rdar://7209349 - http://www.openradar.appspot.com/7209349
     # This is a workaround.
     patchfiles-append           patch-erts_emulator_sys_unix_ddll.c.diff
-    configure.ldflags-append    -framework CoreFoundation
-}
-
-platform darwin 11 {
-    # 10.6 (and 10.6.1) has a bad bug related to using dlopen in a thread.
-    # rdar://7209349 - http://www.openradar.appspot.com/7209349
-    # This is a workaround.
-    #patchfiles-append          patch-erts_emulator_sys_unix_ddll.c.diff
-    configure.ldflags-append    -framework CoreFoundation
 }
 
 platform darwin {
@@ -120,9 +111,14 @@ platform darwin {
     } else {
         configure.args-append   --disable-darwin-64-bit
     }
+    # TODO: not sure about the minimum version
+    if {${os.major} >= 10} {
+        # also "-framework Appkit"?
+        configure.ldflags-append -framework CoreFoundation
+    }
 }
 
-# the option could be renamed to wxwidgets28
+# the option could be renamed to wxwidgets28 (keep in sync with esdl)
 variant wxwidgets conflicts wxgtk28 description {Build 32-bit wxWidgets 2.8 support} {
     wxWidgets.use               wxWidgets-2.8
     depends_lib-append          port:${wxWidgets.port}
