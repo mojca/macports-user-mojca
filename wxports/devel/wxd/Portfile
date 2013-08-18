@@ -44,17 +44,7 @@ variant doxygen description {Include documentations by doxygen} {
     }
 }
 
-variant wxwidgets30 conflicts wxgtk28 wxwidgets28 description {Use wxWidgets 2.9 (probably not working)} {
-    wxWidgets.use       wxWidgets-3.0
-    depends_lib-append  port:${wxWidgets.port}
-    build.env-append    WX_CONFIG=${wxWidgets.wxconfig}
-    post-patch {
-        # TODO: create a patch for this; not sure if this is needed or not
-        reinplace "s|wx-config|${wxWidgets.wxconfig}|" ${worksrcpath}/wxc.cbp
-    }
-}
-
-variant wxwidgets28 conflicts wxgtk28 wxwidgets30 description {Use 32-bit Carbon-based wxWidgets 2.8} {
+variant wxwidgets28 conflicts wxgtk28 description {Use 32-bit Carbon-based wxWidgets 2.8} {
     wxWidgets.use       wxWidgets-2.8
     depends_lib-append  port:${wxWidgets.port}
     build.env-append    WX_CONFIG=${wxWidgets.wxconfig}
@@ -63,7 +53,7 @@ variant wxwidgets28 conflicts wxgtk28 wxwidgets30 description {Use 32-bit Carbon
     }
 }
 
-variant wxgtk28 conflicts wxwidgets28 wxwidgets30 description {Use wxWidgets 2.8 with GTK} {
+variant wxgtk28 conflicts wxwidgets28 description {Use wxWidgets 2.8 with GTK} {
     wxWidgets.use       wxGTK-2.8
     depends_lib-append  port:${wxWidgets.port}
     build.env-append    WX_CONFIG=${wxWidgets.wxconfig}
@@ -72,7 +62,7 @@ variant wxgtk28 conflicts wxwidgets28 wxwidgets30 description {Use wxWidgets 2.8
     }
 }
 
-if {![variant_isset wxwidgets30] && ![variant_isset wxwidgets28] && ![variant_isset wxgtk28]} {
+if {![variant_isset wxwidgets28] && ![variant_isset wxgtk28]} {
     if {[vercmp $xcodeversion 4.4] >= 0} {
         default_variants +wxgtk28
     } else {
