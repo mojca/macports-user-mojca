@@ -34,7 +34,9 @@ checksums           rmd160  12cbcd703c62439f2d0e95b5394277654249722b \
 wxWidgets.use       wxWidgets-3.0
 
 # WARNING: dvipng command 'dvipng' cannot be run (needed for math display), check the pngmath_dvipng setting
-depends_build       port:swig-lua
+depends_build       port:swig-lua \
+                    port:autoconf \
+                    port:automake
 
 depends_lib         port:boost \
                     port:readline \
@@ -49,8 +51,7 @@ depends_lib         port:boost \
 # TODO: gnuplot is probably a runtime dependency
 
 pre-configure {
-    # TODO: dependency on autotools
-    system "cd ${worksrcpath} && autoreconf --install --verbose"
+    system -W ${worksrcpath} "autoreconf --install --verbose"
 }
 
 pre-build {
@@ -58,9 +59,9 @@ pre-build {
         depends_build-append port:py27-sphinx
         # TODO: use a python variable
         reinplace "s|sphinx-build|${prefix}/Library/Frameworks/Python.framework/Versions/2.7/bin/sphinx-build|" ${worksrcpath}/doc/Makefile
-        system "cd doc && make && cd .."
+        system -W ${worksrcpath}/doc make
     } else {
-        system "mkdir -p ${worksrcpath}/doc/html/placeholder"
+        file mkdir ${worksrcpath}/doc/html/placeholder
     }
 }
 

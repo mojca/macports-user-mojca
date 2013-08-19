@@ -32,11 +32,11 @@ checksums           rmd160  4e65113a0b2a61395275df6e4bef1dfce6c71e03 \
 patchfiles          patch-gui-usbprogFrm.cc.diff
 
 pre-configure {
-    system "mkdir ${worksrcpath}/m4"
+    file mkdir ${worksrcpath}/m4
     # TODO: if needed, an additional variable could be added to wxwidgets PortGroup
-    #       for easier access to wxwin.m4
-    system "cp ${wxWidgets.prefix}/share/aclocal/wxwin.m4 ${worksrcpath}/m4/"
-    system "cd ${worksrcpath} && ./bootstrap"
+    #       for easier access to ${wxWidgets.prefix}/share/aclocal/wxwin.m4
+    copy ${wxWidgets.prefix}/share/aclocal/wxwin.m4 ${worksrcpath}/m4/
+    system -W ${worksrcpath} "./bootstrap"
 }
 
 configure.args      --with-wxdir=${wxWidgets.wxdir}

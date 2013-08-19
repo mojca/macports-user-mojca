@@ -129,13 +129,13 @@ if {$subport != $name && $subport != ""} {
 
 post-build {
     foreach c { ${contrib} } {
-        system "cd ${build.dir} && make -C contrib/src/${c}"
+        system -W ${build.dir} "make -C contrib/src/${c}"
     }
 }
 
 post-destroot {
     foreach c { ${contrib} } {
-        system "cd ${build.dir} && make -C contrib/src/${c} install ${destroot.destdir}"
+        system -W ${build.dir} "make -C contrib/src/${c} install ${destroot.destdir}"
     }
 
     set destdocdir ${destroot}${wxWidgets.prefix}/share/doc/${distname}

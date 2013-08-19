@@ -34,7 +34,7 @@ depends_build   port:libtool port:autoconf port:automake
 patchfiles      patch-bootstrap.sh.diff
 
 pre-configure {
-    system "cd ${worksrcpath} && LIBTOOLIZE=glibtoolize ./bootstrap"
+    system -W "LIBTOOLIZE=glibtoolize ./bootstrap"
 }
 
 configure.args  --with-jpeg=${prefix} \
