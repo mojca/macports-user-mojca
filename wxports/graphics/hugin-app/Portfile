@@ -5,7 +5,7 @@
 
 PortSystem              1.0
 PortGroup               cmake 1.0
-PortGroup               wxwidgets 1.0
+PortGroup               wxWidgets 1.0
 
 name                    hugin-app
 version                 2012.0.0

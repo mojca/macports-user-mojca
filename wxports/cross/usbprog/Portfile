@@ -3,7 +3,7 @@
 
 PortSystem          1.0
 PortGroup           bitbucket 1.0
-PortGroup           wxwidgets 1.0
+PortGroup           wxWidgets 1.0
 
 bitbucket.setup     bwalle usbprog-tools-classic 7751c98
 name                usbprog

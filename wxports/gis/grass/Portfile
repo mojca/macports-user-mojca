@@ -1,7 +1,7 @@
 # $Id$
 
 PortSystem        1.0
-PortGroup         wxwidgets 1.0
+PortGroup         wxWidgets 1.0
 
 name              grass
 epoch             1

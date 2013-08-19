@@ -3,7 +3,7 @@
 
 PortSystem          1.0
 PortGroup           github 1.0
-PortGroup           wxwidgets 1.0
+PortGroup           wxWidgets 1.0
 
 # the released version has the extra compgation that it needs to fetch cmpfit-1.2.tar.gz on the fly
 # github.setup        wojdyr fityk 1.2.1 v

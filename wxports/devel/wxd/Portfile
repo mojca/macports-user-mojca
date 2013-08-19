@@ -4,7 +4,7 @@
 # A dependency of this port is broken, so no idea how to test this one
 
 PortSystem      1.0
-PortGroup       wxwidgets 1.0
+PortGroup       wxWidgets 1.0
 name            wxd
 version         0.16
 maintainers     usami-k openmaintainer

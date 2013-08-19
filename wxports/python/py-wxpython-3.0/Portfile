@@ -3,7 +3,7 @@
 
 PortSystem          1.0
 PortGroup           python      1.0
-PortGroup           wxwidgets   1.0
+PortGroup           wxWidgets   1.0
 
 name                py-wxpython-3.0
 version             2.9.4.0

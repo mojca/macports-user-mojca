@@ -4,7 +4,7 @@
 # This port is broken
 
 PortSystem          1.0
-PortGroup           wxwidgets 1.0
+PortGroup           wxWidgets 1.0
 
 name                otrproxy
 version             0.3.1
