@@ -118,20 +118,27 @@ platform darwin {
     }
 }
 
-# the option could be renamed to wxwidgets28 (keep in sync with esdl)
-variant wxwidgets conflicts wxgtk28 description {Build 32-bit wxWidgets 2.8 support} {
+# TODO: if this works fine, delete all other wxwidgets options
+variant wxwidgets30 conflicts wxwidgets wxgtk28 description {Build wxWidgets 2.9 support} {
+    wxWidgets.use               wxWidgets-3.0
+    depends_lib-append          port:${wxWidgets.port}
+    configure.args-append       --with-wxdir=${wxWidgets.wxdir}
+}
+
+# the option could/should be renamed to wxwidgets28 (keep in sync with esdl)
+variant wxwidgets conflicts wxwidgets30 wxgtk28 description {Build 32-bit wxWidgets 2.8 support} {
     wxWidgets.use               wxWidgets-2.8
     depends_lib-append          port:${wxWidgets.port}
     configure.args-append       --with-wxdir=${wxWidgets.wxdir}
 }
 
-variant wxgtk28 conflicts wxwidgets description {Build wxWidgets support with wxGTK 2.8} {
+variant wxgtk28 conflicts wxwidgets30 wxwidgets description {Build wxWidgets support with wxGTK 2.8} {
     wxWidgets.use               wxGTK-2.8
     depends_lib-append          port:${wxWidgets.port}
     configure.args-append       --with-wxdir=${wxWidgets.wxdir}
 }
 
-if {[variant_isset wxwidgets] || [variant_isset wxgtk28]} {
+if {[variant_isset wxwidgets30] || [variant_isset wxwidgets] || [variant_isset wxgtk28]} {
     patchfiles-delete           patch-disable_wx.diff
     patchfiles-append           patch-lib_wx_configure.in.diff \
                                 patch-lib_wx_configure.diff
