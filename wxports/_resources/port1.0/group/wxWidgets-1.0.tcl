@@ -102,7 +102,7 @@ proc wxWidgets._set {option action args} {
     } elseif {${args} == "wxPython-3.0"} {
         wxWidgets.name      "wxPython"
         wxWidgets.version   "2.9"
-        wxWidgets.port      "wxPython-3.0"
+        wxWidgets.port      "wxWidgets-from-wxPython-3.0"
         if {${os.major} < 9} {
             pre-fetch {
                 ui_error "${wxWidgets.port} requires Mac OS X 10.5 or later."

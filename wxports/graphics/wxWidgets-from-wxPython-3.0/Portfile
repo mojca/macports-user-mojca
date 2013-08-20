@@ -19,14 +19,10 @@ platforms           darwin
 license             wxwidgets-3.1
 maintainers         jwa mojca
 
-description         Python interface to the wxWindows cross platform GUI
-long_description    wxPython is a GUI toolkit for the Python programming \
-                    language. It allows Python programmers to create \
-                    programs with a robust, highly functional graphical \
-                    user interface, simply and easily. It is implemented \
-                    as a Python extension module (native code) that wraps \
-                    the popular wxWindows cross platform GUI library, \
-                    which is written in C++.
+description         wxWidgets taken from wxPython distribution
+long_description    The port installs wxWidgets from wxPython sources \
+                    to guarantee compatibility even when upstream versions \
+                    of wxWidgets and wxPython differ.
 
 homepage            http://www.wxpython.org/
 master_sites        sourceforge:wxpython
