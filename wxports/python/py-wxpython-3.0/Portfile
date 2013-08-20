@@ -43,6 +43,7 @@ worksrcdir          ${distname}-src-${version}/wxPython
 extract.post_args   "| tar -xf - ${worksrcdir} ${distname}-src-${version}/docs"
 
 if {$subport != $name} {
+    conflicts           py${python.version}-wxpython-2.8
     wxWidgets.use       wxPython-3.0
     depends_lib-append  port:${wxWidgets.port}
 

@@ -44,6 +44,7 @@ worksrcdir          ${distname}-src-${version}/wxPython
 extract.post_args   "| tar -xf - ${worksrcdir} ${distname}-src-${version}/docs"
 
 if {$subport != $name} {
+    conflicts               py${python.version}-wxpython-3.0
     patchfiles              patch-config.py.diff
 
     variant carbon conflicts gtk description {use 32-bit carbon-based wxWidgets} {
