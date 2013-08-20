@@ -1,0 +1,64 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           wxWidgets 1.0
+
+name                xchm
+version             1.22
+categories          x11
+maintainers         markd
+platforms           darwin
+
+description         A cross-platform GUI front-end to chmlib.
+long_description    A cross-platform GUI front-end to chmlib, xCHM can \
+                    show the content tree if one is available, print pages, \
+                    change font face and size, remember bookmarks, display \
+                    a searchable index, and search for words in the current \
+                    page and the whole book.
+
+homepage            http://xchm.sourceforge.net/
+master_sites        sourceforge
+checksums           rmd160  28727c08049fb0a338433ce9ae1989a61e7a1884 \
+                    sha256  30801106d5ce08481c97084a540cb7a67fb271a27e95ca61170063c6cc134559
+
+depends_lib         port:chmlib
+
+variant wxwidgets30 conflicts wxgtk28 wxwidgets28 description {Use wxWidgets 2.9 (not functional yet)} {
+    wxWidgets.use           wxWidgets-3.0
+    depends_lib-append      port:${wxWidgets.port}
+    configure.args-append   --with-wxdir=${wxWidgets.wxdir}
+}
+
+variant wxwidgets28 conflicts wxgtk28 wxwidgets30 description {Use 32-bit Carbon-based wxWidgets 2.8} {
+    wxWidgets.use           wxWidgets-2.8
+    depends_lib-append      port:${wxWidgets.port}
+    configure.args-append   --with-wxdir=${wxWidgets.wxdir}
+}
+
+variant wxgtk28 conflicts wxwidgets28 wxwidgets30 description {Use wxWidgets 2.8 with GTK} {
+    wxWidgets.use           wxGTK-2.8
+    depends_lib-append      port:${wxWidgets.port}
+    configure.args-append   --with-wxdir=${wxWidgets.wxdir}
+}
+
+# untested
+if {![variant_isset wxgtk28]} {
+    PortGroup               app 1.0
+    set icon_name           xchm-128
+    app.name                xCHM
+    app.executable          xchm
+    app.icon                ${worksrcpath}/art/${icon_name}.png
+    depends_build-append    port:ImageMagick
+    post-build {
+        system -W ${worksrcpath}/art "${prefix}/bin/convert ${icon_name}.xpm ${icon_name}.png"
+    }
+}
+
+if {![variant_isset wxwidgets30] && ![variant_isset wxwidgets28] && ![variant_isset wxgtk28]} {
+    if {[vercmp $xcodeversion 4.4] >= 0} {
+        default_variants +wxgtk28
+    } else {
+        default_variants +wxwidgets28
+    }
+}
