@@ -52,11 +52,12 @@ if {![variant_isset wxgtk28]} {
     app.name                xCHM
     app.executable          xchm
     app.icon                ${worksrcpath}/art/${icon_name}.png
-    # TODO: ImageMagick doesn't need to be universal
-    # it's only needed to convert the image to png
+    # TODO: ImageMagick is only needed to convert the image to png
     # if there is a more lightweight program to do the same, that one should be used
-    # or the icon as png should be fetched from elsewhere
+    # or the icon as png/icns should be fetched from elsewhere
     depends_build-append    port:ImageMagick
+    depends_skip_archcheck-append \
+                            port:ImageMagick
     post-build {
         system -W ${worksrcpath}/art "${prefix}/bin/convert ${icon_name}.xpm ${icon_name}.png"
     }
