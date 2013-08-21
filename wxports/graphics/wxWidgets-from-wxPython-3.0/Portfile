@@ -19,8 +19,8 @@ platforms           darwin
 license             wxwidgets-3.1
 maintainers         jwa mojca
 
-description         wxWidgets taken from wxPython distribution
-long_description    The port installs wxWidgets from wxPython sources \
+description         wxWidgets ${branch} taken from the wxPython distribution
+long_description    The port installs wxWidgets ${branch} from wxPython sources \
                     to guarantee compatibility even when upstream versions \
                     of wxWidgets and wxPython differ.
 

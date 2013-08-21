@@ -20,13 +20,16 @@ platforms           darwin
 license             LGPL-2+
 maintainers         jwa mojca
 
-description         mature cross-platform C++ GUI framework
-long_description    wxWidgets is a mature open-source cross-platform C++ \
-                    GUI framework for Mac OS, Unix, Linux, Windows. It can \
-                    make use of a variety of native widget sets as well as \
-                    its own widget set: Mac OS, GTK+, Motif, WIN32. \
-                    wxWidgets will even run on embedded systems using \
-                    Linux and X11.
+description         C++ framework for cross-platform GUI development
+long_description    wxWidgets ${branch} is an open-source cross-platform C++ \
+                    GUI framework for Mac OS, Unix, Linux, Windows. \
+                    Version 2.8 doesn't work with 64-bit Cocoa, so users \
+                    can choose between native 32-bit Carbon-based wxWidgets-2.8 \
+                    (requires SDK for 10.6 or lower) \
+                    and X11-based wxgtk-2.8 which also works in 64-bit.\
+                    The port is provided for compatibility reasons only \
+                    and will be removed as soon as all dependencies \
+                    start working with wxWidgets-3.0.
 
 homepage            http://www.wxwidgets.org/
 distname            wxWidgets
