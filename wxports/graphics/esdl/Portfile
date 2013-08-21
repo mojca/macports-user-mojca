@@ -2,8 +2,6 @@
 # $Id$
 
 PortSystem          1.0
-PortGroup           wxWidgets 1.0
-PortGroup           active_variants 1.1
 
 name                esdl
 version             1.2
@@ -25,6 +23,7 @@ checksums           md5     3e96c1d47bd7c1e23285360d88ce1bea \
                     rmd160  fc1f37647ae8e9652413c0ba683743d43c149573
 
 depends_lib         port:libsdl \
+                    port:libsdl-framework \
                     port:erlang
 
 use_configure       no
@@ -35,22 +34,6 @@ pre-build {
     reinplace "s|LDFLAGS = -F/Library/Frameworks|LDFLAGS = -F${frameworks_dir} -F/Library/Frameworks|g" ${build.dir}/c_src/Makefile.macosx
     reinplace "s|-I/Library/Frameworks/SDL.framework/Headers|-I${frameworks_dir}/SDL.framework/Headers|g" ${build.dir}/c_src/Makefile.macosx
     reinplace "s|LDFLAGS = -F/Library/Frameworks|LDFLAGS = -F${frameworks_dir} -F/Library/Frameworks|g" ${build.dir}/c_src/Makefile.macosx
-}
-
-platform darwin {
-    depends_lib-append port:libsdl-framework
-
-    # Once erlang gets ported to wxWidgets 3.0, this can go away.
-    variant wxwidgets description {Build 32-bit for compatibility with erlang +wxwidgets} {
-        wxWidgets.use           "wxWidgets-2.8"
-        depends_lib-append      port:${wxWidgets.port}
-        require_active_variants erlang wxwidgets
-    }
-    variant wxgtk28 description {Build with GTK for compatibility with erlang +wxgtk28} {
-        wxWidgets.use           "wxGTK-2.8"
-        depends_lib-append      port:${wxWidgets.port}
-        require_active_variants erlang wxgtk28
-    }
 }
 
 build.target
