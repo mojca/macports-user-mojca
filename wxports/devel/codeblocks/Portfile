@@ -25,15 +25,25 @@ worksrcdir          ${name}-${version}release${release}
 checksums           rmd160  669ff13ce89729d869a4002ef56814020aede0c0 \
                     sha256  af57635b97aa6ea52ba120c5fac2d847c2638d53e6bdb3fdd1561b7fa7ae6ed9
 
-# TODO: Project bug, file upstream report
+# TODO: Project bug, file upstream report, fixing might be doable
 # http://trac.macports.org/ticket/35072
-# compiler.blacklist  clang
+compiler.blacklist  clang
 
+# FileManager requires "gamin" to be installed when using wxGTK,
+# so it was disabled for now
 configure.args      "--with-contrib-plugins=all,-FileManager"
 
-# patchfiles          patch-MouseSap-Makefile.am patch-sdk-configmanager.cpp
-# patchfiles          codeblocks-official.patch
-patchfiles          patch-Makefile.diff
+# TODO:
+# patch-MouseSap-Makefile.am: report upstream
+# patch-Makefile.diff: not sure why it is needed
+patchfiles          patch-MouseSap-Makefile.am \
+                    patch-Makefile.diff
+# not sure what this patch was used for
+#                   patch-sdk-configmanager.cpp
+
+# TODO:
+# add -lfontconfig to libexporter src/plugins/contrib/source_exporter
+# libexporter_la_LDFLAGS = -module -version-info 0:1:0 -shared -no-undefined -avoid-version -lfontconfig
 
 post-destroot {
     system "strip -S ${destroot}${prefix}/bin/codeblocks"
@@ -46,6 +56,7 @@ post-destroot {
     system "strip -S ${destroot}${prefix}/lib/codeblocks/plugins/*.so"
 }
 
+# TODO: keep the old variants/descriptions:
 # variant aqua / x11
 # variant aqua conflicts x11 description "Use the wxMac port of wxWidgets"
 # variant x11 description "Use the wxGTK port of wxWidgets"
@@ -65,6 +76,7 @@ variant wxgtk28 conflicts wxwidgets28 description {} {
     configure.args-append   --with-wxdir=${wxWidgets.wxdir}
 }
 
+# TODO: test if app would also work with wxgtk28
 if {![variant_isset wxgtk28]} {
     post-destroot {
         set appPath ${destroot}${applications_dir}/CodeBlocks.app/Contents
