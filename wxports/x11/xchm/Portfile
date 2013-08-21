@@ -24,7 +24,9 @@ checksums           rmd160  28727c08049fb0a338433ce9ae1989a61e7a1884 \
 
 depends_lib         port:chmlib
 
-variant wxwidgets30 conflicts wxgtk28 wxwidgets28 description {Use wxWidgets 2.9 (not functional yet)} {
+patchfiles          patch-src-chmhtmlwindow.cpp.diff
+
+variant wxwidgets30 conflicts wxgtk28 wxwidgets28 description {Use wxWidgets 2.9 (experimental)} {
     wxWidgets.use           wxWidgets-3.0
     depends_lib-append      port:${wxWidgets.port}
     configure.args-append   --with-wxdir=${wxWidgets.wxdir}
@@ -43,7 +45,7 @@ variant wxgtk28 conflicts wxwidgets28 wxwidgets30 description {Use wxWidgets 2.8
 }
 
 # - this seems to work nice with wxWidgets 2.8
-# - wxWidgets 2.9 throw weird errors at startup (also without the app)
+# - wxWidgets 2.9 support is experimental
 # - the reason for excluding wxGTK is the following mystery when trying to launch the app:
 #   LSOpenURLsWithRole() failed with error -10810 for the file /Applications/MacPorts/xCHM.app
 if {![variant_isset wxgtk28]} {
