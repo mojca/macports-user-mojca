@@ -42,13 +42,20 @@ variant wxgtk28 conflicts wxwidgets28 wxwidgets30 description {Use wxWidgets 2.8
     configure.args-append   --with-wxdir=${wxWidgets.wxdir}
 }
 
-# untested
+# - this seems to work nice with wxWidgets 2.8
+# - wxWidgets 2.9 throw weird errors at startup (also without the app)
+# - the reason for excluding wxGTK is the following mystery when trying to launch the app:
+#   LSOpenURLsWithRole() failed with error -10810 for the file /Applications/MacPorts/xCHM.app
 if {![variant_isset wxgtk28]} {
     PortGroup               app 1.0
     set icon_name           xchm-128
     app.name                xCHM
     app.executable          xchm
     app.icon                ${worksrcpath}/art/${icon_name}.png
+    # TODO: ImageMagick doesn't need to be universal
+    # it's only needed to convert the image to png
+    # if there is a more lightweight program to do the same, that one should be used
+    # or the icon as png should be fetched from elsewhere
     depends_build-append    port:ImageMagick
     post-build {
         system -W ${worksrcpath}/art "${prefix}/bin/convert ${icon_name}.xpm ${icon_name}.png"
