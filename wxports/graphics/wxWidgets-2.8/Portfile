@@ -81,7 +81,8 @@ set worksrcdir      ${distname}-${version}/build
 
 patchfiles          patch-chkconf.diff \
                     patch-configure.diff \
-                    patch-sdl.diff
+                    patch-sdl.diff \
+                    patch-src-gtk-app.cpp.diff
 patch.dir           ${workpath}/${distname}-${version}
 
 post-patch {
