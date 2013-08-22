@@ -1,11 +1,11 @@
---- src/chmhtmlwindow.cpp
+avoid a crash with wxWidgets 2.9 at startup
+--- src/chmhtmlwindow.cpp.orig
 +++ src/chmhtmlwindow.cpp
-@@ -446,7 +446,7 @@ void CHMHtmlWindow::OnSetTitle(const wxString& title)
+@@ -446,7 +446,6 @@ void CHMHtmlWindow::OnSetTitle(const wxString& title)
  	if(parent)
  		parent->OnChildrenTitleChanged(title);
  
 -	wxHtmlWindow::OnSetTitle(title);
-+	// wxHtmlWindow::OnSetTitle(title);
  }
  
  
