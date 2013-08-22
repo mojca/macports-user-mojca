@@ -64,6 +64,9 @@ if {$subport != $name} {
                 reinplace   "s|# @@FLAGS3@@|cflags.extend(\[\"-isysroot\", \"${wxWidgets.sdk}\"\])|" ${worksrcpath}/config.py
             }
         }
+        post-destroot {
+            delete          ${destroot}${wxWidgets.prefix}
+        }
     }
 
     variant gtk conflicts carbon description {use wxGTK} {
@@ -75,6 +78,9 @@ if {$subport != $name} {
         post-patch {
             reinplace       "s|# @@FLAGS1@@|cflags.extend(\[\"-arch\", \"[join [get_canonical_archs] {\", \"-arch\", \"}]\"\])|" ${worksrcpath}/config.py
             reinplace       "s|# @@FLAGS2@@|lflags.extend(\[\"-arch\", \"[join [get_canonical_archs] {\", \"-arch\", \"}]\"\])|" ${worksrcpath}/config.py
+        }
+        post-destroot {
+            delete          ${destroot}${wxWidgets.prefix}
         }
     }
 
