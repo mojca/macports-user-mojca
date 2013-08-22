@@ -7,7 +7,7 @@ PortGroup           wxWidgets 1.0
 
 name                xchm
 version             1.22
-categories          x11
+categories          textproc
 maintainers         markd
 platforms           darwin
 
@@ -37,6 +37,7 @@ depends_lib         port:chmlib \
 # if there is a more lightweight program to do the same, that one should be used
 # or the icon as png/icns should be fetched from elsewhere, for example from
 # http://xchm.cvs.sourceforge.net/viewvc/xchm/xchm/art/xchm-128.png?revision=1.1
+# http://sourceforge.net/p/xchm/code/ci/master/tree/art/xchm-128.png?format=raw
 depends_build-append port:ImageMagick
 depends_skip_archcheck-append ImageMagick
 
