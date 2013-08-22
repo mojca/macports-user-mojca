@@ -36,16 +36,15 @@ configure.args      "--with-contrib-plugins=all,-FileManager"
 # TODO:
 # patch-MouseSap-Makefile.am: report upstream
 # patch-Makefile.diff: not sure why it is needed
+# patch-src-plugins-contrib-source_exporter-Makefile.diff: report upstream
 patchfiles          patch-MouseSap-Makefile.am \
-                    patch-Makefile.diff
+                    patch-Makefile.diff \
+                    patch-src-plugins-contrib-source_exporter-Makefile.diff
 # not sure what this patch was used for
 #                   patch-sdk-configmanager.cpp
 
-# TODO:
-# add -lfontconfig to libexporter src/plugins/contrib/source_exporter
-# libexporter_la_LDFLAGS = -module -version-info 0:1:0 -shared -no-undefined -avoid-version -lfontconfig
-
 post-destroot {
+    # TODO: this might need a review
     system "strip -S ${destroot}${prefix}/bin/codeblocks"
     system "strip -S ${destroot}${prefix}/lib/libcodeblocks*.so || true"
     system "strip -S ${destroot}${prefix}/lib/libcodeblocks*.dylib || true"
@@ -54,6 +53,38 @@ post-destroot {
     system "strip -S ${destroot}${prefix}/lib/wxSmithContribItems/lib*.so || true"
     system "strip -S ${destroot}${prefix}/lib/wxSmithContribItems/lib*.dylib || true"
     system "strip -S ${destroot}${prefix}/lib/codeblocks/plugins/*.so"
+
+    set appPath ${destroot}${applications_dir}/CodeBlocks.app/Contents
+    xinstall -d -m 0755 ${destroot}${applications_dir}
+    xinstall -d -m 0755 ${appPath}
+    xinstall -d -m 0755 ${appPath}/Resources
+    file copy -force ${worksrcpath}/codeblocks.plist ${appPath}/Info.plist
+    foreach {icn} {app cbp csd c cg cpp d f h rc} {
+        file copy -force ${worksrcpath}/src/src/resources/icons/${icn}.icns ${appPath}/Resources
+    }
+
+    xinstall -d -m 0755 ${appPath}/MacOS
+    ln -sf ${prefix}/bin/codeblocks ${appPath}/MacOS/CodeBlocks
+    xinstall -d -m 0755 ${appPath}/Resources/share
+    ln -sf ${prefix}/share/codeblocks ${appPath}/Resources/share/codeblocks
+    xinstall -d -m 0755 ${appPath}/Resources/lib
+    ln -sf ${prefix}/lib/codeblocks ${appPath}/Resources/lib/codeblocks
+
+    delete ${destroot}${prefix}/share/applications/codeblocks.desktop
+    delete ${destroot}${prefix}/share/icons/hicolor
+    delete ${destroot}${prefix}/share/mime/packages/codeblocks.xml
+    delete ${destroot}${prefix}/share/pixmaps/codeblocks.png
+
+    # TODO without the following block the app fails to start and throws the following error:
+    #
+    # Cannot find resources...
+    # Code::Blocks was configured to be installed in '/Applications/MacPorts/CodeBlocks.app/Contents/MacOS/share/codeblocks'.
+    # Please use the command-line switch '--prefix' or set the CODEBLOCKS_DATA_DIR environment variable to point where Code::Blocks is installed,
+    # or try re-installing the application...
+    #
+    # but this seems like a bug
+    xinstall -d -m 0755 ${appPath}/MacOS/share
+    ln -sf ${prefix}/share/codeblocks ${appPath}/MacOS/share
 }
 
 # TODO: keep the old variants/descriptions:
@@ -76,31 +107,6 @@ variant wxgtk28 conflicts wxwidgets28 description {} {
     configure.args-append   --with-wxdir=${wxWidgets.wxdir}
 }
 
-# TODO: test if app would also work with wxgtk28
-if {![variant_isset wxgtk28]} {
-    post-destroot {
-        set appPath ${destroot}${applications_dir}/CodeBlocks.app/Contents
-        xinstall -d -m 0755 ${destroot}${applications_dir}
-        xinstall -d -m 0755 ${appPath}
-        xinstall -d -m 0755 ${appPath}/Resources
-        file copy -force ${worksrcpath}/codeblocks.plist ${appPath}/Info.plist
-        foreach {icn} {app cbp csd c cg cpp d f h rc} {
-            file copy -force ${worksrcpath}/src/src/resources/icons/${icn}.icns ${appPath}/Resources
-        }
-
-        xinstall -d -m 0755 ${appPath}/MacOS
-        ln -sf ${prefix}/bin/codeblocks ${appPath}/MacOS/CodeBlocks
-        xinstall -d -m 0755 ${appPath}/Resources/share
-        ln -sf ${prefix}/share/codeblocks ${appPath}/Resources/share/codeblocks
-        xinstall -d -m 0755 ${appPath}/Resources/lib
-        ln -sf ${prefix}/lib/codeblocks ${appPath}/Resources/lib/codeblocks
-    
-        delete ${destroot}${prefix}/share/applications/codeblocks.desktop
-        delete ${destroot}${prefix}/share/icons/hicolor
-        delete ${destroot}${prefix}/share/mime/packages/codeblocks.xml
-        delete ${destroot}${prefix}/share/pixmaps/codeblocks.png
-    }
-}
 if {![variant_isset wxwidgets28] && ![variant_isset wxgtk28]} {
     if {[vercmp $xcodeversion 4.4] >= 0} {
         default_variants +wxgtk28
