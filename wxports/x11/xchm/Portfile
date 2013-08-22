@@ -59,7 +59,7 @@ if {![variant_isset wxgtk28]} {
     # or the icon as png/icns should be fetched from elsewhere
     depends_build-append    port:ImageMagick
     depends_skip_archcheck-append \
-                            port:ImageMagick
+                            ImageMagick
     post-build {
         system -W ${worksrcpath}/art "${prefix}/bin/convert ${icon_name}.xpm ${icon_name}.png"
     }
