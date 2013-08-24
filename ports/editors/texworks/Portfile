@@ -1,0 +1,48 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           cmake 1.0
+PortGroup           qt4 1.0
+PortGroup           active_variants 1.1
+
+svn.revision        1302
+
+name                texworks
+version             0.5.0-svn${svn.revision}
+platforms           darwin
+categories          editors tex
+maintainers         nomaintainer
+license             GPL-2
+
+description         A simple interface for working with TeX documents
+long_description    ${description}
+
+homepage            http://code.google.com/p/texworks
+master_sites        googlecode
+
+fetch.type          svn
+svn.url             http://texworks.googlecode.com/svn/trunk
+
+worksrcdir          trunk
+
+post-extract {
+    file mkdir ${build.dir}
+}
+
+configure.dir       ${worksrcpath}/build
+configure.args-append \
+                    ${worksrcpath}
+build.dir           ${configure.dir}
+
+depends_lib         port:hunspell \
+                    port:poppler \
+                    port:libz
+
+require_active_variants poppler qt4
+require_active_variants poppler quartz
+
+post-destroot {
+    # alternatively set the DESTDIR straight to ${destroot}${applications_dir}
+    move ${destroot}${prefix}/TeXworks.app ${destroot}${applications_dir}
+}
