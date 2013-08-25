@@ -2,10 +2,13 @@
 # $Id$
 
 PortSystem          1.0
-PortGroup           github 1.0
+PortGroup           app       1.0
+PortGroup           github    1.0
 PortGroup           wxWidgets 1.0
 
-# the released version has the extra compgation that it needs to fetch cmpfit-1.2.tar.gz on the fly
+# the released version has the extra complication that it needs to fetch cmpfit-1.2.tar.gz on the fly
+# other than that there is no reason not to use 1.2.1,
+# but maybe a special addition to version string is needed to make the version info more exact
 # github.setup        wojdyr fityk 1.2.1 v
 github.setup        wojdyr fityk e63acef802
 name                fityk
@@ -31,16 +34,17 @@ homepage            http://fityk.nieto.pl/
 checksums           rmd160  12cbcd703c62439f2d0e95b5394277654249722b \
                     sha256  2abb978b7f1ee8f800bf4f34a529163460234c873e423cf12fea2bb9260f1c45
 
+app.name            fityk
+app.executable      fityk
+app.icon            ${worksrcpath}/fityk.png
+
 wxWidgets.use       wxWidgets-3.0
 
 # WARNING: dvipng command 'dvipng' cannot be run (needed for math display), check the pngmath_dvipng setting
-depends_build       port:swig-lua \
-                    port:autoconf \
-                    port:automake
+depends_build       port:swig-lua
 
 depends_lib         port:boost \
                     port:readline \
-                    port:gnuplot \
                     port:ncurses \
                     port:xylib \
                     port:lua \
@@ -48,11 +52,9 @@ depends_lib         port:boost \
                     port:python27 \
                     port:${wxWidgets.port}
 
-# TODO: gnuplot is probably a runtime dependency
+depends_run         port:gnuplot
 
-pre-configure {
-    system -W ${worksrcpath} "autoreconf --install --verbose"
-}
+use_autoreconf      yes
 
 pre-build {
     if {[variant_isset docs]} {
