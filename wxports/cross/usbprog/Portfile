@@ -2,12 +2,14 @@
 # $Id$
 
 PortSystem          1.0
+#PortGroup          app 1.0
 PortGroup           bitbucket 1.0
 PortGroup           wxWidgets 1.0
 
-bitbucket.setup     bwalle usbprog-tools-classic 7751c98
+bitbucket.setup     bwalle usbprog-tools-classic 9f1d9be
 name                usbprog
-version             0.2.1
+# TODO: version could be simplified
+version             0.2.1_20130825-hg-${bitbucket.version}
 categories          cross
 maintainers         lilalinux.net:macports
 description         Tool for uploading and downloading firmwares to the usbprog device
@@ -26,17 +28,22 @@ depends_lib-append  port:curl \
                     port:readline \
                     port:${wxWidgets.port}
 
-checksums           rmd160  4e65113a0b2a61395275df6e4bef1dfce6c71e03 \
-                    sha256  f47f7413758cac08a761595ed8ce2bfc6f0637ce0a767018c242ab0b2f0ec72e
+checksums           rmd160  0c306756ed8c977070c002f93c06b3810567b415 \
+                    sha256  715704b9ee1b866669c9a7c6d991a45d726778f4d61df222882fe369a5af92d0
 
-patchfiles          patch-gui-usbprogFrm.cc.diff
+# This works, but requires ImageMagic for conversion
+# Ideally the icon would be provided in the upstream repository as PNG
+#set icon_name      usbprog_icon
+#app.name           usbprog
+#app.executable     usbprog-gui
+#app.icon           ${worksrcpath}/gui/${icon_name}.png
 
 pre-configure {
-    file mkdir ${worksrcpath}/m4
-    # TODO: if needed, an additional variable could be added to wxwidgets PortGroup
-    #       for easier access to ${wxWidgets.prefix}/share/aclocal/wxwin.m4
-    copy ${wxWidgets.prefix}/share/aclocal/wxwin.m4 ${worksrcpath}/m4/
     system -W ${worksrcpath} "./bootstrap"
 }
 
 configure.args      --with-wxdir=${wxWidgets.wxdir}
+
+#post-build {
+#    system -W ${worksrcpath}/gui "convert ${icon_name}.xpm ${icon_name}.png"
+#}
