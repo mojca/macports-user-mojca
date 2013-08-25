@@ -6,9 +6,9 @@ PortGroup           app 1.0
 PortGroup           wxWidgets 1.0
 
 name                xchm
-version             1.22
+version             1.23
 categories          textproc
-maintainers         markd
+maintainers         mojca
 platforms           darwin
 
 description         A cross-platform GUI front-end to chmlib.
@@ -19,33 +19,18 @@ long_description    A cross-platform GUI front-end to chmlib, xCHM can \
                     page and the whole book.
 
 homepage            http://xchm.sourceforge.net/
-master_sites        sourceforge
-checksums           rmd160  28727c08049fb0a338433ce9ae1989a61e7a1884 \
-                    sha256  30801106d5ce08481c97084a540cb7a67fb271a27e95ca61170063c6cc134559
 
-set icon_name       xchm-128
+fetch.type          git
+git.url             git://git.code.sf.net/p/xchm/code
+git.branch          8f77edc01da13962bd7e61c4f39341fdfada3d28
+
 app.name            xCHM
 app.executable      xchm
-app.icon            ${worksrcpath}/art/${icon_name}.png
+app.icon            ${worksrcpath}/art/xchm-128.png
 
 wxWidgets.use       wxWidgets-3.0
 
 depends_lib         port:chmlib \
                     port:${wxWidgets.port}
 
-# TODO: ImageMagick is only needed to convert the image to png
-# if there is a more lightweight program to do the same, that one should be used
-# or the icon as png/icns should be fetched from elsewhere, for example from
-# http://xchm.cvs.sourceforge.net/viewvc/xchm/xchm/art/xchm-128.png?revision=1.1
-# http://sourceforge.net/p/xchm/code/ci/master/tree/art/xchm-128.png?format=raw
-depends_build-append port:ImageMagick
-depends_skip_archcheck-append ImageMagick
-
-patchfiles          patch-src-chmhtmlwindow.cpp.diff \
-                    patch-src-Makefile.diff
-
 configure.args      --with-wxdir=${wxWidgets.wxdir}
-
-post-build {
-    system -W ${worksrcpath}/art "${prefix}/bin/convert ${icon_name}.xpm ${icon_name}.png"
-}
