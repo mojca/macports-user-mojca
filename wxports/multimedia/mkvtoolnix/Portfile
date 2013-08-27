@@ -6,7 +6,7 @@ PortGroup           muniversal 1.0
 PortGroup           wxWidgets 1.0
 
 name                mkvtoolnix
-version             5.8.0
+version             6.3.0
 revision            1
 categories          multimedia
 maintainers         nomaintainer
@@ -20,14 +20,16 @@ homepage            http://www.bunkus.org/videotools/mkvtoolnix/
 platforms           darwin
 master_sites        ${homepage}sources/ \
                     http://svn.mandriva.com/svn/packages/cooker/mkvtoolnix/releases/${version}/1/SOURCES/
-use_bzip2           yes
+use_xz              yes
 
-checksums           rmd160  29c11e66680d0f0f58f9aab4c9edd69f84f67f1d \
-                    sha256  3c9ec7e4c035b82a35850c5ada98a29904edc44a0d1c9b900ed05d56e6274960
+checksums           rmd160  7147271b54cf7ccb1ea9683428f6d9ccd47ae3fb \
+                    sha256  bc05f07d92190d018e901091a07ed5139f4eec833203af04672e4d3a0c619ba1
 
 wxWidgets.use       wxWidgets-3.0
 
-depends_build       port:pkgconfig
+depends_build       port:pkgconfig \
+                    port:libebml \
+                    port:libmatroska
 
 depends_lib         port:boost \
                     port:bzip2 \
@@ -35,7 +37,6 @@ depends_lib         port:boost \
                     port:expat \
                     port:file \
                     port:flac \
-                    port:gcc47 \
                     port:gettext \
                     port:libogg \
                     port:libvorbis \
@@ -44,7 +45,21 @@ depends_lib         port:boost \
                     port:ruby \
                     port:zlib
 
-configure.compiler  macports-gcc-4.7
+patch.pre_args      -p1
+patchfiles          patch-clang_errors.diff
+# Remove when version > 6.3.0 is released
+patchfiles-append   patch-df750c2.diff
+
+
+platform darwin {
+    if {${os.major} < 13} {
+        # TODO: Need to link against static versions of boost and icu for this to work right
+        #       See: https://trac.macports.org/ticket/40231
+
+        # configure complains about gcc < 4.6 and clang
+        compiler.whitelist macports-gcc-4.7 macports-gcc-4.8 macports-gcc-4.9
+    }
+}
 
 build.cmd           ./drake
 build.target        default
