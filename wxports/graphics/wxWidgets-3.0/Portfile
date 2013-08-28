@@ -2,16 +2,38 @@
 # $Id$
 
 PortSystem          1.0
+PortGroup           active_variants 1.1
 PortGroup           select          1.0
 PortGroup           wxWidgets       1.0
 # temporary conflict to prevent wrong linking
 PortGroup           conflicts_build 1.0
 
-wxWidgets.use       wxWidgets-3.0
-name                ${wxWidgets.port}
+name                wxWidgets-3.0
+subport             wxPython-3.0 {}
+subport             wxgtk-3.0 {}
+version             2.9.5
+
 # (temporary)
 conflicts_build     wxgtk wxWidgets wxWidgets-python wxWidgets30 wxWidgets-devel
-version             2.9.5
+
+set installname     wxWidgets
+set wxtype          osx_cocoa
+
+if {$subport == $name} {
+    wxWidgets.use   wxWidgets-3.0
+} elseif {$subport == "wxPython-3.0"} {
+    wxWidgets.use   wxPython-3.0
+    version         2.9.4
+} elseif {$subport == "wxgtk-3.0"} {
+    # with satisfactory Cocoa support there is no real need for GTK-based wxWidgets any more
+    # wxgtk-3.0 is here mainly for testing purposes
+    # it might be useful to report GTK-related bugs upstream
+    # and play with quartz-based GTK
+    # (and maybe backport changes to 2.8)
+    wxWidgets.use   wxGTK-3.0
+    set installname wxGTK
+    set wxtype      gtk3
+}
 set branch          [join [lrange [split ${version} .] 0 1] .]
 
 categories          graphics devel
@@ -46,14 +68,19 @@ depends_lib         port:jpeg \
 depends_run         port:wxWidgets_select
 
 select.group        wxWidgets
-select.file         ${filespath}/${name}
+select.file         ${filespath}/${subport}
 
-set worksrcdir      ${distname}-${version}/build
+worksrcdir          ${distname}-${version}/build
 
 extract.only        ${distname}-${version}${extract.suffix}
 
 patch.dir           ${worksrcpath}/..
+
+# without this patch wxrc-2.9 ends up linking to libraries in workdir
 patchfiles          patch-configure-change_install_names.diff
+
+# TODO: is this still needed?
+# configure.ccache    no
 
 configure.cmd       ../configure
 configure.args      --prefix=${wxWidgets.prefix} \
@@ -73,17 +100,83 @@ configure.args      --prefix=${wxWidgets.prefix} \
                     --with-macosx-sdk=no \
                     --with-macosx-version-min=no
 
+if {$subport == "wxPython-3.0"} {
+    # patch-src-osx-cocoa-window.mm.diff: http://trac.wxwidgets.org/changeset/72195 (only needed for 2.9.4)
+    patchfiles              patch-src-osx-cocoa-window.mm.diff
+
+    description             wxWidgets ${branch} for the wxPython distribution
+    long_description        The port installs wxWidgets ${branch} for wxPython \
+                            to guarantee compatibility even when upstream versions \
+                            of wxWidgets and wxPython differ.
+    
+    checksums               rmd160  62301f8ce39a8aa96e65318f9d1e947c9dc09c50 \
+                            sha256  6c530c35f40c3b1a5f9a4577c3ee8a9982e745081f23e3fbb9951d6d17514d12
+
+    livecheck.type          none
+} elseif {$subport == "wxgtk-3.0"} {
+    # both patches could be added to wxWidgets-3.0, but they are not needed for Cocoa
+    # and might need changes for wxWidgets 2.9.4
+    #
+    # patch-sdl.diff: the patch allows using --wxth-sdl
+    # patch-upstream-psn.diff: http://trac.wxwidgets.org/changeset/74703
+    patchfiles              patch-sdl.diff \
+                            patch-upstream-psn.diff
+    
+    depends_lib-append      port:cairo \
+                            path:lib/pkgconfig/sdl.pc:libsdl \
+                            port:libsdl_mixer
+
+    configure.args-delete   --with-cocoa \
+                            --without-sdl
+    configure.args-append   --with-sdl
+
+    #variant gtk2 conflicts gtk3 description {} {
+    #    depends_lib-append      port:gtk2
+    #    configure.args-append   --with-gtk=2
+    #    set wxtype              gtk2
+    #}
+    #variant gtk3 conflicts gtk2 description {} {
+        depends_lib-append      port:gtk3
+        configure.args-append   --with-gtk=3
+    #}
+    #variant quartz conflicts x11 {
+    #    require_active_variants cairo quartz
+    #    require_active_variants gtk3 quartz
+    #}
+    #variant x11 conflicts quartz {
+        depends_lib-append  port:mesa
+        require_active_variants cairo x11
+        require_active_variants gtk3  x11
+    #}
+    #if{![variant_isset gtk2] && ![variant_isset gtk3]} {
+    #    default_variants-append +gtk3
+    #}
+    #if{![variant_isset quartz] && ![variant_isset x11]} {
+    #    default_variants-append +quartz
+    #}
+    #if{[variant_isset gtk2]} {
+    #    if{[variant_isset quartz]} {
+    #        require_active_variants gtk2 quartz
+    #    } else {
+    #        require_active_variants gtk2 x11
+    #    }
+    #} else {
+    #    if{[variant_isset quartz]} {
+    #        require_active_variants gtk3 quartz
+    #    } else {
+    #        require_active_variants gtk3 x11
+    #    }
+    #}
+}
+
+post-destroot {
+    set confscript ${wxWidgets.prefix}/lib/wx/config/${wxtype}-unicode-${branch}
+    ln -sf ${confscript} ${destroot}${wxWidgets.prefix}/bin/wx-config
+}
+
 variant universal {
     set archs [join ${configure.universal_archs} ,]
     configure.args-append   --enable-universal_binary=${archs}
-}
-
-# TODO: what is this?
-configure.ccache    no
-
-post-destroot {
-    set confscript ${wxWidgets.prefix}/lib/wx/config/osx_cocoa-unicode-${branch}
-    ln -sf ${confscript} ${destroot}${wxWidgets.prefix}/bin/wx-config
 }
 
 variant monolithic description {build only one library} {
