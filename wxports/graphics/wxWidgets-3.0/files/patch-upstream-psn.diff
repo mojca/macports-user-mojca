@@ -1,4 +1,4 @@
-http://trac.wxwidgets.org/changeset/74703
+Upstream: http://trac.wxwidgets.org/changeset/74703
 --- src/common/appcmn.cpp.orig
 +++ src/common/appcmn.cpp
 @@ -84,6 +84,27 @@ wxAppBase::wxAppBase()
