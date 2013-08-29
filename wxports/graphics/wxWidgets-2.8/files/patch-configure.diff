@@ -73,6 +73,29 @@
          OPENGL_LIBS=""
      else
                          echo "$as_me:$LINENO: checking for OpenGL headers" >&5
+@@ -33801,22 +33764,6 @@ rm -f conftest.err conftest.$ac_objext \
+       ;;
+ 
+       *-*-darwin* )
+-        install_name_tool=`which install_name_tool`
+-        if test "$install_name_tool" -a -x "$install_name_tool"; then
+-            SAMPLES_RPATH_POSTLINK="\$(wx_top_builddir)/change-install-names \$(LIBDIRNAME) \$(prefix) \$@"
+-            cat <<EOF >change-install-names
+-#!/bin/sh
+-libnames=\`cd \${1} ; ls -1 | grep '\.[0-9][0-9]*\.dylib\$'\`
+-inst_cmd="install_name_tool "
+-for i in \${libnames} ; do
+-    inst_cmd="\${inst_cmd} -change \${2}/lib/\${i} \${1}/\${i}"
+-done
+-\${inst_cmd} \${3}
+-EOF
+-            chmod +x change-install-names
+-
+-            HEADER_PAD_OPTION="-headerpad_max_install_names"
+-        fi
+       ;;
+ 
+       *-*-cygwin* | *-*-mingw32* )
 --- setup.h.in.orig
 +++ setup.h.in
 @@ -552,7 +552,7 @@

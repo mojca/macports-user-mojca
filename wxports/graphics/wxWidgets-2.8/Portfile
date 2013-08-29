@@ -6,12 +6,8 @@ PortGroup           active_variants 1.1
 PortGroup           archcheck       1.0
 PortGroup           select          1.0
 PortGroup           wxWidgets       1.0
-# temporary conflict to prevent wrong linking
-PortGroup           conflicts_build 1.0
 
 name                wxWidgets-2.8
-# (temporary)
-conflicts_build     wxgtk wxWidgets wxWidgets-python wxWidgets30 wxWidgets-devel
 version             2.8.12
 set branch          [join [lrange [split ${version} .] 0 1] .]
 set wxpythonsubset  wxPython-2.8.12.1-MacPorts-subset
@@ -125,7 +121,7 @@ if {${wxWidgets.sdk} == ""} {
 }
 
 # wxgtk-2.8
-if {$subport != $name && $subport != ""} {
+if {$subport != $name} {
     depends_lib-append      port:cairo \
                             port:gtk2 \
                             port:mesa \
@@ -163,6 +159,7 @@ post-destroot {
     install-mac.txt readme-mac.txt \
     install-gtk.txt readme-gtk.txt ${destdocdir}
 
+    # maybe not needed
     set confscript ${wxWidgets.prefix}/lib/wx/config/${wxtype}-unicode-${installtype}-2.8
     ln -sf ${confscript} ${destroot}${wxWidgets.prefix}/bin/wx-config
 }

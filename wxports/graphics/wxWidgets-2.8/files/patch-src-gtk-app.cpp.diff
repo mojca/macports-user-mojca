@@ -1,4 +1,6 @@
-allows also the gtk-based wxWidgets apps to be bundled
+allows also the GTK-based wxWidgets apps to be bundled
+(even though they still bounce off the Dock)
+http://trac.wxwidgets.org/changeset/74703
 --- src/gtk/app.cpp.orig
 +++ src/gtk/app.cpp
 @@ -415,6 +415,21 @@ bool wxApp::Initialize(int& argc, wxChar **argv)
