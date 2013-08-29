@@ -24,32 +24,26 @@ wxWidgets.wxrc
 wxWidgets.sdk
 wxWidgets.macosx_version_min
 
-# Poedit also needs
-# build.env-append  GETTEXT_PREFIX=${prefix} WX_ROOT=${prefix}
-
-options     wxWidgets.supported_versions
-option_proc wxWidgets.supported_versions wxWidgets._set_supported_versions
-
 options     wxWidgets.use
 option_proc wxWidgets.use wxWidgets._set
 
-# options     wxWidgets.use_version
-# option_proc wxWidgets.use_version wxWidgets._set_version
-
-# TODO
-# - parameters can be "2.8", "3.0" or "2.8 3.0"
+## TODO:
+## If the need for this ever arises ...
+##
+## This parameter could be set for every port and could be useful on Tiger
+## to switch to 2.8 automatically even when 3.0 is the default elsewhere
+## or to provent using 3.0 for ports that don't support this
+##
+## With proper implementation wxWidgets.use should only be needed in Portfile
+## in special cases (when a specific port wants to support multiple wxWidgets versions)
 #
-# This parameter should be set for every port and could be useful on Tiger
-# to switch to 2.8 automatically even when 3.0 is the default elsewhere
-# or to provent using 3.0 for ports that don't support this
-#
-# With proper implementation wxWidgets.use_version should only be needed in Portfile
-# in special cases (when a specific port wants to support multiple wxWidgets versions)
-# or in the PortGroup itself (but then we might need another name)
-proc wxWidgets._set_supported_versions {option action args} {
-}
+# options     wxWidgets.supported_versions
+# option_proc wxWidgets.supported_versions wxWidgets._set_supported_versions
+# proc wxWidgets._set_supported_versions {option action args} {}
 
-# parameters: "wxWidgets-2.8" "wxGTK-2.8" "wxWidgets-3.0" "wxPython-3.0"
+## TODO: it would be nice to make the changes reversible
+##
+## parameters: "wxWidgets-2.8" "wxGTK-2.8" "wxWidgets-3.0" "wxGTK-3.0" "wxPython-3.0"
 proc wxWidgets._set {option action args} {
     global prefix frameworks_dir os.major
     global wxWidgets.name wxWidgets.version wxWidgets.prefix wxWidgets.wxdir
@@ -115,7 +109,7 @@ proc wxWidgets._set {option action args} {
         }
     } else {
         # throw an error
-        ui_error "invalid parameter for wxWidgets.use; use one of: wxWidgets-2.8/wxGTK-2.8/wxWidgets-3.0/wxPython-3.0"
+        ui_error "invalid parameter for wxWidgets.use; use one of: wxWidgets-2.8/wxGTK-2.8/wxWidgets-3.0/wxGTK-3.0/wxPython-3.0"
         return -code return "invalid parameter for wxWidgets.use"
     }
     wxWidgets.prefix    ${frameworks_dir}/wxWidgets.framework/Versions/${wxWidgets.name}/${wxWidgets.version}
