@@ -147,7 +147,7 @@ post-destroot {
 
     # copy a subset of wxPython to wxWidgets to prevent a conflict
     # between py2X-wxpython-2.8 and py2Y-wxpython-2.8
-    copy ${workpath}/wxPython ${destroot}${wxWidgets.prefix}/include/wx-2.8/wx/
+    copy ${workpath}/wxPython ${destroot}${wxWidgets.prefix}/include/wx-${branch}/wx/
 
     # copy a subset of documetation
     set destdocdir ${destroot}${wxWidgets.prefix}/share/doc/${distname}
@@ -157,7 +157,7 @@ post-destroot {
     install-gtk.txt readme-gtk.txt ${destdocdir}
 
     # maybe not needed
-    set confscript ${wxWidgets.prefix}/lib/wx/config/${wxtype}-unicode-${installtype}-2.8
+    set confscript ${wxWidgets.prefix}/lib/wx/config/${wxtype}-unicode-${installtype}-${branch}
     ln -sf ${confscript} ${destroot}${wxWidgets.prefix}/bin/wx-config
 }
 

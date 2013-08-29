@@ -19,6 +19,7 @@ if {$subport == $name} {
 } elseif {$subport == "wxPython-3.0"} {
     wxWidgets.use   wxPython-3.0
     version         2.9.4
+    set wxpythonsubset wxPython-2.9.4.0-MacPorts-subset
 } elseif {$subport == "wxgtk-3.0"} {
     # with satisfactory Cocoa support there is no real need for GTK-based wxWidgets any more
     # wxgtk-3.0 is here mainly for testing purposes
@@ -43,7 +44,8 @@ long_description    wxWidgets ${branch} is an open-source cross-platform C++ \
 homepage            http://www.wxwidgets.org/
 distname            wxWidgets
 master_sites        sourceforge:project/wxwindows/${version} \
-                    http://biolpc22.york.ac.uk/pub/${version}/
+                    http://biolpc22.york.ac.uk/pub/${version}/ \
+                    http://trac.macports.org/raw-attachment/ticket/19190/:trac
 
 use_bzip2           yes
 
@@ -98,6 +100,8 @@ configure.args      --prefix=${wxWidgets.prefix} \
                     --with-macosx-version-min=no
 
 if {$subport == "wxPython-3.0"} {
+    distfiles-append        ${wxpythonsubset}${extract.suffix}:trac
+
     # patch-src-osx-cocoa-window.mm.diff: http://trac.wxwidgets.org/changeset/72195 (only needed for 2.9.4)
     patchfiles-append       patch-src-osx-cocoa-window.mm.diff
 
@@ -105,9 +109,19 @@ if {$subport == "wxPython-3.0"} {
     long_description        The port installs wxWidgets ${branch} for wxPython \
                             to guarantee compatibility even when upstream versions \
                             of wxWidgets and wxPython differ.
-    
-    checksums               rmd160  62301f8ce39a8aa96e65318f9d1e947c9dc09c50 \
-                            sha256  6c530c35f40c3b1a5f9a4577c3ee8a9982e745081f23e3fbb9951d6d17514d12
+
+    checksums               ${distname}-${version}${extract.suffix} \
+                            rmd160  62301f8ce39a8aa96e65318f9d1e947c9dc09c50 \
+                            sha256  6c530c35f40c3b1a5f9a4577c3ee8a9982e745081f23e3fbb9951d6d17514d12 \
+                            ${wxpythonsubset}${extract.suffix} \
+                            rmd160  7831cee8185c521d8b565b56555b3005dee1d53d \
+                            sha256  971b644768d4010b38acf7232deb8cf3c91921ca8b09dec82c1616b93c751f4c
+
+    post-destroot {
+        # copy a subset of wxPython to wxWidgets to prevent a conflict
+        # between py2X-wxpython-3.0 and py2Y-wxpython-3.0
+        copy ${workpath}/wxPython ${destroot}${wxWidgets.prefix}/include/wx-${branch}/wx/
+    }
 
     livecheck.type          none
 } elseif {$subport == "wxgtk-3.0"} {
