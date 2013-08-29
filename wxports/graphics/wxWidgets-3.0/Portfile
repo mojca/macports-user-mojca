@@ -69,8 +69,6 @@ select.file         ${filespath}/${subport}
 
 worksrcdir          ${distname}-${version}/build
 
-extract.only        ${distname}-${version}${extract.suffix}
-
 patch.dir           ${worksrcpath}/..
 
 # without (the second part of) this patch wxrc-2.9 ends up linking to libraries in workdir
