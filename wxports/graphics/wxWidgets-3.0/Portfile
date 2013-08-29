@@ -77,10 +77,12 @@ extract.only        ${distname}-${version}${extract.suffix}
 patch.dir           ${worksrcpath}/..
 
 # without (the second part of) this patch wxrc-2.9 ends up linking to libraries in workdir
+# http://trac.wxwidgets.org/ticket/15452
 patchfiles          patch-configure.diff
 
-# TODO: is this still needed?
-# configure.ccache    no
+post-patch {
+    reinplace "s|@@PREFIX@@|${prefix}|g" ${patch.dir}/configure
+}
 
 configure.cmd       ../configure
 configure.args      --prefix=${wxWidgets.prefix} \
@@ -169,14 +171,17 @@ if {$subport == "wxPython-3.0"} {
     #}
 }
 
-post-destroot {
-    set confscript ${wxWidgets.prefix}/lib/wx/config/${wxtype}-unicode-${branch}
-    ln -sf ${confscript} ${destroot}${wxWidgets.prefix}/bin/wx-config
-}
+# post-destroot {
+#     set confscript ${wxWidgets.prefix}/lib/wx/config/${wxtype}-unicode-${branch}
+#     ln -sf ${confscript} ${destroot}${wxWidgets.prefix}/bin/wx-config
+# }
 
 variant universal {
     set archs [join ${configure.universal_archs} ,]
-    configure.args-append   --enable-universal_binary=${archs}
+    # --disable-precomp-headers is automatically selected with cocoa, but not with gtk
+    # http://trac.wxwidgets.org/ticket/15454
+    configure.args-append   --enable-universal_binary=${archs} \
+                            --disable-precomp-headers
 }
 
 variant monolithic description {build only one library} {
