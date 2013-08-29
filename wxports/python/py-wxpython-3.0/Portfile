@@ -52,6 +52,10 @@ if {$subport != $name} {
     build.cmd       ${python.bin} setup.py WX_CONFIG="${wxWidgets.wxconfig}"
     destroot.cmd    ${python.bin} setup.py WX_CONFIG="${wxWidgets.wxconfig}"
 
+    post-destroot {
+        delete      ${destroot}${wxWidgets.prefix}
+    }
+
     livecheck.type  none
 } else {
     post-destroot {
