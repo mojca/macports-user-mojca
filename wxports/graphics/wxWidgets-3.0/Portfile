@@ -105,7 +105,7 @@ if {$subport == "wxPython-3.0"} {
 
     description             wxWidgets ${branch} for the wxPython distribution
     long_description        The port installs wxWidgets ${branch} for wxPython \
-                            to guarantee compatibility even when upstream versions \
+                            to guarantee compatibility even when the upstream versions \
                             of wxWidgets and wxPython differ.
 
     checksums               ${distname}-${version}${extract.suffix} \

@@ -1,4 +1,5 @@
-This patch is needed to make --with-sdl work (it should be reported upstream)
+This patch is needed to make --with-sdl work
+http://trac.wxwidgets.org/ticket/15453
 --- Makefile.in.orig
 +++ Makefile.in
 @@ -6719,8 +6719,8 @@ COND_TOOLKIT_X11___ADVANCED_PLATFORM_SRC_OBJECTS_1 =  \

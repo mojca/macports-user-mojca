@@ -1,3 +1,5 @@
+This patch is needed to make --with-sdl work
+http://trac.wxwidgets.org/ticket/15453
 --- Makefile.in.orig
 +++ Makefile.in
 @@ -5033,8 +5033,8 @@ COND_TOOLKIT_WINCE___MEDIA_PLATFORM_SRC_OBJECTS =  \
