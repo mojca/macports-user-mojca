@@ -1,7 +1,6 @@
 # $Id$
 
 PortSystem        1.0
-PortGroup         python27  1.0
 PortGroup         wxWidgets 1.0
 
 name              grass
@@ -23,6 +22,11 @@ checksums         rmd160  bdbd671972730701aa8213c2041abe31a68eea4c \
                   sha256  5d29d322a262330894aa046845e6790258cd6e3f95b28c350ed7839810672ed6
 
 wxWidgets.use     wxPython-3.0
+
+# TODO
+# this port doesn't work with the python portgroup because the group changes too much
+# but it would make sense to fix this properly
+set python_bin    ${frameworks_dir}/Python.framework/Versions/2.7/bin/python2.7
 
 depends_build     port:pkgconfig
 depends_lib       port:fftw-3 \
@@ -203,9 +207,9 @@ set python_scripts [ list \
 
 post-patch {
    reinplace "s|@@APPLICATIONS_DIR@@|${applications_dir}|" ${worksrcpath}/configure
-   reinplace "s|@@PYTHON@@|${python.bin}|" ${worksrcpath}/lib/init/grass.src
+   reinplace "s|@@PYTHON@@|${python_bin}|" ${worksrcpath}/lib/init/grass.src
    foreach f $python_scripts {
-       reinplace "s|/usr/bin/env python|${python.bin}|" $f
+       reinplace "s|/usr/bin/env python|${python_bin}|" $f
    }
 }
 
@@ -248,7 +252,7 @@ configure.args \
 
 build.target    default
 
-build.args-append PYTHON=${frameworks_dir}/Python.framework/Versions/2.7/bin/python2.7
+build.args-append PYTHON=${python_bin}
 
 variant mysql5 description {Add MySQL 5 support} {
     depends_lib-append    path:bin/mysql_config5:mysql5
@@ -306,6 +310,10 @@ variant ffmpeg description {Add ffmpeg support} {
                           --with-ffmpeglibs=${prefix}/lib
 }
 
+# FIXME:
+# grass 4.6.3 is not compatible with wxPython 2.9 yet
+# the option names should be changed to allow building against wxPython 2.8 (either carbon or gtk variant)
+# it also needs to be guaranteed that the right architecture is chosen
 variant wxwidgets description {Add WXWidgets support} {
     depends_lib-append    port:${wxWidgets.port}
     configure.args-delete --disable-wxwidgets
