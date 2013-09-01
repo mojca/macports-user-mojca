@@ -10,8 +10,7 @@ PortGroup               wxWidgets 1.0
 name                    hugin-app
 version                 2012.0.0
 categories              graphics
-maintainers             gmail.com:hvdwolf \
-                        auckland.ac.nz:p.schmiedeskamp
+maintainers             nomaintainer
 description             Panorama photo stitcher
 long_description        An easy to use cross-platform panoramic imaging \
                         toolchain based on Panorama Tools. With hugin you \
@@ -51,15 +50,15 @@ depends_lib             port:boost \
 #     Python version >=2.6
 #     SWIG >=2.0 - If Python >=3.2, SWIG must be >=2.0.4
 #
-# NOTE: maybe the problem was that I already had swig installed,
-#       but after it has been detected, it required swig-python
-#       and additional python definitions, else it failed to bulid
+# NOTE: maybe the problem was that if swig is installed,
+#       it gets detected and then requires swig-python
+#       and additional python definitions, else it fails to bulid
 
 # TODO: try to see where MAC_SELF_CONTAINED_BUNDLE gets defined
 
 # patch-src-foreign-vigra-vigra-cachedfileimage.hxx.patch - https://bugs.launchpad.net/bugs/1213586
 # patch-src-foreign-zthread-include-zthread-Guard.h.diff  - https://bugs.launchpad.net/bugs/1213585
-# patch-src-hugin1-hugin1.pch.diff                        - doesn't really help (at least not for clang)
+# patch-src-hugin1-hugin1.pch.diff                        - moderately helps with compiler issues
 # patch-src-hugin1-base_wx-platform.h.diff                - fixed upstream
 patchfiles              patch-src-foreign-vigra-vigra-cachedfileimage.hxx.patch \
                         patch-src-foreign-zthread-include-zthread-Guard.h.diff \
