@@ -31,13 +31,12 @@ long_description    wxWidgets ${branch} is an open-source cross-platform C++ \
 homepage            http://www.wxwidgets.org/
 distname            wxWidgets
 master_sites        sourceforge:project/wxwindows/${version} \
-                    http://biolpc22.york.ac.uk/pub/${version}/ \
-                    http://trac.macports.org/raw-attachment/ticket/19190/:trac
+                    http://biolpc22.york.ac.uk/pub/${version}/
 
 use_bzip2           yes
 
 distfiles           ${distname}-${version}${extract.suffix} \
-                    ${wxpythonsubset}${extract.suffix}:trac
+                    ${wxpythonsubset}${extract.suffix}
 dist_subdir         ${distname}/${version}
 
 checksums           ${distname}-${version}${extract.suffix} \
@@ -119,7 +118,7 @@ if {${wxWidgets.sdk} == ""} {
 
 # wxgtk-2.8 (it doesn't work with Quartz)
 if {$subport != $name} {
-    depends_build-append    path:bin/pkg-config:pkgconfig
+    depends_build-append    port:pkgconfig
     depends_lib-append      path:lib/pkgconfig/cairo.pc:cairo \
                             port:gtk2 \
                             port:mesa \
@@ -158,10 +157,6 @@ post-destroot {
     xinstall -m 644 -W ${workpath}/${distname}-${version} \
     install-mac.txt readme-mac.txt \
     install-gtk.txt readme-gtk.txt ${destdocdir}
-
-    # maybe not needed
-    set confscript ${wxWidgets.prefix}/lib/wx/config/${wxtype}-unicode-${installtype}-${branch}
-    ln -sf ${confscript} ${destroot}${wxWidgets.prefix}/bin/wx-config
 }
 
 variant aui description {add support for AUI docking library} {

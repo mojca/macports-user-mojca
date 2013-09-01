@@ -1,0 +1,48 @@
+Upstream: http://trac.wxwidgets.org/changeset/74735
+--- include/wx/log.h (revision 74602)
++++ include/wx/log.h (revision 74735)
+@@ -14,4 +14,5 @@
+ 
+ #include "wx/defs.h"
++#include "wx/cpp.h"
+ 
+ // ----------------------------------------------------------------------------
+@@ -1331,5 +1332,8 @@
+ // unnecessary overhead)
+ //
+-// Note: the strange if/else construct is needed to make the following code
++// Note: the strange (because executing at most once) for() loop because we
++//       must arrange for wxDO_LOG() to be at the end of the macro and using a
++//       more natural "if (IsLevelEnabled()) wxDO_LOG()" would result in wrong
++//       behaviour for the following code ("else" would bind to the wrong "if"):
+ //
+ //          if ( cond )
+@@ -1338,19 +1342,14 @@
+ //              ...
+ //
+-//       work as expected, without it the second "else" would match the "if"
+-//       inside wxLogError(). Unfortunately code like
+-//
+-//          if ( cond )
+-//              wxLogError("!!!");
+-//
+-//       now provokes "suggest explicit braces to avoid ambiguous 'else'"
+-//       warnings from g++ 4.3 and later with -Wparentheses on but they can be
+-//       easily fixed by adding curly braces around wxLogError() and at least
+-//       the code still does do the right thing.
++//       See also #11829 for the problems with other simpler approaches,
++//       notably the need for two macros due to buggy __LINE__ in MSVC.
++#define wxDO_LOG_IF_ENABLED_HELPER(level, loopvar)                            \
++    for ( bool loopvar = false;                                               \
++          !loopvar && wxLog::IsLevelEnabled(wxLOG_##level, wxLOG_COMPONENT);  \
++          loopvar = true )                                                    \
++        wxDO_LOG(level)
++
+ #define wxDO_LOG_IF_ENABLED(level)                                            \
+-    if ( !wxLog::IsLevelEnabled(wxLOG_##level, wxLOG_COMPONENT) )             \
+-    {}                                                                        \
+-    else                                                                      \
+-        wxDO_LOG(level)
++    wxDO_LOG_IF_ENABLED_HELPER(level, wxMAKE_UNIQUE_NAME(wxlogcheck))
+ 
+ // wxLogFatalError() is special as it can't be disabled

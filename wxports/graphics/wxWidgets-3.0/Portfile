@@ -44,8 +44,7 @@ long_description    wxWidgets ${branch} is an open-source cross-platform C++ \
 homepage            http://www.wxwidgets.org/
 distname            wxWidgets
 master_sites        sourceforge:project/wxwindows/${version} \
-                    http://biolpc22.york.ac.uk/pub/${version}/ \
-                    http://trac.macports.org/raw-attachment/ticket/19190/:trac
+                    http://biolpc22.york.ac.uk/pub/${version}/
 
 use_bzip2           yes
 
@@ -71,9 +70,13 @@ worksrcdir          ${distname}-${version}/build
 
 patch.dir           ${worksrcpath}/..
 
-# without (the second part of) this patch wxrc-2.9 ends up linking to libraries in workdir
-# http://trac.wxwidgets.org/ticket/15452
-patchfiles-append   patch-configure.diff
+# without (the second part of) patch-configure.diff wxrc-2.9 ends up linking to libraries in workdir
+# patch-configure.diff:        http://trac.wxwidgets.org/ticket/15452
+# patch-include-wx-log.h.diff: http://trac.wxwidgets.org/ticket/11829
+# patch-Makefile.in.295.diff:  http://trac.wxwidgets.org/ticket/15463
+patchfiles-append   patch-configure.diff \
+                    patch-include-wx-log.h.diff \
+                    patch-Makefile.in.295.diff
 
 post-patch {
     reinplace "s|@@PREFIX@@|${prefix}|g" ${patch.dir}/configure
@@ -99,12 +102,14 @@ configure.args      --prefix=${wxWidgets.prefix} \
 
 if {$subport == "wxPython-3.0"} {
     set wxpythonsubset      wxPython-2.9.4.0-MacPorts-subset
-    distfiles-append        ${wxpythonsubset}${extract.suffix}:trac
+    distfiles-append        ${wxpythonsubset}${extract.suffix}
 
     # patch-src-osx-cocoa-window.mm.diff: http://trac.wxwidgets.org/changeset/72195 (only needed for 2.9.4)
     # patch-include-wx-math.h.diff:       http://trac.wxwidgets.org/changeset/74456 (only needed for 2.9.4)
     patchfiles-append       patch-src-osx-cocoa-window.mm.diff \
                             patch-include-wx-math.h.diff
+    patchfiles-replace      patch-Makefile.in.295.diff \
+                            patch-Makefile.in.294.diff
 
     description             wxWidgets ${branch} for the wxPython distribution
     long_description        The port installs wxWidgets ${branch} for wxPython \
@@ -134,7 +139,7 @@ if {$subport == "wxPython-3.0"} {
     patchfiles-append       patch-sdl.diff \
                             patch-upstream-psn.diff
 
-    depends_build-append    path:bin/pkg-config:pkgconfig
+    depends_build-append    port:pkgconfig
     depends_lib-append      path:lib/pkgconfig/cairo.pc:cairo \
                             path:lib/pkgconfig/sdl.pc:libsdl \
                             port:libsdl_mixer
@@ -183,8 +188,8 @@ if {$subport == "wxPython-3.0"} {
 }
 
 post-destroot {
-    set confscript ${wxWidgets.prefix}/lib/wx/config/${wxtype}-unicode-${branch}
-    ln -sf ${confscript} ${destroot}${wxWidgets.prefix}/bin/wx-config
+    # otherwise 'port select --set wxWidgets wxWidgets-3.0' doesn't work
+    # it would be nice to fix that at some other level
     xinstall -m 755 -d ${destroot}${prefix}/share/bakefile/presets
 }
 
