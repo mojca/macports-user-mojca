@@ -10,7 +10,7 @@ name                wxWidgets-3.0
 subport             wxPython-3.0 {}
 subport             wxgtk-3.0 {}
 version             2.9.5
-revision            1
+revision            2
 
 set installname     wxWidgets
 set wxtype          osx_cocoa

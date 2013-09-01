@@ -9,6 +9,7 @@ PortGroup           wxWidgets       1.0
 
 name                wxWidgets-2.8
 version             2.8.12
+revision            1
 set branch          [join [lrange [split ${version} .] 0 1] .]
 set wxpythonsubset  wxPython-2.8.12.1-MacPorts-subset
 
@@ -157,7 +158,12 @@ post-destroot {
     xinstall -m 644 -W ${workpath}/${distname}-${version} \
     install-mac.txt readme-mac.txt \
     install-gtk.txt readme-gtk.txt ${destdocdir}
+
+    # otherwise 'port select --set wxWidgets wxWidgets-3.0' doesn't work
+    # it would be nice to fix that at some other level
+    xinstall -m 755 -d ${destroot}${prefix}/share/bakefile/presets
 }
+destroot.keepdirs ${destroot}${prefix}/share/bakefile/presets
 
 variant aui description {add support for AUI docking library} {
     configure.args-append    --enable-aui
