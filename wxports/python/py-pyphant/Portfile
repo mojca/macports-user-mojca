@@ -1,0 +1,188 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           app       1.0
+PortGroup           python    1.0
+PortGroup           wxWidgets 1.0
+
+name                py-pyphant
+version             1.0b2
+categories-append   science
+maintainers         rowue
+description         python framework for analysing and managing scientific data
+long_description    The python framework pyphant allows for the creation \
+                    and application of data flow models. The central idea \
+                    of this approach is to encapsulate each data processing \
+                    step in one unit which is called a worker. \
+                    A worker receives input via sockets and provides the \
+                    results of its data processing via plugs. These can be \
+                    inserted into other workers' sockets. The resulting \
+                    directed graph is called a recipe. Classes for these \
+                    objects comprise the Pyphant core. \
+                    To implement actual processing steps, Pyphant relies on \
+                    third party plug-ins, also referred to as toolboxes, \
+                    which extend the basic worker class, e.g. \
+                    py26-pyphant-imageprocessing. \
+                    On top of the core, Pyphant offers a data exchange layer \
+                    on basis of numpy arrays which facilitates the \
+                    interoperability of the workers and fully supports \
+                    physical quantities with errors and units. \
+                    The third layer is a graphical user interface \
+                    allowing for the interactive construction of recipes \
+                    as well as the calculation and visualization of data \
+                    from any worker in the recipe.
+
+#                   http://pyphant.sourceforge.net
+#                   https://github.com/SGWissInfo/pyphant1
+homepage            http://www.fmf.uni-freiburg.de/service/servicegruppen/sg_wissinfo/projekte/Pyphant/
+
+platforms           darwin
+
+python.versions     26 27
+python.default_version 27
+
+# py-scipy is not universal
+universal_variant   no
+
+distname            pyphant
+master_sites        sourceforge:pyphant
+
+if {$subport != $name} {
+
+    use_configure           no
+    depends_build-append    port:py${python.version}-setuptools
+}
+
+foreach python.version ${python.versions} {
+    subport py${python.version}-${distname} {
+        worksrcdir          ${distname}-${version}
+        distfiles           ${distname}-${version}${extract.suffix}
+        checksums           rmd160  76f6d419e97a2ec964065e68ec271733eb90cec1 \
+                            sha256  c90b7735ca40ddaf8bc0865056b4157813a2176ed156080fa5bec866cdacf4c7
+
+        app.name            Pyphant
+        ## the following doesn't work; most probably post-destroot directives
+        ## from python & app aren't executed in the right order
+        # app.executable      wxPyphant-${python.branch}
+        app.executable      ${python.prefix}/bin/wxPyphant
+        app.icon            ${filespath}/Pyphant.icns
+
+        # TODO: check which ones of these are runtime dependencies as opposed to dependencies for building
+        #       I'm not really sure that this is compatible with wxWidgets 2.9
+        depends_lib-append  port:py${python.version}-scipy \
+                            port:py${python.version}-setuptools \
+                            port:py${python.version}-tables \
+                            port:py${python.version}-antlr3 \
+                            port:py${python.version}-matplotlib \
+                            port:py${python.version}-scientific \
+                            port:py${python.version}-simplejson \
+                            port:py${python.version}-paste \
+                            port:py${python.version}-mx-base \
+                            port:py${python.version}-sogl \
+                            port:py${python.version}-wxpython-3.0 \
+                            port:py${python.version}-${distname}-fmf \
+                            port:py${python.version}-${distname}-imageprocessing \
+                            port:py${python.version}-${distname}-osc \
+                            port:py${python.version}-${distname}-statistics \
+                            port:py${python.version}-${distname}-tools
+        depends_run-append  port:py${python.version}-configobj \
+                            port:py${python.version}-tornado
+
+        # TODO: the scripts should be modified, in particular pyphant and pyphant.quartz
+        #       most probably the app PortGroup could be used instead
+        # post-destroot {
+        #     xinstall -m 755 -d ${destroot}${applications_dir}/Pyphant.app/Contents/MacOS
+        #     if {[variant_isset carbon]} {
+        #         xinstall ${filespath}/pyphant.quartz ${destroot}${applications_dir}/Pyphant.app/Contents/MacOS/Pyphant
+        #     } else {
+        #         xinstall ${filespath}/pyphant ${destroot}${applications_dir}/Pyphant.app/Contents/MacOS/Pyphant
+        #         reinplace "s|@APPDIR@|${applications_dir}|" ${destroot}${applications_dir}/Pyphant.app/Contents/MacOS/Pyphant
+        #     }
+        #     reinplace "s|@PREFIX@|${prefix}|" ${destroot}${applications_dir}/Pyphant.app/Contents/MacOS/Pyphant
+        #     xinstall -m 755 -d ${destroot}${applications_dir}/Pyphant.app/Contents/Resources
+        #     xinstall -m 0644 ${filespath}/Pyphant.icns ${destroot}${applications_dir}/Pyphant.app/Contents/Resources
+        #     xinstall -m 0644 ${filespath}/Info.plist ${destroot}${applications_dir}/Pyphant.app/Contents/
+        #     reinplace "s|@VERSION@|${version}|" ${destroot}${applications_dir}/Pyphant.app/Contents/Info.plist
+        #     system "echo 'APPL????' > ${destroot}${applications_dir}/Pyphant.app/Contents/PkgInfo"
+        # }
+        # variant carbon description {Install pyphant with carbon support} {}
+    }
+
+    subport py${python.version}-${distname}-fmf {
+        description         Full-Metadata Format toolbox for py${python.version}-pyphant
+        long_description    This toolbox enables the py${python.version}-pyphant framework to read \
+                            files written in the Full-Metadata Format (FMF). \
+                            See http://arxiv.org/abs/0904.1299 for an introduction \
+                            to the FMF. There is also support for writing files \
+                            in the FMF, although this feature is currently not \
+                            accessible from the pyphant GUI.
+
+        distname            ${distname}.fmf-${version}
+        checksums           rmd160  dbbeb277bdb61f9760f1cc723f58f20c377fe0e6 \
+                            sha256  711f9115b695a6b6d023e5b1f968cff186adeb5a0024e30c927df7a30f0f1d11
+
+        # does this need "append"?
+        depends_build       port:py${python.version}-setuptools
+    }
+
+    subport py${python.version}-${distname}-imageprocessing {
+        description         imageprocessing toolbox for py${python.version}-pyphant
+        long_description    This toolbox provides a set of imageprocessing workers, \
+                            i.e. encapsulated data processing steps for the \
+                            py26-pyphant framework. Currently there are 22 workers \
+                            providing operations varying from simple functions like \
+                            'inversion' or some scipy.ndimage filters to more complex \
+                            operations, e.g. auto-focus evaluation of transmitted \
+                            light microscopy photographs.
+
+        distname            ${distname}.imageprocessing-${version}
+        checksums           rmd160  f69719739e3daa18eb75467bce629fc2b3aef25f \
+                            sha256  2ea087b6eed458dec193f6f1c2f5652dcb54da0536b79583ab623e610ed7d7e1
+
+        depends_lib-append  port:py${python.version}-pil
+    }
+
+    subport py${python.version}-${distname}-osc {
+        description         organic solar cells toolbox for py${python.version}-pyphant
+        long_description    This Toolbox offers various workers for the \
+                            analysis of organic solar cells. It is joined \
+                            work with Kristian O. Sylvester-Hvid from the \
+                            Risø National Laboratory for Sustainable Energy. \
+                            The main purpose at the moment is the generation \
+                            of height maps for polymer based solar cells. \
+                            The developed workers are however applicable in \
+                            a wide range of problems.
+
+        distname            ${distname}.osc-${version}
+        checksums           rmd160  b7ed725ff7a342c1c5c3216a700c25e65dd741b2 \
+                            sha256  61876ab82700e4496441d8a4a52b55b1143272da6491225a1f013bb36af7b369
+    }
+
+    subport py${python.version}-${distname}-statistics {
+        description         statistics toolbox for py${python.version}-pyphant
+        long_description    This toolbox provides the histogram worker which enables \
+                            the py${python.version}-pyphant framework to obtain histograms from \
+                            array-like data.
+
+        distname            ${distname}.statistics-${version}
+        checksums           rmd160  15d55907509feaea8851c41a5326b41b8debe501 \
+                            sha256  255fd2630aacb4860e63932a633538e31466d72b9e283c1f4ee0037f81d17f94
+    }
+
+    subport py${python.version}-${distname}-tools {
+        description         tools toolbox for py${python.version}-pyphant
+        long_description    This toolbox currently provides two workers for the \
+                            py${python.version}-pyphant framework. These workers can be integrated \
+                            in a data flow model and simply serve as data sources for \
+                            data that is managed by a py26-pyphant core module called \
+                            KnowledgeManager (KM). The KM accumulates metadata in a \
+                            sqlite3 database and the above mentioned workers present \
+                            parameters to perform a metadata search and finally \
+                            load and provide the data that matched the search.
+
+        distname            ${distname}.tools-${version}
+        checksums           rmd160  fc07b4f5ce32e3429bc3e82f856685815e307e35 \
+                            sha256  a5b16be4bdcd8974254c8ac60826ff73d13ecd06b807f5aa2e43c1edee418dd6
+    }
+}
