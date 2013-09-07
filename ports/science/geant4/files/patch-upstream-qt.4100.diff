@@ -2,7 +2,7 @@ A bunch of upstream patches:
  * fix loading icons in some examples
  * allow pasting multiple lines
  * remember the last dir to open/save macro files
- * do not throw errors during menu creation when verbosity is set to 0
+ * do not throw errors during menu creation when using '/control/verbose 0'
 --- source/interfaces/basic/include/G4UIQt.hh.orig
 +++ source/interfaces/basic/include/G4UIQt.hh
 @@ -215,6 +215,8 @@ private:
@@ -24,7 +24,7 @@ A bunch of upstream patches:
    void HelpTreeDoubleClicCallback();
 --- source/interfaces/basic/src/G4UIQt.cc.orig
 +++ source/interfaces/basic/src/G4UIQt.cc
-@@ -131,6 +131,7 @@ G4UIQt::G4UIQt (
+@@ -138,6 +138,7 @@ G4UIQt::G4UIQt (
  ,fPickSelected(false)
  ,fZoomInSelected(false)
  ,fZoomOutSelected(false)
@@ -32,7 +32,7 @@ A bunch of upstream patches:
  {
  
    G4Qt* interactorManager = G4Qt::getInstance (argc,argv,(char*)"Qt");
-@@ -270,6 +271,7 @@ G4UIQt::G4UIQt (
+@@ -278,6 +279,7 @@ G4UIQt::G4UIQt (
  
    // Connect signal
    connect(fCommandArea, SIGNAL(returnPressed()), SLOT(CommandEnteredCallback()));
@@ -40,20 +40,7 @@ A bunch of upstream patches:
    connect(fUITabWidget, SIGNAL(currentChanged(int)), SLOT(ToolBoxActivated(int)));
  
    if(UI!=NULL) UI->SetCoutDestination(this);  // TO KEEP
-@@ -720,10 +722,10 @@ G4int G4UIQt::ReceiveG4cout (
-  
-   QStringList result = newStr.filter(fCoutFilter->text());
- 
--  if (result.join("\n").isEmpty()) {
-+  if (result.join("").isEmpty()) {
-     return 0;
-   }
--  fCoutTBTextArea->append(result.join("\n"));
-+  fCoutTBTextArea->append(result.join(""));
-   fCoutTBTextArea->repaint();
- 
-   fCoutTBTextArea->verticalScrollBar()->setSliderPosition(fCoutTBTextArea->verticalScrollBar()->maximum());
-@@ -753,7 +755,11 @@ G4int G4UIQt::ReceiveG4cerr (
+@@ -772,7 +774,11 @@ G4int G4UIQt::ReceiveG4cerr (
  
    // Suppress space, \n,\t,\r...
    if (QString(aString.data()).trimmed() != "") {
@@ -66,7 +53,7 @@ A bunch of upstream patches:
    }
    QColor previousColor = fCoutTBTextArea->textColor();
    fCoutTBTextArea->setTextColor(Qt::red);
-@@ -761,6 +767,10 @@ G4int G4UIQt::ReceiveG4cerr (
+@@ -780,6 +786,10 @@ G4int G4UIQt::ReceiveG4cerr (
    fCoutTBTextArea->setTextColor(previousColor);
    fCoutTBTextArea->verticalScrollBar()->setSliderPosition(fCoutTBTextArea->verticalScrollBar()->maximum());
    fCoutTBTextArea->repaint();
@@ -77,7 +64,7 @@ A bunch of upstream patches:
    return 0;
  }
  
-@@ -805,9 +815,14 @@ void G4UIQt::AddButton (
+@@ -824,9 +834,14 @@ void G4UIQt::AddButton (
    QMenu *parentTmp = (QMenu*)GetInteractor(aMenu);
  
    if(parentTmp==NULL) {
@@ -94,7 +81,7 @@ A bunch of upstream patches:
    // Find the command in the command tree
    G4UImanager* UI = G4UImanager::GetUIpointer();
    if(UI==NULL) return;
-@@ -820,7 +835,12 @@ void G4UIQt::AddButton (
+@@ -839,7 +854,12 @@ void G4UIQt::AddButton (
    }
    
    if(treeTop->FindPath(aCommand) == NULL) {
@@ -108,7 +95,7 @@ A bunch of upstream patches:
    }
  
    QSignalMapper *signalMapper = new QSignalMapper(this);
-@@ -848,7 +868,12 @@ void G4UIQt::AddIcon(const char* aLabel, const char* aIconFile, const char* aCom
+@@ -870,7 +890,12 @@ void G4UIQt::AddIcon(const char* aLabel, const char* aIconFile, const char* aCom
      // try to open a file
      pix = QPixmap(aFileName);
      if (pix.isNull()) {
@@ -122,7 +109,7 @@ A bunch of upstream patches:
        return;
      }
      userToolBar = true; 
-@@ -1579,23 +1604,29 @@ void G4UIQt::AddIcon(const char* aLabel, const char* aIconFile, const char* aCom
+@@ -1601,23 +1626,29 @@ void G4UIQt::AddIcon(const char* aLabel, const char* aIconFile, const char* aCom
        ;
      pix = QPixmap(xpm);
    } else {
@@ -155,7 +142,7 @@ A bunch of upstream patches:
      currentToolbar = fToolbarApp;
    }
  
-@@ -1690,7 +1721,12 @@ void G4UIQt::AddIcon(const char* aLabel, const char* aIconFile, const char* aCom
+@@ -1712,7 +1743,12 @@ void G4UIQt::AddIcon(const char* aLabel, const char* aIconFile, const char* aCom
      G4UIcommandTree * treeTop = UI->GetTree();
      
      if(treeTop->FindPath(aCommand) == NULL) {
@@ -169,7 +156,7 @@ A bunch of upstream patches:
      }
      
      connect(signalMapper, SIGNAL(mapped(const QString &)),this, SLOT(ButtonCallback(const QString&)));
-@@ -2558,27 +2594,56 @@ void G4UIQt::ExitHelp(
+@@ -2580,27 +2616,56 @@ void G4UIQt::ExitHelp(
  void G4UIQt::CommandEnteredCallback (
  )
  {
@@ -245,7 +232,7 @@ A bunch of upstream patches:
    }
  }
  
-@@ -3145,18 +3210,22 @@ void G4UIQt::ChangeSurfaceStyle(const QString& action) {
+@@ -3167,18 +3232,22 @@ void G4UIQt::ChangeSurfaceStyle(const QString& action) {
  
  void G4UIQt::OpenIconCallback(const QString& aCommand) {
  
