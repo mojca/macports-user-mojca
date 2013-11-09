@@ -2,9 +2,10 @@
 # $Id$
 
 PortSystem          1.0
-PortGroup           app       1.0
-PortGroup           python    1.0
-PortGroup           wxWidgets 1.0
+PortGroup           app             1.0
+PortGroup           python          1.0
+PortGroup           wxWidgets       1.0
+PortGroup           active_variants 1.1
 
 name                py-pyphant
 version             1.0b2
@@ -39,8 +40,10 @@ homepage            http://www.fmf.uni-freiburg.de/service/servicegruppen/sg_wis
 
 platforms           darwin
 
+# Default version is set to 2.6 because of its incompatibility with wxWidgets 3.0.
+# Once it becomes compatible with wxPython 2.9/3.0, default python version will be set to 2.7.
 python.versions     26 27
-python.default_version 27
+python.default_version 26
 
 # py-scipy is not universal
 universal_variant   no
@@ -54,8 +57,9 @@ if {$subport != $name} {
     depends_build-append    port:py${python.version}-setuptools
 }
 
-foreach python.version ${python.versions} {
-    subport py${python.version}-${distname} {
+foreach python.vers ${python.versions} {
+    subport py${python.vers}-${distname} {
+        set python.version  ${python.vers}
         worksrcdir          ${distname}-${version}
         distfiles           ${distname}-${version}${extract.suffix}
         checksums           rmd160  76f6d419e97a2ec964065e68ec271733eb90cec1 \
@@ -80,7 +84,6 @@ foreach python.version ${python.versions} {
                             port:py${python.version}-paste \
                             port:py${python.version}-mx-base \
                             port:py${python.version}-sogl \
-                            port:py${python.version}-wxpython-3.0 \
                             port:py${python.version}-${distname}-fmf \
                             port:py${python.version}-${distname}-imageprocessing \
                             port:py${python.version}-${distname}-osc \
@@ -88,6 +91,29 @@ foreach python.version ${python.versions} {
                             port:py${python.version}-${distname}-tools
         depends_run-append  port:py${python.version}-configobj \
                             port:py${python.version}-tornado
+
+        variant wxgtk28 conflicts wxwidgets28 wxwidgets30 description {Use 32-bit carbon-based wxPython 2.8} {
+            wxWidgets.use       wxGTK-2.8
+            depends_lib-append  port:py${python.version}-wxpython-2.8
+            require_active_variants py${python.version}-wxpython-2.8 gtk
+        }
+        variant wxwidgets28 conflicts wxgtk28 wxwidgets30 description {Use wxPython 2.8 with GTK} {
+            wxWidgets.use       wxWidgets-2.8
+            depends_lib-append  port:py${python.version}-wxpython-2.8
+            require_active_variants py${python.version}-wxpython-2.8 carbon
+        }
+        variant wxwidgets30 conflicts wxgtk28 wxwidgets28 description {Use wxPython 3.0} {
+            wxWidgets.use       wxPython-3.0
+            depends_lib-append  port:py${python.version}-wxpython-3.0
+        }
+
+        if {![variant_isset wxgtk28] && ![variant_isset wxwidgets28] && ![variant_isset wxwidgets30]} {
+            if {[vercmp $xcodeversion 4.4] >= 0} {
+                default_variants +wxgtk28
+            } else {
+                default_variants +wxwidgets28
+            }
+        }
 
         # TODO: the scripts should be modified, in particular pyphant and pyphant.quartz
         #       most probably the app PortGroup could be used instead
@@ -109,7 +135,8 @@ foreach python.version ${python.versions} {
         # variant carbon description {Install pyphant with carbon support} {}
     }
 
-    subport py${python.version}-${distname}-fmf {
+    subport py${python.vers}-${distname}-fmf {
+        set python.version  ${python.vers}
         description         Full-Metadata Format toolbox for py${python.version}-pyphant
         long_description    This toolbox enables the py${python.version}-pyphant framework to read \
                             files written in the Full-Metadata Format (FMF). \
@@ -126,7 +153,8 @@ foreach python.version ${python.versions} {
         depends_build       port:py${python.version}-setuptools
     }
 
-    subport py${python.version}-${distname}-imageprocessing {
+    subport py${python.vers}-${distname}-imageprocessing {
+        set python.version  ${python.vers}
         description         imageprocessing toolbox for py${python.version}-pyphant
         long_description    This toolbox provides a set of imageprocessing workers, \
                             i.e. encapsulated data processing steps for the \
@@ -143,7 +171,8 @@ foreach python.version ${python.versions} {
         depends_lib-append  port:py${python.version}-pil
     }
 
-    subport py${python.version}-${distname}-osc {
+    subport py${python.vers}-${distname}-osc {
+        set python.version  ${python.vers}
         description         organic solar cells toolbox for py${python.version}-pyphant
         long_description    This Toolbox offers various workers for the \
                             analysis of organic solar cells. It is joined \
@@ -159,7 +188,8 @@ foreach python.version ${python.versions} {
                             sha256  61876ab82700e4496441d8a4a52b55b1143272da6491225a1f013bb36af7b369
     }
 
-    subport py${python.version}-${distname}-statistics {
+    subport py${python.vers}-${distname}-statistics {
+        set python.version  ${python.vers}
         description         statistics toolbox for py${python.version}-pyphant
         long_description    This toolbox provides the histogram worker which enables \
                             the py${python.version}-pyphant framework to obtain histograms from \
@@ -170,7 +200,8 @@ foreach python.version ${python.versions} {
                             sha256  255fd2630aacb4860e63932a633538e31466d72b9e283c1f4ee0037f81d17f94
     }
 
-    subport py${python.version}-${distname}-tools {
+    subport py${python.vers}-${distname}-tools {
+        set python.version  ${python.vers}
         description         tools toolbox for py${python.version}-pyphant
         long_description    This toolbox currently provides two workers for the \
                             py${python.version}-pyphant framework. These workers can be integrated \
