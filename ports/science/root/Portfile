@@ -134,8 +134,8 @@ configure.args-append \
                     -Dreflex=ON \
                     -Dtable=ON \
                     -Dgdml=ON \
-                    -DPNG_LIBRARY=/opt/local/lib/libpng.dylib \
-                    -DPNG_PNG_INCLUDE_DIR=/opt/local/include
+                    -DPNG_LIBRARY=${prefix}/lib/libpng.dylib \
+                    -DPNG_PNG_INCLUDE_DIR=${prefix}/include
 
 # -Dc++11=ON  : requires gcc > 4.7.x or clang
 # -Dlibcxx=ON : Build using libc++, requires cxx11 option (MacOS X only, for the time being)  
@@ -162,6 +162,7 @@ platform darwin {
 
 configure.post_args ${worksrcpath}
 
+# TODO: carefully check the following list (and try to find a different way to specify paths for X11 libraries)
 configure.env-append \
                     FREETYPE_DIR=${prefix}
 configure.args-append \
@@ -248,15 +249,23 @@ configure.args-append \
 #                    --enable-unuran \
 # -> table
 #                    --enable-table \
-# doesn't exist
-#                    --enable-fink
 
 universal_variant   no
 
 default_variants    +ssl +xml +gsl +minuit2 +tmva +roofit +graphviz +opengl +soversion
 
+variant xrootd description {Build with XRootD support} {
+    configure.args-replace  -Dxrootd=OFF -Dxrootd=ON
+    configure.args-append   -DXROOTD_INCLUDE_DIR="${prefix}/include/xrootd"
+    # TODO: do libraries need to be specified as well?
+    # XROOTD_XrdClient_LIBRARY  *${prefix}/lib/libXrdClient.dylib
+    # XROOTD_XrdMain_LIBRARY    *${prefix}/lib/libXrdMain.dylib
+    # XROOTD_XrdUtils_LIBRARY   *${prefix}/lib/libXrdUtils.dylib
+    depends_lib-append      port:xrootd
+}
+
 variant soversion description {Build with soversion support} {
-     configure.args-replace -Dsoversion=OFF -Dsoversion=ON
+    configure.args-replace -Dsoversion=OFF -Dsoversion=ON
 }
 
 variant graphviz description {Build with graphviz support} {
@@ -270,14 +279,13 @@ variant graphviz description {Build with graphviz support} {
     depends_lib-append      path:bin/dot:graphviz
 }
 
+variant avahi description {Build with avahi support} {
+   configure.args-replace   -Dbonjour=OFF -Dbonjour=ON
 # TODO
-#variant avahi description {Build with avahi support} {
-#    configure.args-delete   --disable-bonjour
-#    configure.args-append   --enable-bonjour \
-#                            --with-avahi-incdir="${prefix}/include" \
-#                            --with-avahi-libdir="${prefix}/lib"
-#    depends_lib-append      port:avahi
-#}
+#  configure.args-append    --with-avahi-incdir="${prefix}/include" \
+#                           --with-avahi-libdir="${prefix}/lib"
+   depends_lib-append      port:avahi
+}
 
 # TODO
 #variant fftw3 description {Build with fftw3 support} {
@@ -334,6 +342,7 @@ variant minuit2 description {Build with minuit2 support} {
     configure.args-replace  -Dminuit2=OFF -Dminuit2=ON
 }
 
+# TODO: doesn't work properly yet and should not depend on /usr/X11R6
 variant opengl description {Build with opengl support} {
     configure.args-replace  -Dopengl=OFF -Dopengl=ON
     # TODO: no idea why builtin glew would be needed and it also fails to work
@@ -614,16 +623,3 @@ foreach ver ${gcc_versions} {
 }
 
 # ========================================================================================
-
-# TODO:
-# -- Found X11: /usr/X11R6/lib/libX11.dylib
-# -- X11_INCLUDE_DIR: /usr/X11R6/include
-# -- X11_LIBRARIES: /usr/X11R6/lib/libSM.dylib;/usr/X11R6/lib/libICE.dylib;/usr/X11R6/lib/libX11.dylib;/usr/X11R6/lib/libXext.dylib
-# -- X11_Xpm_INCLUDE_PATH: /usr/X11R6/include
-# -- X11_Xpm_LIB: /usr/X11R6/lib/libXpm.dylib
-# -- X11_Xft_INCLUDE_PATH: /usr/X11R6/include
-# -- X11_Xft_LIB: /usr/X11R6/lib/libXft.dylib
-# -- X11_Xext_INCLUDE_PATH: 
-# -- X11_Xext_LIB: /usr/X11R6/lib/libXext.dylib
-
-# opengl might not compile properly (test)
