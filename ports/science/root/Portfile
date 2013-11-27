@@ -4,9 +4,10 @@
 PortSystem          1.0
 PortGroup           cmake 1.0
 PortGroup           github 1.0
-github.setup        root-mirror root 2db95a32c2
+github.setup        root-mirror root a9537f1d0d
 name                root
-version             5.34.12
+# TODO: just temorary call this version "-git"
+version             5.34.12-git
 
 categories          science
 
@@ -23,8 +24,8 @@ long_description    The ROOT system provides a set of frameworks with all \
 homepage            http://root.cern.ch/
 platforms           darwin
 
-checksums           rmd160  7aecd4a9379255d40563f810ff5e97adcfb625d3 \
-                    sha256  d69aed1e4d0b5bd7aff62baa405dec52fe6be97d493b5f4778226c595ace5c08
+checksums           rmd160  1243b71c3d20fd334309b370be2e4cc6eeebd575 \
+                    sha256  99fcaca7610fd7260de79bcee9a586644787e18c6b8fcad2ca513b16164bb1d6
 
 configure.dir       ${workpath}/build
 build.dir           ${configure.dir}
@@ -38,6 +39,7 @@ depends_lib         port:freetype \
                     port:pcre \
                     port:Xft2 \
                     port:xorg-libX11 \
+                    port:mesa \
                     port:zlib \
                     port:jpeg \
                     port:libpng \
@@ -47,32 +49,13 @@ depends_lib         port:freetype \
                     port:xpm \
                     port:expat
 
-#patchfiles          patch-configure.diff
-#patchfiles          patch-cmake-modules-FindOpenGL.cmake.diff
+# doesn't really work
+# patchfiles          patch-cmake-modules-FindOpenGL.cmake.diff
+
+patchfiles           patch-graf2d-asimage-src-libAfterImage-asfont.c.diff
 
 post-patch {
 #    reinplace "s|@@PREFIX@@|${prefix}|g" ${worksrcpath}/cmake/modules/FindOpenGL.cmake
-#    reinplace "s|-lfreetype| \`freetype-config --libs\`|g" ${worksrcpath}/config/root-config.in
-#    reinplace "s|\"/usr/include\"|\"${prefix}/include/\" \"/usr/include\"|g" ${worksrcpath}/configure
-#    reinplace "s|/usr/lib |${prefix}/lib /usr/lib |g" ${worksrcpath}/configure
-#    reinplace "s|/usr/include |${prefix}/include /usr/include |g" ${worksrcpath}/configure
-#    reinplace "s|\"/usr/lib\"|\"${prefix}/lib/\" \"/usr/lib\"g|" ${worksrcpath}/configure
-}
-
-pre-configure {
-#    configure.args-append \
-#        --with-cc=${configure.cc} \
-#        --with-cxx=${configure.cxx} \
-#        --with-ld=${configure.cxx}
-#    if { ${configure.f77} != "" } {
-#        configure.args-append --with-f77=${configure.f77}
-#    }
-#    # the build type (32 or 64 bit) -must- be for first argument
-#    if {${build_arch} == "i386" || ${build_arch} == "ppc"} {
-#        configure.pre_args macosx --prefix=${prefix}
-#    } else {
-#        configure.pre_args macosx64 --prefix=${prefix}
-#    }
 }
 
 # I somehow miss (some of) the following variables
@@ -83,16 +66,36 @@ pre-configure {
 # CMAKE_INSTALL_INCLUDEDIR         include
 # CMAKE_INSTALL_LIBDIR             lib
 
+# TODO: double-check these
+# set(ROOT_INSTALL_DIR    ${CMAKE_INSTALL_PREFIX})
+# set(BIN_INSTALL_DIR     bin)
+# set(LIB_INSTALL_DIR     lib/root)
+# set(INCLUDE_INSTALL_DIR include/root)
+# set(ETC_INSTALL_DIR     /etc/root)
+# set(MAN_INSTALL_DIR     share/man)
+# set(DATA_INSTALL_DIR    share/root)
+# set(MACRO_INSTALL_DIR   ${DATA_INSTALL_DIR}/macros)
+# set(CINTINC_INSTALL_DIR ${LIB_INSTALL_DIR}/cint)
+# set(ICON_INSTALL_DIR    ${DATA_INSTALL_DIR}/icons)
+# set(SRC_INSTALL_DIR     ${DATA_INSTALL_DIR}/src)
+# set(FONT_INSTALL_DIR    ${DATA_INSTALL_DIR}/fonts)
+# set(DOC_INSTALL_DIR     share/doc/root)
+# set(TEST_INSTALL_DIR    ${DOC_INSTALL_DIR}/test)
+# set(TUT_INSTALL_DIR     ${DOC_INSTALL_DIR}/tutorials)
+# set(ACLOCAL_INSTALL_DIR share/aclocal)
+# set(ELISP_INSTALL_DIR   share/emacs/site-lisp)
+# set(CMAKE_INSTALL_DIR   ${DATA_INSTALL_DIR}/cmake)
 
 #-DCMAKE_INSTALL_PREFIX=${prefix}
 
 configure.args-append \
+                    -Dsysinstall=ON \
                     -Dfortran=OFF \
                     -Dbuiltin_freetype=OFF \
                     -Dbuiltin_glew=OFF \
-                    -Dbuiltin_lzma=OFF \
                     -Dbuiltin_pcre=OFF \
                     -Dbuiltin_zlib=OFF \
+                    -Dbuiltin_lzma=OFF \
                     -Dfftw3=OFF \
                     -Dkrb5=OFF \
                     -Dldap=OFF \
@@ -119,18 +122,64 @@ configure.args-append \
                     -Dbonjour=OFF \
                     -Dgviz=OFF \
                     -Dsoversion=OFF \
-                    -Dcocoa=OFF \
                     -Dc++11=OFF \
+                    -Dlibcxx=OFF \
+                    -Dcocoa=OFF \
+                    -Dxrootd=OFF \
                     -Dbuiltin_ftgl=ON \
                     -Dmathmore=ON \
                     -Dgenvector=ON \
                     -Dmemstat=ON \
                     -Dunuran=ON \
+                    -Dreflex=ON \
                     -Dtable=ON \
+                    -Dgdml=ON \
                     -DPNG_LIBRARY=/opt/local/lib/libpng.dylib \
                     -DPNG_PNG_INCLUDE_DIR=/opt/local/include
 
+# -Dc++11=ON  : requires gcc > 4.7.x or clang
+# -Dlibcxx=ON : Build using libc++, requires cxx11 option (MacOS X only, for the time being)  
+
+platform darwin {
+    set cxx_stdlib {}
+
+    if {[info exists configure.cxx_stdlib] &&
+        ${configure.cxx_stdlib} ne {} &&
+        [string match *clang* ${configure.cxx}]} {
+        set cxx_stdlib ${configure.cxx_stdlib}
+    } elseif {[string match *clang* ${configure.cxx}] &&
+              ${os.major} >= 13} {
+        set cxx_stdlib libc++
+    } else {
+        set cxx_stdlib libstdc++
+    }
+
+    if {${cxx_stdlib} == "libc++"} {
+        configure.args-replace -Dc++11=OFF -Dc++11=ON
+        configure.args-replace -Dlibcxx=OFF -dlibcxx=ON
+    }
+}
+
 configure.post_args ${worksrcpath}
+
+configure.env-append \
+                    FREETYPE_DIR=${prefix}
+configure.args-append \
+                    -DFREETYPE_INCLUDE_DIR_freetype2=${prefix}/include/freetype2 \
+                    -DFREETYPE_INCLUDE_DIR_ft2build=${prefix}/include/freetype2 \
+                    -DFREETYPE_LIBRARY=${prefix}/lib/libfreetype.dylib \
+                    -DX11_INCLUDE_DIR=${prefix}/include \
+                    -DX11_X11_INCLUDE_PATH=${prefix}/include \
+                    -DX11_X11_LIB=${prefix}/lib/libX11.dylib \
+                    -DX11_SM_LIB=${prefix}/lib/libSM.dylib \
+                    -DX11_SM_INCLUDE_PATH=${prefix}/include \
+                    -DX11_ICE_LIB=${prefix}/lib/libICE.dylib \
+                    -DX11_ICE_INCLUDE_PATH=${prefix}/include \
+                    -DX11_Xext_LIB=${prefix}/lib/libXext.dylib \
+                    -DX11_Xpm_INCLUDE_PATH=${prefix}/include \
+                    -DX11_Xpm_LIB=${prefix}/lib/libXpm.dylib \
+                    -DX11_Xft_INCLUDE_PATH=${prefix}/include \
+                    -DX11_Xft_LIB=${prefix}/lib/libXft.dylib
 
 # missing CMAKE_INSTALL_DOCDIR
 #                    --docdir=${prefix}/share/doc/root \
@@ -202,27 +251,22 @@ configure.post_args ${worksrcpath}
 # doesn't exist
 #                    --enable-fink
 
-# -Dc++11=ON  : requires gcc > 4.7.x or clang
-# -Dlibcxx=ON : Build using libc++, requires cxx11 option (MacOS X only, for the time being)  
-
 universal_variant   no
 
 default_variants    +ssl +xml +gsl +minuit2 +tmva +roofit +graphviz +opengl +soversion
 
 variant soversion description {Build with soversion support} {
-     configure.args-delete   -Dsoversion=OFF
-     configure.args-append   -Dsoversion=ON
+     configure.args-replace -Dsoversion=OFF -Dsoversion=ON
 }
 
 variant graphviz description {Build with graphviz support} {
-    configure.args-delete   -Dgviz=OFF
-    configure.args-append   -Dgviz=ON \
-                            -DGRAPHVIZ_INCLUDE_DIR="${prefix}/include"
-                            
-                            #-DGRAPHVIZ_CDT_LIBRARY="${prefix}/lib/libcdt.dylib" \
-                            #-DGRAPHVIZ_GRAPH_LIBRARY="${prefix}/lib/libgraph.dylib" \
-                            #-DGRAPHVIZ_GVC_LIBRARY="${prefix}/lib/libgvc.dylib" \
-                            #-DGRAPHVIZ_PATHPLAN_LIBRARY="${prefix}/lib/libpathplan.dylib"
+    configure.args-replace  -Dgviz=OFF -Dgviz=ON
+    configure.args-append   -DGRAPHVIZ_INCLUDE_DIR="${prefix}/include" \
+                            -DGRAPHVIZ_CDT_LIBRARY="${prefix}/lib/libcdt.dylib" \
+                            -DGRAPHVIZ_GRAPH_LIBRARY="${prefix}/lib/libcgraph.dylib" \
+                            -DGRAPHVIZ_GVC_LIBRARY="${prefix}/lib/libgvc.dylib" \
+                            -DGRAPHVIZ_PATHPLAN_LIBRARY="${prefix}/lib/libpathplan.dylib"
+
     depends_lib-append      path:bin/dot:graphviz
 }
 
@@ -245,9 +289,8 @@ variant graphviz description {Build with graphviz support} {
 #}
 
 variant gsl description {Build with gsl support} {
-    configure.args-delete   -Dgsl_shared=OFF
-    configure.args-append   -Dgsl_shared=ON \
-                            -DGSL_CONFIG_EXECUTABLE="${prefix}/bin/gsl-config"
+    configure.args-replace  -Dgsl_shared=OFF -Dgsl_shared=ON
+    configure.args-append   -DGSL_CONFIG_EXECUTABLE="${prefix}/bin/gsl-config"
     depends_lib-append      port:gsl
 }
 
@@ -280,87 +323,78 @@ variant gsl description {Build with gsl support} {
 #}
 
 variant roofit description {Build the RooFit advanced fitting package} {
-    configure.args-delete   -Droofit=OFF
-    configure.args-append   -Droofit=ON
+    configure.args-replace  -Droofit=OFF -Droofit=ON
 }
 
 variant tmva description {Build the TMVA package} {
-    configure.args-delete   -Dtmva=OFF
-    configure.args-append   -Dtmva=ON
+    configure.args-replace  -Dtmva=OFF -Dtmva=ON
 }
 
 variant minuit2 description {Build with minuit2 support} {
-    configure.args-delete   -Dminuit2=OFF
-    configure.args-append   -Dminuit2=ON
+    configure.args-replace  -Dminuit2=OFF -Dminuit2=ON
 }
 
 variant opengl description {Build with opengl support} {
-    configure.args-delete   -Dopengl=OFF
-    #configure.args-delete  -Dbuiltin_glew=OFF
-    configure.args-append   -Dopengl=ON
-    #                       -Dbuiltin_glew=ON
+    configure.args-replace  -Dopengl=OFF -Dopengl=ON
+    # TODO: no idea why builtin glew would be needed and it also fails to work
+                          # -Dbuiltin_glew=OFF -Dbuiltin_glew=ON
 }
 
-# TODO
-#variant python26 conflicts python32 python31 python27 description {Build with python 2.6 support} {
-#    set mypydir ${prefix}/Library/Frameworks/Python.framework/Versions/2.6
-#    configure.args-delete   --disable-python
-#    configure.args-append   --enable-python --with-python-incdir="${mypydir}/Headers" --with-python-libdir="${mypydir}"
-#    depends_lib-append      port:python26
-#    post-destroot {
-#        set mypylibdir  ${prefix}/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6
-#        set mypysitedir ${mypylibdir}/site-packages/
-#        file mkdir ${destroot}${mypysitedir}
-#        foreach pyfile [glob ${destroot}${prefix}/lib/root/*.py*] { move $pyfile ${destroot}${mypysitedir} }
-#        ln -sf ${prefix}/lib/root/libPyROOT.so ${destroot}${mypylibdir}/
-#    }
-#}
-#
-#variant python27 conflicts python32 python31 python26 description {Build with python 2.7 support} {
-#    set mypydir ${prefix}/Library/Frameworks/Python.framework/Versions/2.7
-#    configure.args-delete   --disable-python
-#    configure.args-append   --enable-python \
-#                            --with-python-incdir="${mypydir}/Headers" \
-#                            --with-python-libdir="${mypydir}"
-#    depends_lib-append      port:python27
-#    post-destroot {
-#        set mypylibdir  ${prefix}/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7
-#        set mypysitedir ${mypylibdir}/site-packages/
-#        file mkdir ${destroot}${mypysitedir}
-#        foreach pyfile [glob ${destroot}${prefix}/lib/root/*.py*] { move $pyfile ${destroot}${mypysitedir} }
-#        ln -sf ${prefix}/lib/root/libPyROOT.so ${destroot}${mypylibdir}/
-#    }
-#}
-#
-#variant python31 conflicts python32 python27 python26 description {Build with python 3.1 support} {
-#    set mypydir ${prefix}/Library/Frameworks/Python.framework/Versions/3.1
-#    configure.args-delete   --disable-python
-#    configure.args-append   --enable-python --with-python-incdir="${mypydir}/Headers" --with-python-libdir="${mypydir}"
-#    depends_lib-append      port:python31
-#    post-destroot {
-#        set mypylibdir  ${prefix}/Library/Frameworks/Python.framework/Versions/3.1/lib/python3.1
-#        set mypysitedir ${mypylibdir}/site-packages/
-#        file mkdir ${destroot}${mypysitedir}
-#        foreach pyfile [glob ${destroot}${prefix}/lib/root/*.py*] { move $pyfile ${destroot}${mypysitedir} }
-#        ln -sf ${prefix}/lib/root/libPyROOT.so ${destroot}${mypylibdir}/
-#    }
-#}
-#
-#variant python32 conflicts python31 python27 python26 description {Build with python 3.2 support} {
-#    set mypydir ${prefix}/Library/Frameworks/Python.framework/Versions/3.2
-#    configure.args-delete   --disable-python
-#    configure.args-append   --enable-python \
-#                            --with-python-incdir="${mypydir}/Headers" \
-#                            --with-python-libdir="${mypydir}"
-#    depends_lib-append      port:python32
-#    post-destroot {
-#        set mypylibdir  ${prefix}/Library/Frameworks/Python.framework/Versions/3.2/lib/python3.2
-#        set mypysitedir ${mypylibdir}/site-packages/
-#        file mkdir ${destroot}${mypysitedir}
-#        foreach pyfile [glob ${destroot}${prefix}/lib/root/*.py*] { move $pyfile ${destroot}${mypysitedir} }
-#        ln -sf ${prefix}/lib/root/libPyROOT.so ${destroot}${mypylibdir}/
-#    }
-#}
+# ========================================================================================
+# Setup various python variants
+# ========================================================================================
+
+# List of possible python versions
+set python_versions { 2.6 2.7 3.1 3.2 3.3 3.4 }
+
+# Define the available variants
+foreach ver ${python_versions} {
+    set ver_no_dot [join [split ${ver} "."] ""]
+    set variant_line {variant python${ver_no_dot} description "Build with python ${ver} support"}
+    foreach over ${python_versions} {
+        if { ${ver} == ${over} } { continue }
+        set over_no_dot [join [split ${over} "."] ""]
+        append variant_line " conflicts python${over_no_dot}"
+    }
+    append variant_line { {} }
+    eval $variant_line
+}
+
+# Is a variant active ?
+set active_python_variant ""
+foreach ver ${python_versions} {
+    set ver_no_dot [join [split ${ver} "."] ""]
+    if {[variant_isset python${ver_no_dot}]} {
+        set active_python_variant ${ver} 
+    }
+}
+
+# If so, set it up.
+if { ${active_python_variant} != "" } {
+    set ver_no_dot [join [split ${active_python_variant} "."] ""]
+    set mypydir ${prefix}/Library/Frameworks/Python.framework/Versions/${active_python_variant}
+    # TODO: double-check this variable and possibly fix it
+    set mypylib ${mypydir}/lib/libpython${active_python_variant}.dylib
+    configure.args-delete   --disable-python
+    configure.args-append   -DPYTHON_INCLUDE_DIR="${mypydir}/Headers" \
+                            -DPYTHON_LIBRARY="${mypylib}"
+    depends_lib-append      port:python${ver_no_dot}
+    post-destroot {
+        set mypylibdir  ${prefix}/Library/Frameworks/Python.framework/Versions/${active_python_variant}/lib/python${active_python_variant}
+        set mypysitedir ${mypylibdir}/site-packages/
+        file mkdir ${destroot}${mypysitedir}
+        foreach pyfile [glob ${destroot}${prefix}/lib/root/*.py*] { move $pyfile ${destroot}${mypysitedir} }
+        ln -sf ${prefix}/lib/root/libPyROOT.so ${destroot}${mypylibdir}/
+    }
+}
+
+# ========================================================================================
+
+variant ruby description {Build with ruby support} {
+    configure.args-replace  -Druby=OFF -Druby=ON
+    depends_lib-append      port:ruby
+}
+
 
 variant ssl description {Build with ssl support} {
     configure.args-delete   -Dssl=OFF
@@ -382,226 +416,204 @@ variant xml description {Build with xml support} {
     depends_lib-append      port:libxml2
 }
 
-# TODO
-#variant mysql conflicts mysql51 mysql55 mariadb percona description {Build with mysql5 support} {
-#    configure.args-delete   --disable-mysql
-#    configure.args-append   --enable-mysql \
-#                            --with-mysql-incdir="${prefix}/include/mysql5/mysql" \
-#                            --with-mysql-libdir="${prefix}/lib/mysql5/mysql"
-#    depends_lib-append      port:mysql5
-#}
-#
-#variant mysql51 conflicts mysql mysql55 mariadb percona description {Build with mysql51 support} {
-#    configure.args-delete   --disable-mysql
-#    configure.args-append   --enable-mysql \
-#                            --with-mysql-incdir="${prefix}/include/mysql51/mysql" \
-#                            --with-mysql-libdir="${prefix}/lib/mysql51/mysql"
-#    depends_lib-append      port:mysql51
-#}
-#
-#variant mysql55 conflicts mysql mysql51 mariadb percona description {Build with mysql55 support} {
-#    configure.args-delete   --disable-mysql
-#    configure.args-append   --enable-mysql \
-#                            --with-mysql-incdir="${prefix}/include/mysql55/mysql" \
-#                            --with-mysql-libdir="${prefix}/lib/mysql55/mysql"
-#    depends_lib-append      port:mysql55
-#}
-#
-#variant mariadb conflicts mysql mysql51 mysql55 percona description {Build with mariadb support} {
-#    configure.args-delete   --disable-mysql
-#    configure.args-append   --enable-mysql \
-#                            --with-mysql-incdir="${prefix}/include/mariadb/mysql" \
-#                            --with-mysql-libdir="${prefix}/lib/mariadb/mysql"
-#    depends_lib-append      port:mariadb
-#}
-#
-#variant percona conflicts mysql mysql51 mysql55 mariadb description {Build with percona support} {
-#    configure.args-delete   --disable-mysql
-#    configure.args-append   --enable-mysql \
-#                            --with-mysql-incdir="${prefix}/include/percona/mysql" \
-#                            --with-mysql-libdir="${prefix}/lib/percona/mysql"
-#    depends_lib-append      port:percona
-#}
-#
-#variant postgresql90 conflicts postgresql92 description {Build with PostgreSQL 9.0 support} {
-#    configure.args-delete   --disable-pgsql
-#    configure.args-append   --enable-pgsql \
-#                            --with-pgsql-incdir="${prefix}/include/postgresql90" \
-#                            --with-pgsql-libdir="${prefix}/lib/postgresql90"
-#    depends_lib-append      port:libpqxx port:postgresql90
-#}
-#
-#variant postgresql92 conflicts postgresql90 description {Build with PostgreSQL 9.2 support} {
-#    configure.args-delete   --disable-pgsql
-#    configure.args-append   --enable-pgsql \
-#                            --with-pgsql-incdir="${prefix}/include/postgresql92" \
-#                            --with-pgsql-libdir="${prefix}/lib/postgresql92"
-#    depends_lib-append      port:libpqxx port:postgresql92
-#}
-
-# TODO
-#variant pythia description {Pythia 8 support for root} {
-#    configure.args-delete   --disable-pythia8
-#    configure.args-append   --enable-pythia8 \
-#                            --with-pythia8-incdir=${prefix}/include \
-#                            --with-pythia8-libdir=${prefix}/lib
-#    depends_lib-append      port:pythia
-#}
-
-# TODO
-#variant cocoa description {Enables native OSX graphical backend instead of X11} {
-#    # Check we are using a clang compiler
-#    pre-fetch {
-#        if { ![string match "*clang*" ${configure.compiler}] } {
-#            ui_error "The cocoa variant is experimental and can currently only be built"
-#            ui_error "using a clang compiler. Your current compiler is ${configure.compiler}."
-#            ui_error "Please try again using the system"
-#            ui_error "clang compiler using configure.compiler=clang"
-#            return -code error "Unsupported compiler for cocoa support"
-#        }
-#    }
-#    # Enable cocoa support in configure
-#    configure.args-delete --disable-cocoa
-#    configure.args-append --enable-cocoa
-#    # patch afterimage build to make sure TIFF suport is disabled. Causes problems with cocoa...
-#    patchfiles-append patch-builtin-afterimage-disabletiff.diff
-#}
-
-# these options have been added just for the sake of setting the fortran compiler;
-# (testing gcc compiler is left for later on)
-# for g95 compiler one needs to remove a FFLAG from Root sources first
-variant gcc45 conflicts gcc46 gcc47 gcc48 gcc49 description {Compile using MacPorts gcc 4.5} {
-#     configure.compiler      macports-gcc-4.5
-    configure.fc            ${prefix}/bin/gfortran-mp-4.5
-    configure.args-delete   -Dfortran=OFF
-    configure.args-append   -Dfortran=ON -DCMAKE_Fortran_COMPILER=\"${configure.fc}\"
-    depends_lib-append      port:gcc45
-}
-
-variant gcc46 conflicts gcc45 gcc47 gcc48 gcc49 description {Compile using MacPorts gcc 4.6} {
-#     configure.compiler      macports-gcc-4.6
-    configure.fc            ${prefix}/bin/gfortran-mp-4.6
-    configure.args-delete   -Dfortran=OFF
-    configure.args-append   -Dfortran=ON -DCMAKE_Fortran_COMPILER=\"${configure.fc}\"
-    depends_lib-append      port:gcc46
-}
-
-variant gcc47 conflicts gcc45 gcc46 gcc48 gcc49 description {Compile using MacPorts gcc 4.7} {
-#     configure.compiler      macports-gcc-4.7
-    configure.fc            ${prefix}/bin/gfortran-mp-4.7
-    configure.args-delete   -Dfortran=OFF
-    configure.args-append   -Dfortran=ON -DCMAKE_Fortran_COMPILER=\"${configure.fc}\"
-    depends_lib-append      port:gcc47
-}
-
-variant gcc48 conflicts gcc45 gcc46 gcc47 gcc49 description {Compile using MacPorts gcc 4.8} {
-#     configure.compiler      macports-gcc-4.8
-    configure.fc            ${prefix}/bin/gfortran-mp-4.8
-    configure.args-delete   -Dfortran=OFF
-    configure.args-append   -Dfortran=ON -DCMAKE_Fortran_COMPILER=\"${configure.fc}\"
-    depends_lib-append      port:gcc48
-}
-
-variant gcc49 conflicts gcc45 gcc46 gcc47 gcc48 description {Compile using MacPorts gcc 4.9} {
-#     configure.compiler      macports-gcc-4.9
-    configure.fc            ${prefix}/bin/gfortran-mp-4.9
-    configure.args-delete   -Dfortran=OFF
-    configure.args-append   -Dfortran=ON -DCMAKE_Fortran_COMPILER=\"${configure.fc}\"
-    depends_lib-append      port:gcc49
+variant sqlite3 description {Build with sqlite3 support} {
+    configure.args-replace  -Dsqlite=OFF -Dsqlite=ON
+    configure.args-append   -DSQLITE_INCLUDE_DIR="${prefix}/include" \
+                            -DSQLITE_LIBRARIES="${prefix}/lib/libsqlite3.dylib"
+    depends_lib-append      port:sqlite3
 }
 
 # TODO
-#if {[variant_isset qt_mac]} {
-#    PortGroup qt4 1.0
-#}
-#
-#variant qt_mac description {Build with Qt support via Mac UI} {
-#    post-patch {
-#        # fix where "qglobal.h" is found in all files that use or reference it
-#        foreach tpf { configure graf2d/qt/src/TGQt.cxx } {
-#            reinplace "s@Qt/qglobal\\.h@QtCore/qglobal\\.h@g" \
-#                ${worksrcpath}/${tpf}
-#        }
-#        reinplace "/qttestdir/s@Qt@QtCore@g" ${worksrcpath}/configure
-#
-#        # fix library search extensions to include ".la"
-#        # for Qt framework libraries (only)
-#        reinplace "s@\\(\\.so \\.sl \\.dylib \\.dll\\.a\\)@\\1 \\.la@g" \
-#            ${worksrcpath}/configure
-#    }
-#
-#    configure.args-delete   --disable-qt
-#    configure.args-delete   --disable-qtgsi
-#    configure.args-append   --enable-qt --enable-qtgsi \
-#                            --with-qt-incdir="${prefix}/include" \
-#                            --with-qt-libdir="${prefix}/lib"
-#    depends_lib-append      port:qt4-mac
-#
-#    post-configure {
-#        # patch up the Makefile.config to handle the QTLIB frameworks correctly
-#        reinplace "/QTLIB\[ \]/s@:= @:= -F${qt_libs_dir} @" \
-#            ${worksrcpath}/config/Makefile.config
-#        reinplace "/QTLIB\[ \]/s@\\(Qt\[^ \]*\\).la@-framework \\1@g" \
-#            ${worksrcpath}/config/Makefile.config
-#    }
-#}
-
-# livecheck.type              regex
-# livecheck.url               http://root.cern.ch/svn/root/trunk
-#livecheck.regex             ${name}_v(\[0-9a-z.\]+)\\.source
-
-# ========================================================================================
-# The following have build issues, are obsolete or experimental.
-# ========================================================================================
-
-# Intefers with builtin freetype build (enforced by cocoa variant)
-# Also do not seem to be actually needed any more
-#pre-build {
-#    build.args      CC=${configure.cc} \
-#                    CXX=${configure.cxx} \
-#                    F77=${configure.f77}
-#}
-
-# variant ruby description {Build with ruby support} {
-#     configure.args-delete   --disable-ruby
-#     configure.args-append   --enable-ruby 
-#     depends_lib-append      port:ruby
+# variant mysql conflicts mysql51 mysql55 mariadb percona description {Build with mysql5 support} {
+#     configure.args-delete   --disable-mysql
+#     configure.args-append   --enable-mysql \
+#                             --with-mysql-incdir="${prefix}/include/mysql5/mysql" \
+#                             --with-mysql-libdir="${prefix}/lib/mysql5/mysql"
+#     depends_lib-append      port:mysql5
 # }
-
-# variant kerberos5 description {Build with kerberos5 support} {
-#     configure.args-delete   --disable-krb5
-#     configure.args-append   --enable-krb5 \
-#                             --with-krb5-incdir="${prefix}/include" \
-#                             --with-krb5-libdir="${prefix}/lib"
-#      depends_lib-append      port:kerberos5
+# 
+# variant mysql51 conflicts mysql mysql55 mariadb percona description {Build with mysql51 support} {
+#     configure.args-delete   --disable-mysql
+#     configure.args-append   --enable-mysql \
+#                             --with-mysql-incdir="${prefix}/include/mysql51/mysql" \
+#                             --with-mysql-libdir="${prefix}/lib/mysql51/mysql"
+#     depends_lib-append      port:mysql51
 # }
-
-# variant ftgl description {Build with ftgl support} {
-#     configure.args-delete   --enable-builtin-ftgl
-#     configure.args-append   --disable-builtin-ftgl \
-#     configure.args-append   --with-ftgl-incdir="${prefix}/include" \
-#                             --with-ftgl-libdir="${prefix}/lib"
-#     depends_lib-append      port:ftgl
+# 
+# variant mysql55 conflicts mysql mysql51 mariadb percona description {Build with mysql55 support} {
+#     configure.args-delete   --disable-mysql
+#     configure.args-append   --enable-mysql \
+#                             --with-mysql-incdir="${prefix}/include/mysql55/mysql" \
+#                             --with-mysql-libdir="${prefix}/lib/mysql55/mysql"
+#     depends_lib-append      port:mysql55
 # }
-
-# variant qt_x11 conflicts qt_mac description {Build with Qt support via X11 UI} {
-#     # fix where "qglobal.h" is found in all files that use or reference it
+# 
+# variant mariadb conflicts mysql mysql51 mysql55 percona description {Build with mariadb support} {
+#     configure.args-delete   --disable-mysql
+#     configure.args-append   --enable-mysql \
+#                             --with-mysql-incdir="${prefix}/include/mariadb/mysql" \
+#                             --with-mysql-libdir="${prefix}/lib/mariadb/mysql"
+#     depends_lib-append      port:mariadb
+# }
+# 
+# variant percona conflicts mysql mysql51 mysql55 mariadb description {Build with percona support} {
+#     configure.args-delete   --disable-mysql
+#     configure.args-append   --enable-mysql \
+#                             --with-mysql-incdir="${prefix}/include/percona/mysql" \
+#                             --with-mysql-libdir="${prefix}/lib/percona/mysql"
+#     depends_lib-append      port:percona
+# }
+# 
+# variant postgresql90 conflicts postgresql92 description {Build with PostgreSQL 9.0 support} {
+#     configure.args-delete   --disable-pgsql
+#     configure.args-append   --enable-pgsql \
+#                             --with-pgsql-incdir="${prefix}/include/postgresql90" \
+#                             --with-pgsql-libdir="${prefix}/lib/postgresql90"
+#     depends_lib-append      port:libpqxx port:postgresql90
+# }
+# 
+# variant postgresql92 conflicts postgresql90 description {Build with PostgreSQL 9.2 support} {
+#     configure.args-delete   --disable-pgsql
+#     configure.args-append   --enable-pgsql \
+#                             --with-pgsql-incdir="${prefix}/include/postgresql92" \
+#                             --with-pgsql-libdir="${prefix}/lib/postgresql92"
+#     depends_lib-append      port:libpqxx port:postgresql92
+# }
+# 
+# variant pythia description {Pythia 8 support for root} {
+#     configure.args-delete   --disable-pythia8
+#     configure.args-append   --enable-pythia8 \
+#                             --with-pythia8-incdir=${prefix}/include/pythia \
+#                             --with-pythia8-libdir=${prefix}/lib
+#     depends_lib-append      port:pythia
+# }
+# 
+# variant cocoa description {Enables native OSX graphical backend instead of X11} {
+#     # Force a compatible clang compiler
+#     PortGroup compiler_blacklist_versions 1.0
+#     compiler.blacklist-append {clang < 425} *gcc* macports-clang-3.3 macports-clang-2.9 macports-clang-3.0
+#     compiler.fallback-append macports-clang-3.2 macports-clang-3.1
+#     # Enable cocoa support in configure
+#     configure.args-delete --disable-cocoa
+#     configure.args-append --enable-cocoa
+#     # patch afterimage build to make sure TIFF suport is disabled. Causes problems with cocoa...
+#     patchfiles-append patch-builtin-afterimage-disabletiff.diff
+# }
+# 
+# variant clang31 conflicts clang32 clang33 description {Compile using MacPorts clang 3.1} {
+#     configure.compiler      macports-clang-3.1
+# }
+# if {[string match macports-clang-3.1 ${configure.compiler}]} {
+#     configure.args-append   --with-llvm-config="${prefix}/bin/llvm-config-mp-3.1"
+#     depends_run-append      port:clang-3.1
+# }
+# 
+# variant clang32 conflicts clang31 clang33 description {Compile using MacPorts clang 3.2} {
+#     configure.compiler      macports-clang-3.2
+# }
+# if {[string match macports-clang-3.2 ${configure.compiler}]} {
+#     configure.args-append   --with-llvm-config="${prefix}/bin/llvm-config-mp-3.2"
+#     depends_run-append      port:clang-3.2
+# }
+# 
+# variant clang33 conflicts clang31 clang32 description {Compile using MacPorts clang 3.3} {
+#     configure.compiler      macports-clang-3.3
+# }
+# if {[string match macports-clang-3.3 ${configure.compiler}]} {
+#     configure.args-append   --with-llvm-config="${prefix}/bin/llvm-config-mp-3.3"
+#     depends_run-append      port:clang-3.3
+# }
+# 
+# if {[variant_isset qt_mac]} {
+#     PortGroup qt4 1.0
+# }
+# 
+# variant qt_mac description {Build with Qt support via Mac UI} {
 #     post-patch {
+#         # fix where "qglobal.h" is found in all files that use or reference it
 #         foreach tpf { configure graf2d/qt/src/TGQt.cxx } {
 #             reinplace "s@Qt/qglobal\\.h@QtCore/qglobal\\.h@g" \
 #                 ${worksrcpath}/${tpf}
 #         }
 #         reinplace "/qttestdir/s@Qt@QtCore@g" ${worksrcpath}/configure
+# 
+#         # fix library search extensions to include ".la"
+#         # for Qt framework libraries (only)
+#         reinplace "s@\\(\\.so \\.sl \\.dylib \\.dll\\.a\\)@\\1 \\.la@g" \
+#             ${worksrcpath}/configure
 #     }
-
-#     configure.env-append    QTDIR=${prefix}/libexec/qt4-x11
+# 
 #     configure.args-delete   --disable-qt
 #     configure.args-delete   --disable-qtgsi
 #     configure.args-append   --enable-qt --enable-qtgsi \
 #                             --with-qt-incdir="${prefix}/include" \
 #                             --with-qt-libdir="${prefix}/lib"
-#     depends_lib-append      port:qt4-x11
+#     depends_lib-append      port:qt4-mac
+# 
+#     post-configure {
+#         # patch up the Makefile.config to handle the QTLIB frameworks correctly
+#         reinplace "/QTLIB\[ \]/s@:= @:= -F${qt_libs_dir} @" \
+#             ${worksrcpath}/config/Makefile.config
+#         reinplace "/QTLIB\[ \]/s@\\(Qt\[^ \]*\\).la@-framework \\1@g" \
+#             ${worksrcpath}/config/Makefile.config
+#     }
 # }
+
+# ========================================================================================
+# Following is for fortran support
+# Might eventually move to a portgroup, or similar, so could be simplified.
+# Based on recipe from https://trac.macports.org/wiki/PortfileRecipes#fortran
+# Note that g95 does not work here, so that variant is removed
+# ========================================================================================
+
+set gcc_versions {4.3 4.4 4.5 4.6 4.7 4.8 4.9}
+# https://trac.macports.org/ticket/37732
+# set default_fortran_variant +gcc48
+set default_fortran_variant {}
+
+foreach ver ${gcc_versions} {
+    set ver_no_dot [join [split ${ver} "."] ""]
+
+    set variant_line {variant gcc${ver_no_dot} description "Build with gfortran from gcc${ver_no_dot}"}
+
+    foreach over ${gcc_versions} {
+        if {${ver} == ${over}} {
+            continue
+        }
+
+        set over_no_dot [join [split ${over} "."] ""]
+        append variant_line " conflicts gcc${over_no_dot}"
+    }
+    append variant_line { {}}
+
+    eval $variant_line
+
+    if {[variant_isset gcc${ver_no_dot}]} {
+        if {${default_fortran_variant} != "+gcc${ver_no_dot}"} {
+            set default_fortran_variant ""
+        }
+    }
+}
+
+if {${default_fortran_variant} != ""} {
+    default_variants-append "${default_fortran_variant}"
+}
+
+foreach ver ${gcc_versions} {
+    set ver_no_dot [join [split ${ver} "."] ""]
+
+    if {[variant_isset gcc${ver_no_dot}]} {
+        configure.args-replace  -Dfortran=OFF -Dfortran=ON
+        depends_lib-append      path:lib/libgcc/libgcc_s.1.dylib:libgcc
+        depends_build-append    port:gcc${ver_no_dot}
+
+        configure.fc  ${prefix}/bin/gfortran-mp-${ver}
+        configure.f77 ${prefix}/bin/gfortran-mp-${ver}
+        configure.f90 ${prefix}/bin/gfortran-mp-${ver}
+    }
+}
+
+# ========================================================================================
 
 # TODO:
 # -- Found X11: /usr/X11R6/lib/libX11.dylib
