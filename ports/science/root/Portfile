@@ -4,7 +4,7 @@
 PortSystem          1.0
 PortGroup           cmake 1.0
 PortGroup           github 1.0
-github.setup        root-mirror root a9537f1d0d
+github.setup        root-mirror root c5f64d3f23
 name                root
 # TODO: just temorary call this version "-git"
 version             5.34.12-git
@@ -24,8 +24,8 @@ long_description    The ROOT system provides a set of frameworks with all \
 homepage            http://root.cern.ch/
 platforms           darwin
 
-checksums           rmd160  1243b71c3d20fd334309b370be2e4cc6eeebd575 \
-                    sha256  99fcaca7610fd7260de79bcee9a586644787e18c6b8fcad2ca513b16164bb1d6
+checksums           rmd160  9d92fe9d77e191ce4d62eb697fa8b3beaa4c7fb0 \
+                    sha256  f50349a17d97b9b0baac5d3d71f10d4f0ff3ace5deabcbed5b30092668135353
 
 configure.dir       ${workpath}/build
 build.dir           ${configure.dir}
@@ -52,7 +52,8 @@ depends_lib         port:freetype \
 # doesn't really work
 # patchfiles          patch-cmake-modules-FindOpenGL.cmake.diff
 
-patchfiles           patch-graf2d-asimage-src-libAfterImage-asfont.c.diff
+patchfiles          patch-graf2d-asimage-src-libAfterImage-asfont.c.diff \
+                    patch-modules-RootBuildOptions.cmake.diff
 
 post-patch {
 #    reinplace "s|@@PREFIX@@|${prefix}|g" ${worksrcpath}/cmake/modules/FindOpenGL.cmake
