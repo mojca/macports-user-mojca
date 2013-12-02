@@ -4,10 +4,10 @@
 PortSystem          1.0
 PortGroup           cmake 1.0
 PortGroup           github 1.0
-github.setup        root-mirror root c5f64d3f23
+github.setup        root-mirror root 7cc66162bf
 name                root
 # TODO: just temorary call this version "-git"
-version             5.34.12-git
+version             5.34.13-git
 
 categories          science
 
@@ -24,8 +24,8 @@ long_description    The ROOT system provides a set of frameworks with all \
 homepage            http://root.cern.ch/
 platforms           darwin
 
-checksums           rmd160  9d92fe9d77e191ce4d62eb697fa8b3beaa4c7fb0 \
-                    sha256  f50349a17d97b9b0baac5d3d71f10d4f0ff3ace5deabcbed5b30092668135353
+checksums           rmd160  0275e9ab0787afc53191d00c5f5a4eaa637c8fe4 \
+                    sha256  54863e877310355cb37fe3c4a6ade086a63f92003f27f2645a25cf1d023830b1
 
 configure.dir       ${workpath}/build
 build.dir           ${configure.dir}
@@ -52,8 +52,7 @@ depends_lib         port:freetype \
 # doesn't really work
 # patchfiles          patch-cmake-modules-FindOpenGL.cmake.diff
 
-patchfiles          patch-graf2d-asimage-src-libAfterImage-asfont.c.diff \
-                    patch-modules-RootBuildOptions.cmake.diff
+patchfiles          patch-graf2d-asimage-src-libAfterImage-asfont.c.diff
 
 post-patch {
 #    reinplace "s|@@PREFIX@@|${prefix}|g" ${worksrcpath}/cmake/modules/FindOpenGL.cmake
@@ -90,7 +89,8 @@ post-patch {
 #-DCMAKE_INSTALL_PREFIX=${prefix}
 
 configure.args-append \
-                    -Dsysinstall=ON \
+                    -Dgnuinstall=ON \
+                    -DCMAKE_INSTALL_ETCDIR="etc/root" \
                     -Dfortran=OFF \
                     -Dbuiltin_freetype=OFF \
                     -Dbuiltin_glew=OFF \
@@ -101,6 +101,7 @@ configure.args-append \
                     -Dkrb5=OFF \
                     -Dldap=OFF \
                     -Dmysql=OFF \
+                    -Dsqlite=OFF \
                     -Dodbc=OFF \
                     -Dopengl=OFF \
                     -Dpythia6=OFF \
@@ -271,6 +272,7 @@ variant soversion description {Build with soversion support} {
 
 variant graphviz description {Build with graphviz support} {
     configure.args-replace  -Dgviz=OFF -Dgviz=ON
+    # TODO: test with GRAPHVIZ_DIR variable instead defining 5 different variables
     configure.args-append   -DGRAPHVIZ_INCLUDE_DIR="${prefix}/include" \
                             -DGRAPHVIZ_CDT_LIBRARY="${prefix}/lib/libcdt.dylib" \
                             -DGRAPHVIZ_GRAPH_LIBRARY="${prefix}/lib/libcgraph.dylib" \
