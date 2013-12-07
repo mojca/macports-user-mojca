@@ -4,7 +4,7 @@
 PortSystem          1.0
 PortGroup           cmake 1.0
 PortGroup           github 1.0
-github.setup        root-mirror root 7cc66162bf
+github.setup        root-mirror root a346181de9
 name                root
 # TODO: just temorary call this version "-git"
 version             5.34.13-git
@@ -24,8 +24,8 @@ long_description    The ROOT system provides a set of frameworks with all \
 homepage            http://root.cern.ch/
 platforms           darwin
 
-checksums           rmd160  0275e9ab0787afc53191d00c5f5a4eaa637c8fe4 \
-                    sha256  54863e877310355cb37fe3c4a6ade086a63f92003f27f2645a25cf1d023830b1
+checksums           rmd160  c115febda7e6928408a0ab705f384e1935ec6f02 \
+                    sha256  229e48a7dbcb940e0094f4630addd19789a678defb946f7aa4620f0d34983851
 
 configure.dir       ${workpath}/build
 build.dir           ${configure.dir}
@@ -49,14 +49,8 @@ depends_lib         port:freetype \
                     port:xpm \
                     port:expat
 
-# doesn't really work
-# patchfiles          patch-cmake-modules-FindOpenGL.cmake.diff
-
-patchfiles          patch-graf2d-asimage-src-libAfterImage-asfont.c.diff
-
-post-patch {
-#    reinplace "s|@@PREFIX@@|${prefix}|g" ${worksrcpath}/cmake/modules/FindOpenGL.cmake
-}
+patchfiles          patch-graf2d-asimage-src-libAfterImage-asfont.c.diff \
+                    patch-cmake.diff
 
 # I somehow miss (some of) the following variables
 # CMAKE_INSTALL_BINDIR             bin
@@ -90,7 +84,7 @@ post-patch {
 
 configure.args-append \
                     -Dgnuinstall=ON \
-                    -DCMAKE_INSTALL_ETCDIR="etc/root" \
+                    -DCMAKE_INSTALL_SYSCONFDIR="etc/root" \
                     -Dfortran=OFF \
                     -Dbuiltin_freetype=OFF \
                     -Dbuiltin_glew=OFF \
@@ -348,6 +342,7 @@ variant minuit2 description {Build with minuit2 support} {
 # TODO: doesn't work properly yet and should not depend on /usr/X11R6
 variant opengl description {Build with opengl support} {
     configure.args-replace  -Dopengl=OFF -Dopengl=ON
+    configure.args-append   -DOPENGL_INCLUDE_DIR=${prefix}/include
     # TODO: no idea why builtin glew would be needed and it also fails to work
                           # -Dbuiltin_glew=OFF -Dbuiltin_glew=ON
 }
