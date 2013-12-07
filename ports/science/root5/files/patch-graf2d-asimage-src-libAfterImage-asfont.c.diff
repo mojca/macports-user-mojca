@@ -1,0 +1,17 @@
+--- graf2d/asimage/src/libAfterImage/asfont.c.orig
++++ graf2d/asimage/src/libAfterImage/asfont.c
+@@ -62,12 +62,13 @@
+ # ifdef HAVE_FT2BUILD_H
+ #  include <ft2build.h>
+ #  include FT_FREETYPE_H
+-# endif
++# else
+ # ifdef HAVE_FREETYPE_FREETYPE
+ #  include <freetype/freetype.h>
+ # else
+ #  include <freetype.h>
+ # endif
++# endif
+ # if (FREETYPE_MAJOR == 2) && ((FREETYPE_MINOR == 0) || ((FREETYPE_MINOR == 1) && (FREETYPE_PATCH < 3)))
+ #  define FT_KERNING_DEFAULT ft_kerning_default
+ # endif
