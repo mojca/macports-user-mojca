@@ -1,0 +1,26 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+
+name                cmpfit
+version             1.2
+categories          math
+platforms           darwin
+maintainers         mojca openmaintainer
+
+description         A MINPACK-1 Least Squares Fitting Library in C.
+
+long_description    MPFIT uses the Levenberg-Marquardt technique to solve the least-squares problem. \
+                    In its typical use, MPFIT will be used to fit a user-supplied function \
+                    (the 'model') to user-supplied data points (the 'data') by adjusting a set of parameters. \
+                    MPFIT is based upon MINPACK-1 (LMDIF.F) by More' and collaborators. 
+
+homepage            http://www.physics.wisc.edu/~craigm/idl/cmpfit.html
+
+master_sites        http://www.physics.wisc.edu/~craigm/idl/down
+
+checksums           rmd160  177e95efdf16fc6422914b76d04b1d6d3eae6855 \
+                    sha256  4b90521d8fe7614e6ce1455aa77ee6eea397acfcdc870019e4351055a0ee0697
+
+use_configure       no
