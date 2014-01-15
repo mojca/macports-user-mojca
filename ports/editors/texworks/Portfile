@@ -6,7 +6,7 @@ PortGroup           cmake 1.0
 PortGroup           qt4 1.0
 PortGroup           active_variants 1.1
 
-svn.revision        1302
+svn.revision        1350
 
 name                texworks
 version             0.5.0-svn${svn.revision}
@@ -37,7 +37,7 @@ build.dir           ${configure.dir}
 
 depends_lib         port:hunspell \
                     port:poppler \
-                    port:libz
+                    port:zlib
 
 require_active_variants poppler qt4
 require_active_variants poppler quartz
