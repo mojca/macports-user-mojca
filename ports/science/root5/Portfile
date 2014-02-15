@@ -4,10 +4,10 @@
 PortSystem          1.0
 PortGroup           cmake 1.0
 PortGroup           github 1.0
-github.setup        root-mirror root a346181de9
+github.setup        root-mirror root v5-34-15
 name                root5
 # TODO: just temorary call this version "-git"
-version             5.34.13-git
+version             5.34.15-git
 set version_major   5
 
 categories          science
@@ -25,8 +25,8 @@ long_description    The ROOT system provides a set of frameworks with all \
 homepage            http://root.cern.ch/
 platforms           darwin
 
-checksums           rmd160  c115febda7e6928408a0ab705f384e1935ec6f02 \
-                    sha256  229e48a7dbcb940e0094f4630addd19789a678defb946f7aa4620f0d34983851
+checksums           rmd160  d57e292b9733029db63758b33eea2891d1e1cc28 \
+                    sha256  e7128114576280f300819a78db5175da0df99f1140f25a029e5dd4826dda4983
 
 dist_subdir         root
 configure.dir       ${workpath}/build
@@ -51,8 +51,7 @@ depends_lib         port:freetype \
                     port:xpm \
                     port:expat
 
-patchfiles          patch-graf2d-asimage-src-libAfterImage-asfont.c.diff \
-                    patch-cmake.diff
+patchfiles          patch-graf2d-asimage-src-libAfterImage-asfont.c.diff
 
 configure.args-append \
                     -Dgnuinstall=ON \
@@ -114,21 +113,22 @@ configure.args-append \
 # -Dc++11=ON  : requires gcc > 4.7.x or clang
 # -Dlibcxx=ON : Build using libc++, requires cxx11 option (MacOS X only, for the time being)  
 
+# TODO: Check ${configure.cxx_stdlib} directly once MacPorts 2.3 is released
 platform darwin {
-    set cxx_stdlib {}
+    set cxxstdlib {}
 
-    if {[info exists configure.cxx_stdlib] &&
-        ${configure.cxx_stdlib} ne {} &&
+    if {[info exists configure.cxxstdlib] &&
+        ${configure.cxxstdlib} ne {} &&
         [string match *clang* ${configure.cxx}]} {
-        set cxx_stdlib ${configure.cxx_stdlib}
+        set cxxstdlib ${configure.cxxstdlib}
     } elseif {[string match *clang* ${configure.cxx}] &&
               ${os.major} >= 13} {
-        set cxx_stdlib libc++
+        set cxxstdlib libc++
     } else {
-        set cxx_stdlib libstdc++
+        set cxxstdlib libstdc++
     }
 
-    if {${cxx_stdlib} == "libc++"} {
+    if {${cxxstdlib} eq "libc++"} {
         configure.args-replace -Dc++11=OFF -Dc++11=ON
         configure.args-replace -Dlibcxx=OFF -Dlibcxx=ON
     }
@@ -176,8 +176,6 @@ configure.args-append \
 #                    --disable-mysql \
 # -> odbc
 #                    --disable-odbc \
-# -> opengl
-#                    --disable-opengl \
 # -> pythia6
 #                    --disable-pythia6 \
 # -> pythia8
@@ -201,18 +199,12 @@ configure.args-append \
 #                    --disable-bonjour \
 #                    --disable-gviz \
 #                    --disable-soversion \
-# -> cocoa
-#                    --disable-cocoa \
-# -> builtin_ftgl
-#                    --enable-builtin-ftgl \
 # -> mathmore
 #                    --enable-mathmore \
 # -> genvector
 #                    --enable-genvector \
 # -> memstat
 #                    --enable-memstat \
-# -> unuran
-#                    --enable-unuran \
 # -> table
 #                    --enable-table \
 
@@ -463,19 +455,16 @@ variant sqlite3 description {Build with sqlite3 support} {
 #                             --with-pythia8-libdir=${prefix}/lib
 #     depends_lib-append      port:pythia
 # }
-# 
-# variant cocoa description {Enables native OSX graphical backend instead of X11} {
-#     # Force a compatible clang compiler
-#     PortGroup compiler_blacklist_versions 1.0
-#     compiler.blacklist-append {clang < 425} *gcc* macports-clang-3.3 macports-clang-2.9 macports-clang-3.0
-#     compiler.fallback-append macports-clang-3.2 macports-clang-3.1
-#     # Enable cocoa support in configure
-#     configure.args-delete --disable-cocoa
-#     configure.args-append --enable-cocoa
-#     # patch afterimage build to make sure TIFF suport is disabled. Causes problems with cocoa...
-#     patchfiles-append patch-builtin-afterimage-disabletiff.diff
-# }
-# 
+
+variant cocoa description {Enables native OSX graphical backend instead of X11} {
+    # Force a compatible clang compiler
+    PortGroup compiler_blacklist_versions 1.0
+    compiler.blacklist-append {clang < 425} *gcc* macports-clang-3.3 macports-clang-2.9 macports-clang-3.0
+    compiler.fallback-append macports-clang-3.2 macports-clang-3.1
+    # Enable cocoa support in configure
+    configure.args-replace -Dcocoa=OFF -Dcocoa=ON
+}
+
 # variant clang31 conflicts clang32 clang33 description {Compile using MacPorts clang 3.1} {
 #     configure.compiler      macports-clang-3.1
 # }
