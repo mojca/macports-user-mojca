@@ -1,0 +1,496 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           cmake 1.0
+PortGroup           github 1.0
+github.setup        root-mirror root 5-99-05 v
+name                root6
+version             5.99.05-beta
+set version_major   6
+
+categories          science
+
+maintainers         hep.phy.cam.ac.uk:jonesc
+
+license             LGPL-2.1+
+
+description         ROOT is a data analysis framework from CERN
+long_description    The ROOT system provides a set of frameworks with all \
+                    the functionality needed to handle and analyze large amounts \
+                    of data in a very efficient way. This version provides a build \
+                    of a snapshot of the ROOT 6 development version. \
+                    For a stable release install the root port instead.
+homepage            http://root.cern.ch/
+platforms           darwin
+
+checksums           rmd160  3d421e8981b2306aa784c2d232b79590773e4607 \
+                    sha256  504f79167349546ebb5b435ee532c8874b043bd38051172ffc9cab6209aae584
+
+dist_subdir         root
+configure.dir       ${workpath}/build
+build.dir           ${configure.dir}
+
+post-extract {
+    file mkdir ${configure.dir}
+}
+
+depends_lib         port:xz \
+                    port:pcre \
+                    port:zlib \
+                    port:jpeg \
+                    port:libpng \
+                    port:giflib \
+                    port:tiff \
+                    port:gmp \
+                    port:expat
+                  # port:freetype
+
+configure.args-append \
+                    -Dgnuinstall=ON \
+                    -DCMAKE_INSTALL_BINDIR="libexec/root/root${version_major}" \
+                    -DCMAKE_INSTALL_LIBDIR="lib/root/root${version_major}" \
+                    -DCMAKE_INSTALL_INCLUDEDIR="include/root/root${version_major}" \
+                    -DCMAKE_INSTALL_SYSCONFDIR="etc/root/root${version_major}" \
+                    -DCMAKE_INSTALL_DATAROOTDIR="share/root/root${version_major}" \
+                    -DCMAKE_INSTALL_DATADIR="share/root/root${version_major}" \
+                    -DCMAKE_INSTALL_DOCDIR="share/doc/root/root${version_major}" \
+                    -Dfortran=OFF \
+                    -Dbuiltin_freetype=ON \
+                    -Dbuiltin_glew=OFF \
+                    -Dbuiltin_pcre=OFF \
+                    -Dbuiltin_zlib=OFF \
+                    -Dbuiltin_lzma=OFF \
+                    -Dfftw3=OFF \
+                    -Dkrb5=OFF \
+                    -Dldap=OFF \
+                    -Dmysql=OFF \
+                    -Dsqlite=OFF \
+                    -Dodbc=OFF \
+                    -Dopengl=OFF \
+                    -Dpythia6=OFF \
+                    -Dpythia8=OFF \
+                    -Droofit=OFF \
+                    -Dssl=OFF \
+                    -Dxml=OFF \
+                    -Dpython=OFF \
+                    -Dfitsio=OFF \
+                    -Dgsl_shared=OFF \
+                    -Dpgsql=OFF \
+                    -Ddcache=OFF \
+                    -Dchirp=OFF \
+                    -Dhdfs=OFF \
+                    -Druby=OFF \
+                    -Dminuit2=OFF \
+                    -Dtmva=OFF \
+                    -Dqt=OFF \
+                    -Dqtgsi=OFF \
+                    -Dbonjour=OFF \
+                    -Dgviz=OFF \
+                    -Dsoversion=OFF \
+                    -Dc++11=OFF \
+                    -Dlibcxx=OFF \
+                    -Dxrootd=OFF \
+                    -Dbuiltin_ftgl=ON \
+                    -Dmathmore=ON \
+                    -Dgenvector=ON \
+                    -Dmemstat=ON \
+                    -Dunuran=ON \
+                    -Dreflex=ON \
+                    -Dtable=ON \
+                    -Dgdml=ON \
+                    -DPNG_LIBRARY=${prefix}/lib/libpng.dylib \
+                    -DPNG_PNG_INCLUDE_DIR=${prefix}/include
+configure.post_args ${worksrcpath}
+
+# TODO: temporary:
+configure.args-append       -DCMAKE_INCLUDE_PATH=${prefix}/include
+configure.cppflags-delete   -I${prefix}/include
+
+# TODO: Check ${configure.cxx_stdlib} directly once MacPorts 2.3 is released
+platform darwin {
+    set cxxstdlib {}
+
+    if {[info exists configure.cxx_stdlib] &&
+        ${configure.cxx_stdlib} ne {} &&
+        [string match *clang* ${configure.cxx}]} {
+        set cxxstdlib ${configure.cxx_stdlib}
+    } elseif {[string match *clang* ${configure.cxx}] &&
+              ${os.major} >= 13} {
+        set cxxstdlib libc++
+    } else {
+        set cxxstdlib libstdc++
+    }
+
+    if {${cxxstdlib} eq "libc++"} {
+        configure.args-replace -Dc++11=OFF -Dc++11=ON
+    }
+}
+
+universal_variant   no
+
+default_variants    +ssl +xml +gsl +minuit2 +tmva +roofit +graphviz +opengl +soversion
+
+# Since ROOT 5.34.15 the cocoa backend is default on OSX 10.8 or newer
+# We also make it default on 10.7
+if {${os.major} > 10} {
+    set default_gui_variant +cocoa
+} else {
+    set default_gui_variant +x11
+}
+
+variant xrootd description {Build with XRootD support} {
+    configure.args-replace  -Dxrootd=OFF -Dxrootd=ON
+    configure.args-append   -DXROOTD_INCLUDE_DIR="${prefix}/include/xrootd"
+    # TODO: do libraries need to be specified as well?
+    # XROOTD_XrdClient_LIBRARY  *${prefix}/lib/libXrdClient.dylib
+    # XROOTD_XrdMain_LIBRARY    *${prefix}/lib/libXrdMain.dylib
+    # XROOTD_XrdUtils_LIBRARY   *${prefix}/lib/libXrdUtils.dylib
+    depends_lib-append      port:xrootd
+}
+
+variant soversion description {Build with soversion support} {
+     configure.args-replace -Dsoversion=OFF -Dsoversion=ON
+}
+
+variant graphviz description {Build with graphviz support} {
+    configure.args-replace  -Dgviz=OFF -Dgviz=ON
+    configure.args-append   -DGRAPHVIZ_INCLUDE_DIR="${prefix}/include" \
+                            -DGRAPHVIZ_CDT_LIBRARY="${prefix}/lib/libcdt.dylib" \
+                            -DGRAPHVIZ_GRAPH_LIBRARY="${prefix}/lib/libgraph.dylib" \
+                            -DGRAPHVIZ_GVC_LIBRARY="${prefix}/lib/libgvc.dylib" \
+                            -DGRAPHVIZ_PATHPLAN_LIBRARY="${prefix}/lib/libpathplan.dylib"
+    depends_lib-append      path:bin/dot:graphviz
+}
+
+variant avahi description {Build with avahi support} {
+    configure.args-replace  -Dbonjour=OFF -Dbonjour=ON
+    # TODO
+#   configure.args-append   --with-avahi-incdir="${prefix}/include" \
+#                           --with-avahi-libdir="${prefix}/lib"
+    depends_lib-append      port:avahi
+}
+
+# TODO
+variant fftw3 description {Build with fftw3 support} {
+   configure.args-replace   -Dfftw3=OFF -Dfftw3=ON
+   # TODO
+#  configure.args-append   --with-fftw3-incdir="${prefix}/include" \
+#                          --with-fftw3-libdir="${prefix}/lib"
+   depends_lib-append      port:fftw-3
+}
+
+variant gsl description {Build with gsl support} {
+    configure.args-replace  -Dgsl_shared=OFF -Dgsl_shared=ON
+    configure.args-append   -DGSL_CONFIG_EXECUTABLE="${prefix}/bin/gsl-config"
+    depends_lib-append      port:gsl
+}
+
+
+# TODO
+#variant fitsio description {Build with fitsio support} {
+#    configure.args-delete   --disable-fitsio
+#    configure.args-append   --enable-fitsio \
+#                            --with-cfitsio-incdir="${prefix}/include" \
+#                            --with-cfitsio-libdir="${prefix}/lib"
+#    depends_lib-append      port:cfitsio
+#}
+
+# TODO
+#variant odbc description {Build with odbc support} {
+#    configure.args-delete   --disable-odbc
+#    configure.args-append   --enable-odbc \
+#                            --with-odbc-incdir="${prefix}/include" \
+#                            --with-odbc-libdir="${prefix}/lib"
+#    depends_lib-append      port:libiodbc
+#}
+
+# TODO
+#variant ldap description {Build with ldap support} {
+#    configure.args-delete   --disable-ldap
+#    configure.args-append   --enable-ldap \
+#                            --with-ldap-incdir="${prefix}/include" \
+#                            --with-ldap-libdir="${prefix}/lib"
+#    depends_lib-append      port:openldap
+#}
+
+variant roofit description {Build the RooFit advanced fitting package} {
+    configure.args-replace  -Droofit=OFF -Droofit=ON
+}
+
+variant tmva description {Build the TMVA package} {
+    configure.args-replace  -Dtmva=OFF -Dtmva=ON
+}
+
+variant minuit2 description {Build with minuit2 support} {
+    configure.args-replace  -Dminuit2=OFF -Dminuit2=ON
+}
+
+variant opengl description {Build with opengl support} {
+    configure.args-delete   -Dopengl=OFF
+    configure.args-delete   -Dbuiltin_glew=OFF
+    configure.args-append   -Dopengl=ON -Dbuiltin_glew=ON
+}
+
+# ========================================================================================
+# Setup various python variants
+# ========================================================================================
+
+# List of possible python versions
+set python_versions { 2.6 2.7 3.1 3.2 3.3 3.4 }
+
+# Define the available variants
+foreach ver ${python_versions} {
+    set ver_no_dot [join [split ${ver} "."] ""]
+    set variant_line {variant python${ver_no_dot} description "Build with python ${ver} support"}
+    foreach over ${python_versions} {
+        if { ${ver} == ${over} } { continue }
+        set over_no_dot [join [split ${over} "."] ""]
+        append variant_line " conflicts python${over_no_dot}"
+    }
+    append variant_line { {} }
+    eval $variant_line
+}
+
+# Is a variant active ?
+set active_python_variant ""
+foreach ver ${python_versions} {
+    set ver_no_dot [join [split ${ver} "."] ""]
+    if {[variant_isset python${ver_no_dot}]} {
+        set active_python_variant ${ver}
+    }
+}
+
+# If so, set it up.
+if { ${active_python_variant} != "" } {
+    set ver_no_dot [join [split ${active_python_variant} "."] ""]
+    set mypydir ${prefix}/Library/Frameworks/Python.framework/Versions/${active_python_variant}
+    configure.args-replace  -Dpython=OFF -Dpython=ON
+# TODO
+#   configure.args-append   --with-python-incdir="${mypydir}/Headers" \
+#                           --with-python-libdir="${mypydir}"
+    depends_lib-append      port:python${ver_no_dot}
+    post-destroot {
+        set mypylibdir  ${prefix}/Library/Frameworks/Python.framework/Versions/${active_python_variant}/lib/python${active_python_variant}
+        set mypysitedir ${mypylibdir}/site-packages/
+        file mkdir ${destroot}${mypysitedir}
+        foreach pyfile [glob ${destroot}${prefix}/lib/root/*.py*] { move $pyfile ${destroot}${mypysitedir} }
+        ln -sf ${prefix}/lib/root/libPyROOT.so ${destroot}${mypylibdir}/
+    }
+}
+
+# ========================================================================================
+
+variant ruby description {Build with ruby support} {
+    configure.args-replace  -Druby=OFF -Druby=ON
+    depends_lib-append      port:ruby
+}
+
+variant ssl description {Build with ssl support} {
+    configure.args-delete   -Dssl=OFF
+    configure.args-append   -Dssl=ON \
+                            -DOPENSSL_INCLUDE_DIR="${prefix}/include" \
+                            -DOPENSSL_SSL_LIBRARY="${prefix}/lib/libssl.dylib" \
+                            -DOPENSSL_CRYPTO_LIBRARY="${prefix}/lib/libcrypto.dylib"
+    depends_lib-append      port:openssl
+}
+
+variant xml description {Build with xml support} {
+    configure.args-delete   -Dxml=OFF
+    configure.args-append   -Dxml=ON \
+                            -DLIBXML2_INCLUDE_DIR="${prefix}/include/libxml2" \
+                            -DLIBXML2_LIBRARIES="${prefix}/lib/libxml2.dylib" \
+                            -DLIBXML2_XMLLINT_EXECUTABLE="${prefix}/bin/xmllint"
+    depends_lib-append      port:libxml2
+}
+
+# TODO
+#variant mysql conflicts mysql51 mysql55 mariadb percona description {Build with mysql5 support} {
+#    configure.args-delete   --disable-mysql
+#    configure.args-append   --enable-mysql \
+#                            --with-mysql-incdir="${prefix}/include/mysql5/mysql" \
+#                            --with-mysql-libdir="${prefix}/lib/mysql5/mysql"
+#    depends_lib-append      port:mysql5
+#}
+#
+#variant mysql51 conflicts mysql mysql55 mariadb percona description {Build with mysql51 support} {
+#    configure.args-delete   --disable-mysql
+#    configure.args-append   --enable-mysql \
+#                            --with-mysql-incdir="${prefix}/include/mysql51/mysql" \
+#                            --with-mysql-libdir="${prefix}/lib/mysql51/mysql"
+#    depends_lib-append      port:mysql51
+#}
+#
+#variant mysql55 conflicts mysql mysql51 mariadb percona description {Build with mysql55 support} {
+#    configure.args-delete   --disable-mysql
+#    configure.args-append   --enable-mysql \
+#                            --with-mysql-incdir="${prefix}/include/mysql55/mysql" \
+#                            --with-mysql-libdir="${prefix}/lib/mysql55/mysql"
+#    depends_lib-append      port:mysql55
+#}
+#
+#variant mariadb conflicts mysql mysql51 mysql55 percona description {Build with mariadb support} {
+#    configure.args-delete   --disable-mysql
+#    configure.args-append   --enable-mysql \
+#                            --with-mysql-incdir="${prefix}/include/mariadb/mysql" \
+#                            --with-mysql-libdir="${prefix}/lib/mariadb/mysql"
+#    depends_lib-append      port:mariadb
+#}
+#
+#variant percona conflicts mysql mysql51 mysql55 mariadb description {Build with percona support} {
+#    configure.args-delete   --disable-mysql
+#    configure.args-append   --enable-mysql \
+#                            --with-mysql-incdir="${prefix}/include/percona/mysql" \
+#                            --with-mysql-libdir="${prefix}/lib/percona/mysql"
+#    depends_lib-append      port:percona
+#}
+#
+#variant postgresql90 conflicts postgresql92 description {Build with PostgreSQL 9.0 support} {
+#    configure.args-delete   --disable-pgsql
+#    configure.args-append   --enable-pgsql \
+#                            --with-pgsql-incdir="${prefix}/include/postgresql90" \
+#                            --with-pgsql-libdir="${prefix}/lib/postgresql90"
+#    depends_lib-append      port:libpqxx port:postgresql90
+#}
+#
+#variant postgresql92 conflicts postgresql90 description {Build with PostgreSQL 9.2 support} {
+#    configure.args-delete   --disable-pgsql
+#    configure.args-append   --enable-pgsql \
+#                            --with-pgsql-incdir="${prefix}/include/postgresql92" \
+#                            --with-pgsql-libdir="${prefix}/lib/postgresql92"
+#    depends_lib-append      port:libpqxx port:postgresql92
+#}
+
+# TODO
+# variant pythia description {Pythia 8 support for root} {
+#    configure.args-delete   --disable-pythia8
+#    configure.args-append   --enable-pythia8 \
+#                            --with-pythia8-incdir=${prefix}/include \
+#                            --with-pythia8-libdir=${prefix}/lib
+#    depends_lib-append      port:pythia
+# }
+
+variant cocoa conflicts x11 description {Enables native OSX graphical backend} {
+    # Force a compatible clang compiler
+    PortGroup compiler_blacklist_versions 1.0
+    compiler.blacklist-append {clang < 425} *gcc* macports-clang-2.9
+    compiler.fallback-append macports-clang-3.4 macports-clang-3.3 macports-clang-3.2 macports-clang-3.1 macports-clang-3.0
+    # Enable cocoa support in configure
+    configure.args-append -Dcocoa=ON
+}
+
+variant x11 conflicts cocoa description {Enables X11 graphical backend} {
+    # Dependencies on X11 ports
+    depends_lib-append port:xorg-libX11 port:mesa port:Xft2 port:xpm
+    # Disable cocoa
+    configure.args-append -Dcocoa=OFF
+}
+
+# If neither graphical variant is set, use default
+if { ![variant_isset cocoa] && ![variant_isset x11] } {
+    default_variants-append ${default_gui_variant}
+}
+
+# ========================================================================================
+# Setup various clang variants, to provide alternative C++ compilers that support cocoa
+# ========================================================================================
+
+# List of possible clang versions that work
+set clang_versions { 3.0 3.1 3.2 3.3 3.4 3.5 }
+
+# Define the available variants
+foreach ver ${clang_versions} {
+    set ver_no_dot [join [split ${ver} "."] ""]
+    set variant_line {variant clang${ver_no_dot} description "Compile using MacPorts clang ${ver}"}
+    foreach over ${clang_versions} {
+        if { ${ver} == ${over} } { continue }
+        set over_no_dot [join [split ${over} "."] ""]
+        append variant_line " conflicts clang${over_no_dot}"
+    }
+    append variant_line { { } }
+    eval $variant_line
+}
+
+# Is a variant active ?
+set active_clang_variant ""
+foreach ver ${clang_versions} {
+    set ver_no_dot [join [split ${ver} "."] ""]
+    if {[variant_isset clang${ver_no_dot}]} {
+        set active_clang_variant ${ver}
+    }
+}
+
+# If so, set it up.
+if { ${active_clang_variant} != "" } {
+    configure.compiler      macports-clang-${active_clang_variant}
+    # TODO
+    # configure.args-append   --with-llvm-config="${prefix}/bin/llvm-config-mp-"${active_clang_variant}
+    depends_run-append      port:clang-${active_clang_variant}
+}
+
+# ========================================================================================
+# Following is for fortran support
+# Might eventually move to a portgroup, or similar, so could be simplified.
+# Based on recipe from https://trac.macports.org/wiki/PortfileRecipes#fortran
+# Note that g95 does not work here, so that variant is removed
+# ========================================================================================
+
+# TODO: fortran is OFF, so the code below doesn't do anything yet anyway
+# https://trac.macports.org/ticket/37732
+# check if the following is needed:
+# configure.args-append   -DCMAKE_Fortran_COMPILER=\"${configure.fc}\"
+# maybe something like the following could help (but the exact line doesn't work):
+# configure.args-delete -DCMAKE_OSX_ARCHITECTURES="${configure.build_arch}"
+
+set gcc_versions {4.3 4.4 4.5 4.6 4.7 4.8 4.9}
+set default_fortran_variant +gcc48
+
+foreach ver ${gcc_versions} {
+    set ver_no_dot [join [split ${ver} "."] ""]
+
+    set variant_line {variant gcc${ver_no_dot} description "Build with gfortran from gcc${ver_no_dot}"}
+
+    foreach over ${gcc_versions} {
+        if {${ver} == ${over}} {
+            continue
+        }
+
+        set over_no_dot [join [split ${over} "."] ""]
+        append variant_line " conflicts gcc${over_no_dot}"
+    }
+    append variant_line { {}}
+
+    eval $variant_line
+
+    if {[variant_isset gcc${ver_no_dot}]} {
+        if {${default_fortran_variant} != "+gcc${ver_no_dot}"} {
+            set default_fortran_variant ""
+        }
+    }
+}
+
+if {${default_fortran_variant} != ""} {
+    default_variants-append "${default_fortran_variant}"
+}
+
+foreach ver ${gcc_versions} {
+    set ver_no_dot [join [split ${ver} "."] ""]
+
+    if {[variant_isset gcc${ver_no_dot}]} {
+        depends_lib-append path:lib/libgcc/libgcc_s.1.dylib:libgcc
+        depends_build-append port:gcc${ver_no_dot}
+
+        # TODO: do we really need all three variables?
+        configure.fc  ${prefix}/bin/gfortran-mp-${ver}
+        configure.f77 ${prefix}/bin/gfortran-mp-${ver}
+        configure.f90 ${prefix}/bin/gfortran-mp-${ver}
+    }
+}
+
+# ========================================================================================
+
+# TODO
+# livecheck.type              regex
+# livecheck.url               http://root.cern.ch/svn/root/trunk
+# livecheck.regex             ${name}_v(\[0-9a-z.\]+)\\.source
+
