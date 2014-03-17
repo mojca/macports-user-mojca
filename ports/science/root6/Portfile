@@ -157,7 +157,7 @@ variant graphviz description {Build with graphviz support} {
     configure.args-replace  -Dgviz=OFF -Dgviz=ON
     configure.args-append   -DGRAPHVIZ_INCLUDE_DIR="${prefix}/include" \
                             -DGRAPHVIZ_CDT_LIBRARY="${prefix}/lib/libcdt.dylib" \
-                            -DGRAPHVIZ_GRAPH_LIBRARY="${prefix}/lib/libgraph.dylib" \
+                            -DGRAPHVIZ_GRAPH_LIBRARY="${prefix}/lib/libcgraph.dylib" \
                             -DGRAPHVIZ_GVC_LIBRARY="${prefix}/lib/libgvc.dylib" \
                             -DGRAPHVIZ_PATHPLAN_LIBRARY="${prefix}/lib/libpathplan.dylib"
     depends_lib-append      path:bin/dot:graphviz
