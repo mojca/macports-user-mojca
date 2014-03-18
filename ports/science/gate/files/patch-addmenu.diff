@@ -1,6 +1,6 @@
 --- Gate.cc
 +++ Gate.cc
-@@ -368,6 +368,7 @@ int main( int argc, char* argv[] )
+@@ -377,6 +377,7 @@ int main( int argc, char* argv[] )
    else {
      if (ui) // Launching interactive mode // Qt
        {
