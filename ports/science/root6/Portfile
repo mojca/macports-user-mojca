@@ -4,7 +4,8 @@
 PortSystem          1.0
 PortGroup           cmake 1.0
 PortGroup           github 1.0
-github.setup        root-mirror root 5-99-05 v
+# github.setup        root-mirror root 5-99-05 v
+github.setup        root-mirror root e3dec6e203
 name                root6
 version             5.99.05-beta
 set version_major   6
@@ -24,8 +25,8 @@ long_description    The ROOT system provides a set of frameworks with all \
 homepage            http://root.cern.ch/
 platforms           darwin
 
-checksums           rmd160  3d421e8981b2306aa784c2d232b79590773e4607 \
-                    sha256  504f79167349546ebb5b435ee532c8874b043bd38051172ffc9cab6209aae584
+checksums           rmd160  69f6a99413908eed7789bc30939a621f45eac7a2 \
+                    sha256  10f2956cd821471477a351c01355c2eb802c01e046764d18865e7416dfa810f8
 
 dist_subdir         root
 configure.dir       ${workpath}/build
