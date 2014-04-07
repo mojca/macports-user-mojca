@@ -6,15 +6,25 @@ PortSystem          1.0
 PortGroup           active_variants 1.1
 PortGroup           cmake 1.0
 PortGroup           github 1.0
-github.setup        root-mirror root 5-99-06 v
+
+# TODO: try to figure out if one could also build root6 on < 10.9
+# if {(${os.major} < 13 && ! [info exists configure.cxx_stdlib]) || (! [file exists /usr/lib/libc++.dylib])} {
+if {${os.major} < 13 } {
+    github.setup    root-mirror root e3dec6e203
+    version         5.99.05-beta
+    checksums       rmd160  69f6a99413908eed7789bc30939a621f45eac7a2 \
+                    sha256  10f2956cd821471477a351c01355c2eb802c01e046764d18865e7416dfa810f8
+} else {
+    github.setup    root-mirror root 5-99-06 v
+    version         5.99.06-beta
+    checksums       rmd160  b8b5ae705aae185c0d6ed097a5efa6fbeb961bfb \
+                    sha256  c873d536769ff06616c0a9981e7f1db2414eaca0a1bcab045d4073b36644981a
+}
+
 name                root6
-version             5.99.06-beta
 set version_major   6
-
 categories          science
-
 maintainers         hep.phy.cam.ac.uk:jonesc mojca
-
 license             LGPL-2.1+
 
 description         ROOT is a data analysis framework from CERN
@@ -23,21 +33,9 @@ long_description    The ROOT system provides a set of frameworks with all \
                     of data in a very efficient way. This version provides a build \
                     of a snapshot of the ROOT 6 development version. \
                     For a stable release install the root port instead.
+
 homepage            http://root.cern.ch/
 platforms           darwin
-
-checksums           rmd160  b8b5ae705aae185c0d6ed097a5efa6fbeb961bfb \
-                    sha256  c873d536769ff06616c0a9981e7f1db2414eaca0a1bcab045d4073b36644981a
-
-# TODO: try to figure out if one could also build root6 on < 10.9
-# if {(${os.major} < 13 && ! [info exists configure.cxx_stdlib]) || (! [file exists /usr/lib/libc++.dylib])} {
-if {${os.major} < 13 } {
-    github.setup    root-mirror root e3dec6e203
-    name            root6
-    version         5.99.05-beta
-    checksums       rmd160  69f6a99413908eed7789bc30939a621f45eac7a2 \
-                    sha256  10f2956cd821471477a351c01355c2eb802c01e046764d18865e7416dfa810f8
-}
 
 dist_subdir         root
 configure.dir       ${workpath}/build
