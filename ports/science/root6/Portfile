@@ -127,8 +127,7 @@ platform darwin {
         ${configure.cxx_stdlib} ne {} &&
         [string match *clang* ${configure.cxx}]} {
         set cxxstdlib ${configure.cxx_stdlib}
-    } elseif {[string match *clang* ${configure.cxx}] &&
-              ${os.major} >= 13} {
+    } elseif {[string match *clang* ${configure.cxx}] && ${os.major} >= 13} {
         set cxxstdlib libc++
     } else {
         set cxxstdlib libstdc++
@@ -160,31 +159,31 @@ if {${os.major} > 10} {
 # }
 
 variant soversion description {Build with soversion support} {
-     configure.args-replace -Dsoversion=OFF -Dsoversion=ON
+    configure.args-replace  -Dsoversion=OFF -Dsoversion=ON
 }
 
 variant graphviz description {Build with graphviz support} {
     configure.args-replace  -Dgviz=OFF -Dgviz=ON
-    # configure.args-append   -DGRAPHVIZ_INCLUDE_DIR="${prefix}/include" \
-    #                         -DGRAPHVIZ_CDT_LIBRARY="${prefix}/lib/libcdt.dylib" \
-    #                         -DGRAPHVIZ_GRAPH_LIBRARY="${prefix}/lib/libcgraph.dylib" \
-    #                         -DGRAPHVIZ_GVC_LIBRARY="${prefix}/lib/libgvc.dylib" \
-    #                         -DGRAPHVIZ_PATHPLAN_LIBRARY="${prefix}/lib/libpathplan.dylib"
+#   configure.args-append   -DGRAPHVIZ_INCLUDE_DIR="${prefix}/include" \
+#                           -DGRAPHVIZ_CDT_LIBRARY="${prefix}/lib/libcdt.dylib" \
+#                           -DGRAPHVIZ_GRAPH_LIBRARY="${prefix}/lib/libcgraph.dylib" \
+#                           -DGRAPHVIZ_GVC_LIBRARY="${prefix}/lib/libgvc.dylib" \
+#                           -DGRAPHVIZ_PATHPLAN_LIBRARY="${prefix}/lib/libpathplan.dylib"
     depends_lib-append      path:bin/dot:graphviz
 }
 
 variant avahi description {Build with avahi support} {
     configure.args-replace  -Dbonjour=OFF -Dbonjour=ON
-    # configure.args-append   -DAVAHI_INCLUDE_DIR="${prefix}/include" \
-    #                         -DAVAHI_client_LIBRARY="${prefix}/lib"
+#   configure.args-append   -DAVAHI_INCLUDE_DIR="${prefix}/include" \
+#                           -DAVAHI_client_LIBRARY="${prefix}/lib"
     depends_lib-append      port:avahi
 }
 
 variant fftw3 description {Build with fftw3 support} {
-   configure.args-replace   -Dfftw3=OFF -Dfftw3=ON
-   # configure.args-append    -DFFTW_INCLUDE_DIR="${prefix}/include" \
-   #                          -DFFTW_LIBRARY="${prefix}/lib"
-   depends_lib-append      port:fftw-3
+    configure.args-replace  -Dfftw3=OFF -Dfftw3=ON
+#   configure.args-append   -DFFTW_INCLUDE_DIR="${prefix}/include" \
+#                           -DFFTW_LIBRARY="${prefix}/lib"
+    depends_lib-append      port:fftw-3
 }
 
 variant gsl description {Build with gsl support} {
@@ -194,24 +193,24 @@ variant gsl description {Build with gsl support} {
 }
 
 variant fitsio description {Build with fitsio support} {
-     configure.args-replace  -Dfitsio=OFF -Dfitsio=ON
-     # configure.args-append   -DCFITSIO_INCLUDE_DIR="${prefix}/include" \
-     #                         -DCFITSIO_LIBRARIES="${prefix}/lib"
-     depends_lib-append      port:cfitsio
+    configure.args-replace  -Dfitsio=OFF -Dfitsio=ON
+#   configure.args-append   -DCFITSIO_INCLUDE_DIR="${prefix}/include" \
+#                           -DCFITSIO_LIBRARIES="${prefix}/lib"
+    depends_lib-append      port:cfitsio
 }
 
 variant odbc description {Build with odbc support} {
-     configure.args-replace -Dodbc=OFF -Dodbc=ON
-     # configure.args-append  -DODBC_INCLUDE_DIR="${prefix}/include" \
-     #                        -DODBC_LIBRARY="${prefix}/lib"
-     depends_lib-append      port:libiodbc
+    configure.args-replace  -Dodbc=OFF -Dodbc=ON
+#   configure.args-append   -DODBC_INCLUDE_DIR="${prefix}/include" \
+#                           -DODBC_LIBRARY="${prefix}/lib"
+    depends_lib-append      port:libiodbc
 }
 
 variant ldap description {Build with ldap support} {
-     configure.args-replace -Dldap=OFF -Dldap=ON
-     # configure.args-append  -DLDAP_INCLUDE_DIR="${prefix}/include" \
-     #                        -DLDAP_LIBRARY="${prefix}/lib"
-     depends_lib-append      port:openldap
+    configure.args-replace  -Dldap=OFF -Dldap=ON
+#   configure.args-append   -DLDAP_INCLUDE_DIR="${prefix}/include" \
+#                           -DLDAP_LIBRARY="${prefix}/lib"
+    depends_lib-append      port:openldap
 }
 
 variant roofit description {Build the RooFit advanced fitting package} {
@@ -298,9 +297,9 @@ variant ruby description {Build with ruby support} {
 
 variant ssl description {Build with ssl support} {
     configure.args-replace  -Dssl=OFF -Dssl=ON 
-    # configure.args-append   -DOPENSSL_INCLUDE_DIR="${prefix}/include" \
-    #                         -DOPENSSL_SSL_LIBRARY="${prefix}/lib/libssl.dylib" \
-    #                         -DOPENSSL_CRYPTO_LIBRARY="${prefix}/lib/libcrypto.dylib"
+#   configure.args-append   -DOPENSSL_INCLUDE_DIR="${prefix}/include" \
+#                           -DOPENSSL_SSL_LIBRARY="${prefix}/lib/libssl.dylib" \
+#                           -DOPENSSL_CRYPTO_LIBRARY="${prefix}/lib/libcrypto.dylib"
     depends_lib-append      port:openssl
 }
 
@@ -313,32 +312,32 @@ variant xml description {Build with xml support} {
 }
 
 variant mysql conflicts mysql51 mysql55 mariadb percona description {Build with mysql5 support} {
-    configure.args-replace -Dmysql=OFF -Dmysql=ON
-    configure.args-append  -DMYSQL_CONFIG_EXECUTABLE=${prefix}"/lib/mysql5/bin/mysql_config"
+    configure.args-replace  -Dmysql=OFF -Dmysql=ON
+    configure.args-append   -DMYSQL_CONFIG_EXECUTABLE=${prefix}"/lib/mysql5/bin/mysql_config"
     depends_lib-append      port:mysql5
 }
 
 variant mysql51 conflicts mysql mysql55 mariadb percona description {Build with mysql51 support} {
-    configure.args-replace -Dmysql=OFF -Dmysql=ON
-    configure.args-append  -DMYSQL_CONFIG_EXECUTABLE=${prefix}"/lib/mysql51/bin/mysql_config"
+    configure.args-replace  -Dmysql=OFF -Dmysql=ON
+    configure.args-append   -DMYSQL_CONFIG_EXECUTABLE=${prefix}"/lib/mysql51/bin/mysql_config"
     depends_lib-append      port:mysql51
 }
 
 variant mysql55 conflicts mysql mysql51 mariadb percona description {Build with mysql55 support} {
-    configure.args-replace -Dmysql=OFF -Dmysql=ON
-    configure.args-append  -DMYSQL_CONFIG_EXECUTABLE=${prefix}"/lib/mysql55/bin/mysql_config"
+    configure.args-replace  -Dmysql=OFF -Dmysql=ON
+    configure.args-append   -DMYSQL_CONFIG_EXECUTABLE=${prefix}"/lib/mysql55/bin/mysql_config"
     depends_lib-append      port:mysql55
 }
 
 variant mariadb conflicts mysql mysql51 mysql55 percona description {Build with mariadb support} {
-    configure.args-replace -Dmysql=OFF -Dmysql=ON
-    configure.args-append  -DMYSQL_CONFIG_EXECUTABLE=${prefix}"/lib/mariadb/bin/mysql_config"
+    configure.args-replace  -Dmysql=OFF -Dmysql=ON
+    configure.args-append   -DMYSQL_CONFIG_EXECUTABLE=${prefix}"/lib/mariadb/bin/mysql_config"
     depends_lib-append      port:mariadb
 }
 
 variant percona conflicts mysql mysql51 mysql55 mariadb description {Build with percona support} {
-    configure.args-replace -Dmysql=OFF -Dmysql=ON
-    configure.args-append  -DMYSQL_CONFIG_EXECUTABLE=${prefix}"/lib/percona/bin/mysql_config"
+    configure.args-replace  -Dmysql=OFF -Dmysql=ON
+    configure.args-append   -DMYSQL_CONFIG_EXECUTABLE=${prefix}"/lib/percona/bin/mysql_config"
     depends_lib-append      port:percona
 }
 
@@ -357,9 +356,9 @@ variant percona conflicts mysql mysql51 mysql55 mariadb description {Build with 
 # }
 
 variant pythia description {Pythia 8 support for root} {
-    configure.args-replace -Dpythia8=OFF -Dpythia8=ON
-    # configure.args-append  -DPYTHIA8_INCLUDE_DIR=${prefix}/include \
-    #                        -DPYTHIA8_LIBRARY=${prefix}/lib
+    configure.args-replace  -Dpythia8=OFF -Dpythia8=ON
+#   configure.args-append   -DPYTHIA8_INCLUDE_DIR=${prefix}/include \
+#                           -DPYTHIA8_LIBRARY=${prefix}/lib
     depends_lib-append      port:pythia
 }
 
@@ -369,14 +368,14 @@ variant cocoa conflicts x11 description {Enables native OSX graphical backend} {
     compiler.blacklist-append {clang < 425} *gcc* macports-clang-2.9
     compiler.fallback-append macports-clang-3.4 macports-clang-3.3 macports-clang-3.2 macports-clang-3.1 macports-clang-3.0
     # Enable cocoa support in configure
-    configure.args-append -Dcocoa=ON
+    configure.args-append   -Dcocoa=ON
 }
 
 variant x11 conflicts cocoa description {Enables X11 graphical backend} {
     # Dependencies on X11 ports
-    depends_lib-append port:xorg-libX11 port:mesa port:Xft2 port:xpm
+    depends_lib-append      port:xorg-libX11 port:mesa port:Xft2 port:xpm
     # Disable cocoa
-    configure.args-append -Dcocoa=OFF
+    configure.args-append   -Dcocoa=OFF
 }
 
 # If neither graphical variant is set, use default
@@ -481,4 +480,3 @@ foreach ver ${gcc_versions} {
 # livecheck.type              regex
 # livecheck.url               http://root.cern.ch/svn/root/trunk
 # livecheck.regex             ${name}_v(\[0-9a-z.\]+)\\.source
-
