@@ -2,6 +2,8 @@
 # $Id$
 
 PortSystem          1.0
+
+PortGroup           active_variants 1.1
 PortGroup           cmake 1.0
 PortGroup           github 1.0
 github.setup        root-mirror root 5-99-06 v
@@ -26,6 +28,16 @@ platforms           darwin
 
 checksums           rmd160  b8b5ae705aae185c0d6ed097a5efa6fbeb961bfb \
                     sha256  c873d536769ff06616c0a9981e7f1db2414eaca0a1bcab045d4073b36644981a
+
+# TODO: try to figure out if one could also build root6 on < 10.9
+# if {(${os.major} < 13 && ! [info exists configure.cxx_stdlib]) || (! [file exists /usr/lib/libc++.dylib])} {
+if {${os.major} < 13 } {
+    github.setup    root-mirror root e3dec6e203
+    name            root6
+    version         5.99.05-beta
+    checksums       rmd160  69f6a99413908eed7789bc30939a621f45eac7a2 \
+                    sha256  10f2956cd821471477a351c01355c2eb802c01e046764d18865e7416dfa810f8
+}
 
 dist_subdir         root
 configure.dir       ${workpath}/build
@@ -243,7 +255,7 @@ foreach ver ${python_versions} {
         set over_no_dot [join [split ${over} "."] ""]
         append variant_line " conflicts python${over_no_dot}"
     }
-    append variant_line { {} }
+    append variant_line { { } }
     eval $variant_line
 }
 
@@ -259,6 +271,13 @@ foreach ver ${python_versions} {
 # If so, set it up.
 if { ${active_python_variant} != "" } {
     set ver_no_dot [join [split ${active_python_variant} "."] ""]
+    set portname root5
+    if {![catch {set result [active_variants ${portname} python${ver_no_dot}]}]} {
+        if {$result} {
+            ui_error "Cannot install ${name} with +python${ver_no_dot} variant"
+            return -code error "${portname} port is already installed with +python${ver_no_dot} and both cannot be active at once. Pick a different python variant."
+        }
+    }
     set mypydir ${prefix}/Library/Frameworks/Python.framework/Versions/${active_python_variant}
     configure.args-replace  -Dpython=OFF -Dpython=ON
     configure.args-append   -DPYTHON_INCLUDE_DIR="${mypydir}/Headers"
