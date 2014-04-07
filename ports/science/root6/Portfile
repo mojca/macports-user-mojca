@@ -428,14 +428,8 @@ if { ${active_clang_variant} != "" } {
 # Note that g95 does not work here, so that variant is removed
 # ========================================================================================
 
-# TODO: fortran is OFF, so the code below doesn't do anything yet anyway
 # https://trac.macports.org/ticket/37732
-# check if the following is needed:
-# configure.args-append   -DCMAKE_Fortran_COMPILER=\"${configure.fc}\"
-# maybe something like the following could help (but the exact line doesn't work):
-# configure.args-delete -DCMAKE_OSX_ARCHITECTURES="${configure.build_arch}"
-
-set gcc_versions {4.3 4.4 4.5 4.6 4.7 4.8 4.9}
+set gcc_versions {4.7 4.8 4.9}
 set default_fortran_variant +gcc48
 
 foreach ver ${gcc_versions} {
