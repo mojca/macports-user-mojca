@@ -4,6 +4,7 @@
 PortSystem          1.0
 
 PortGroup           active_variants 1.1
+PortGroup           select 1.0
 
 name                root5
 version             5.34.18
@@ -39,6 +40,12 @@ depends_lib         port:xz \
                     port:lzma
                   # port:freetype
 
+depends_run         port:root_select
+
+# TODO: the file ${filespath}/${name} would have to be generated on the fly instead
+select.group        root
+select.file         ${filespath}/${name}
+
 post-patch {
 #   reinplace "s|-lfreetype| \`freetype-config --libs\`|g" ${worksrcpath}/config/root-config.in
     reinplace "s|\"/usr/include\"|\"${prefix}/include /usr/include\"|g" ${worksrcpath}/configure
@@ -62,9 +69,8 @@ pre-configure {
 }
 
 # port specific location. For 'port select'
-set install_bindir ${prefix}/libexec/root${version_major}
-# Install directly into prefix
-#set install_bindir ${prefix}/bin
+set install_bindir  "${prefix}/libexec/root${version_major}/bin"
+set install_mandir  "${prefix}/libexec/root${version_major}/share/man"
 
 configure.args      --bindir=${install_bindir}\
                     --incdir=${prefix}/include/root${version_major}\
@@ -74,7 +80,7 @@ configure.args      --bindir=${install_bindir}\
                     --tutdir=${prefix}/share/root${version_major}/tutorials \
                     --etcdir=${prefix}/etc/root${version_major} \
                     --datadir=${prefix}/share/root${version_major} \
-                    --mandir=${prefix}/share/man/root${version_major} \
+                    --mandir=${install_mandir} \
                     --disable-builtin-glew \
                     --disable-builtin-pcre \
                     --disable-builtin-zlib \
@@ -138,6 +144,11 @@ platform darwin {
         configure.args-delete --disable-c++11
         configure.args-append --enable-c++11
     }
+}
+
+post-destroot {
+    # create a symlink 'root5' in bin
+    ln -s ${prefix}/${install_bindir}/root ${destroot}${prefix}/bin/root${version_major}
 }
 
 universal_variant   no

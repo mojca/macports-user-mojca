@@ -6,6 +6,8 @@ PortSystem          1.0
 PortGroup           active_variants 1.1
 PortGroup           cmake 1.0
 PortGroup           github 1.0
+PortGroup           select 1.0
+
 
 # TODO: try to figure out if one could also build root6 on < 10.9
 # if {(${os.major} < 13 && ! [info exists configure.cxx_stdlib]) || (! [file exists /usr/lib/libc++.dylib])} {
@@ -56,15 +58,25 @@ depends_lib         port:xz \
                     port:lzma
                   # port:freetype
 
+depends_run         port:root_select
+
+# TODO: the file ${filespath}/${name} would have to be generated on the fly instead
+select.group        root
+select.file         ${filespath}/${name}
+
+set install_bindir  "libexec/root${version_major}/bin"
+set install_mandir  "libexec/root${version_major}/share/man"
+
 configure.args-append \
                     -Dgnuinstall=ON \
-                    -DCMAKE_INSTALL_BINDIR="libexec/root${version_major}" \
+                    -DCMAKE_INSTALL_BINDIR="${install_bindir}" \
                     -DCMAKE_INSTALL_LIBDIR="lib/root${version_major}" \
                     -DCMAKE_INSTALL_INCLUDEDIR="include/root${version_major}" \
                     -DCMAKE_INSTALL_SYSCONFDIR="etc/root${version_major}" \
                     -DCMAKE_INSTALL_DATAROOTDIR="share/root${version_major}" \
                     -DCMAKE_INSTALL_DATADIR="share/root${version_major}" \
                     -DCMAKE_INSTALL_DOCDIR="share/doc/root${version_major}" \
+                    -DCMAKE_INSTALL_MANDIR="${install_mandir}" \
                     -Dfortran=OFF \
                     -Dbuiltin_freetype=ON \
                     -Dbuiltin_glew=OFF \
@@ -133,6 +145,11 @@ platform darwin {
     if {${cxxstdlib} eq "libc++"} {
         configure.args-replace -Dc++11=OFF -Dc++11=ON
     }
+}
+
+post-destroot {
+    # create a symlink 'root6' in bin
+    ln -s ${prefix}/${install_bindir}/root ${destroot}${prefix}/bin/root${version_major}
 }
 
 universal_variant   no
