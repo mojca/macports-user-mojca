@@ -4,15 +4,14 @@
 PortSystem          1.0
 PortGroup           cmake 1.0
 PortGroup           github 1.0
-# github.setup        root-mirror root 5-99-05 v
-github.setup        root-mirror root 9d192c5811
+github.setup        root-mirror root 5-99-06 v
 name                root6
-version             5.99.05-beta
+version             5.99.06-beta
 set version_major   6
 
 categories          science
 
-maintainers         hep.phy.cam.ac.uk:jonesc
+maintainers         hep.phy.cam.ac.uk:jonesc mojca
 
 license             LGPL-2.1+
 
@@ -25,8 +24,8 @@ long_description    The ROOT system provides a set of frameworks with all \
 homepage            http://root.cern.ch/
 platforms           darwin
 
-checksums           rmd160  fe53d6624fa2e49e201fef8c73736e55b7fa9d9d \
-                    sha256  b1d7a1b22ad5d30fefdf270f37c1d1c55bc3e141816925e919b8c4928bb8d2c0
+checksums           rmd160  b8b5ae705aae185c0d6ed097a5efa6fbeb961bfb \
+                    sha256  c873d536769ff06616c0a9981e7f1db2414eaca0a1bcab045d4073b36644981a
 
 dist_subdir         root
 configure.dir       ${workpath}/build
@@ -44,18 +43,19 @@ depends_lib         port:xz \
                     port:giflib \
                     port:tiff \
                     port:gmp \
-                    port:expat
+                    port:expat \
+                    port:lzma
                   # port:freetype
 
 configure.args-append \
                     -Dgnuinstall=ON \
-                    -DCMAKE_INSTALL_BINDIR="libexec/root/root${version_major}" \
-                    -DCMAKE_INSTALL_LIBDIR="lib/root/root${version_major}" \
-                    -DCMAKE_INSTALL_INCLUDEDIR="include/root/root${version_major}" \
-                    -DCMAKE_INSTALL_SYSCONFDIR="etc/root/root${version_major}" \
-                    -DCMAKE_INSTALL_DATAROOTDIR="share/root/root${version_major}" \
-                    -DCMAKE_INSTALL_DATADIR="share/root/root${version_major}" \
-                    -DCMAKE_INSTALL_DOCDIR="share/doc/root/root${version_major}" \
+                    -DCMAKE_INSTALL_BINDIR="libexec/root${version_major}" \
+                    -DCMAKE_INSTALL_LIBDIR="lib/root${version_major}" \
+                    -DCMAKE_INSTALL_INCLUDEDIR="include/root${version_major}" \
+                    -DCMAKE_INSTALL_SYSCONFDIR="etc/root${version_major}" \
+                    -DCMAKE_INSTALL_DATAROOTDIR="share/root${version_major}" \
+                    -DCMAKE_INSTALL_DATADIR="share/root${version_major}" \
+                    -DCMAKE_INSTALL_DOCDIR="share/doc/root${version_major}" \
                     -Dfortran=OFF \
                     -Dbuiltin_freetype=ON \
                     -Dbuiltin_glew=OFF \
@@ -102,6 +102,7 @@ configure.args-append \
                     -Dgdml=ON \
                     -DPNG_LIBRARY=${prefix}/lib/libpng.dylib \
                     -DPNG_PNG_INCLUDE_DIR=${prefix}/include
+
 configure.post_args ${worksrcpath}
 
 # TODO: temporary:
@@ -140,15 +141,13 @@ if {${os.major} > 10} {
     set default_gui_variant +x11
 }
 
-variant xrootd description {Build with XRootD support} {
-    configure.args-replace  -Dxrootd=OFF -Dxrootd=ON
-    configure.args-append   -DXROOTD_INCLUDE_DIR="${prefix}/include/xrootd"
-    # TODO: do libraries need to be specified as well?
-    # XROOTD_XrdClient_LIBRARY  *${prefix}/lib/libXrdClient.dylib
-    # XROOTD_XrdMain_LIBRARY    *${prefix}/lib/libXrdMain.dylib
-    # XROOTD_XrdUtils_LIBRARY   *${prefix}/lib/libXrdUtils.dylib
-    depends_lib-append      port:xrootd
-}
+# Currently giving problems
+# variant xrootd description {Build with XRootD support} {
+#     configure.args-replace  -Dxrootd=OFF -Dxrootd=ON
+#     configure.args-append   -Dbuiltin_xrootd=ON
+#     #configure.args-append   -DXROOTD_INCLUDE_DIR="${prefix}/include/xrootd"
+#     #depends_lib-append      port:xrootd
+# }
 
 variant soversion description {Build with soversion support} {
      configure.args-replace -Dsoversion=OFF -Dsoversion=ON
@@ -156,28 +155,25 @@ variant soversion description {Build with soversion support} {
 
 variant graphviz description {Build with graphviz support} {
     configure.args-replace  -Dgviz=OFF -Dgviz=ON
-    configure.args-append   -DGRAPHVIZ_INCLUDE_DIR="${prefix}/include" \
-                            -DGRAPHVIZ_CDT_LIBRARY="${prefix}/lib/libcdt.dylib" \
-                            -DGRAPHVIZ_GRAPH_LIBRARY="${prefix}/lib/libcgraph.dylib" \
-                            -DGRAPHVIZ_GVC_LIBRARY="${prefix}/lib/libgvc.dylib" \
-                            -DGRAPHVIZ_PATHPLAN_LIBRARY="${prefix}/lib/libpathplan.dylib"
+    # configure.args-append   -DGRAPHVIZ_INCLUDE_DIR="${prefix}/include" \
+    #                         -DGRAPHVIZ_CDT_LIBRARY="${prefix}/lib/libcdt.dylib" \
+    #                         -DGRAPHVIZ_GRAPH_LIBRARY="${prefix}/lib/libcgraph.dylib" \
+    #                         -DGRAPHVIZ_GVC_LIBRARY="${prefix}/lib/libgvc.dylib" \
+    #                         -DGRAPHVIZ_PATHPLAN_LIBRARY="${prefix}/lib/libpathplan.dylib"
     depends_lib-append      path:bin/dot:graphviz
 }
 
 variant avahi description {Build with avahi support} {
     configure.args-replace  -Dbonjour=OFF -Dbonjour=ON
-    # TODO
-#   configure.args-append   --with-avahi-incdir="${prefix}/include" \
-#                           --with-avahi-libdir="${prefix}/lib"
+    # configure.args-append   -DAVAHI_INCLUDE_DIR="${prefix}/include" \
+    #                         -DAVAHI_client_LIBRARY="${prefix}/lib"
     depends_lib-append      port:avahi
 }
 
-# TODO
 variant fftw3 description {Build with fftw3 support} {
    configure.args-replace   -Dfftw3=OFF -Dfftw3=ON
-   # TODO
-#  configure.args-append   --with-fftw3-incdir="${prefix}/include" \
-#                          --with-fftw3-libdir="${prefix}/lib"
+   # configure.args-append    -DFFTW_INCLUDE_DIR="${prefix}/include" \
+   #                          -DFFTW_LIBRARY="${prefix}/lib"
    depends_lib-append      port:fftw-3
 }
 
@@ -187,33 +183,26 @@ variant gsl description {Build with gsl support} {
     depends_lib-append      port:gsl
 }
 
+variant fitsio description {Build with fitsio support} {
+     configure.args-replace  -Dfitsio=OFF -Dfitsio=ON
+     # configure.args-append   -DCFITSIO_INCLUDE_DIR="${prefix}/include" \
+     #                         -DCFITSIO_LIBRARIES="${prefix}/lib"
+     depends_lib-append      port:cfitsio
+}
 
-# TODO
-#variant fitsio description {Build with fitsio support} {
-#    configure.args-delete   --disable-fitsio
-#    configure.args-append   --enable-fitsio \
-#                            --with-cfitsio-incdir="${prefix}/include" \
-#                            --with-cfitsio-libdir="${prefix}/lib"
-#    depends_lib-append      port:cfitsio
-#}
+variant odbc description {Build with odbc support} {
+     configure.args-replace -Dodbc=OFF -Dodbc=ON
+     # configure.args-append  -DODBC_INCLUDE_DIR="${prefix}/include" \
+     #                        -DODBC_LIBRARY="${prefix}/lib"
+     depends_lib-append      port:libiodbc
+}
 
-# TODO
-#variant odbc description {Build with odbc support} {
-#    configure.args-delete   --disable-odbc
-#    configure.args-append   --enable-odbc \
-#                            --with-odbc-incdir="${prefix}/include" \
-#                            --with-odbc-libdir="${prefix}/lib"
-#    depends_lib-append      port:libiodbc
-#}
-
-# TODO
-#variant ldap description {Build with ldap support} {
-#    configure.args-delete   --disable-ldap
-#    configure.args-append   --enable-ldap \
-#                            --with-ldap-incdir="${prefix}/include" \
-#                            --with-ldap-libdir="${prefix}/lib"
-#    depends_lib-append      port:openldap
-#}
+variant ldap description {Build with ldap support} {
+     configure.args-replace -Dldap=OFF -Dldap=ON
+     # configure.args-append  -DLDAP_INCLUDE_DIR="${prefix}/include" \
+     #                        -DLDAP_LIBRARY="${prefix}/lib"
+     depends_lib-append      port:openldap
+}
 
 variant roofit description {Build the RooFit advanced fitting package} {
     configure.args-replace  -Droofit=OFF -Droofit=ON
@@ -221,6 +210,11 @@ variant roofit description {Build the RooFit advanced fitting package} {
 
 variant tmva description {Build the TMVA package} {
     configure.args-replace  -Dtmva=OFF -Dtmva=ON
+    post-destroot {
+        set tmvaTuts ${destroot}${prefix}/share/root${version_major}/tutorials/tmva
+        file mkdir ${tmvaTuts}
+        foreach f [glob ${worksrcpath}/tmva/test/*] { file copy $f ${tmvaTuts}/ }
+    }
 }
 
 variant minuit2 description {Build with minuit2 support} {
@@ -267,16 +261,14 @@ if { ${active_python_variant} != "" } {
     set ver_no_dot [join [split ${active_python_variant} "."] ""]
     set mypydir ${prefix}/Library/Frameworks/Python.framework/Versions/${active_python_variant}
     configure.args-replace  -Dpython=OFF -Dpython=ON
-# TODO
-#   configure.args-append   --with-python-incdir="${mypydir}/Headers" \
-#                           --with-python-libdir="${mypydir}"
+    configure.args-append   -DPYTHON_INCLUDE_DIR="${mypydir}/Headers"
     depends_lib-append      port:python${ver_no_dot}
     post-destroot {
         set mypylibdir  ${prefix}/Library/Frameworks/Python.framework/Versions/${active_python_variant}/lib/python${active_python_variant}
         set mypysitedir ${mypylibdir}/site-packages/
         file mkdir ${destroot}${mypysitedir}
-        foreach pyfile [glob ${destroot}${prefix}/lib/root/*.py*] { move $pyfile ${destroot}${mypysitedir} }
-        ln -sf ${prefix}/lib/root/libPyROOT.so ${destroot}${mypylibdir}/
+        foreach pyfile [glob ${destroot}${prefix}/lib/root${version_major}/*.py*] { move $pyfile ${destroot}${mypysitedir} }
+        ln -sf ${prefix}/lib/root${version_major}/libPyROOT.so ${destroot}${mypylibdir}/
     }
 }
 
@@ -288,88 +280,71 @@ variant ruby description {Build with ruby support} {
 }
 
 variant ssl description {Build with ssl support} {
-    configure.args-delete   -Dssl=OFF
-    configure.args-append   -Dssl=ON \
-                            -DOPENSSL_INCLUDE_DIR="${prefix}/include" \
-                            -DOPENSSL_SSL_LIBRARY="${prefix}/lib/libssl.dylib" \
-                            -DOPENSSL_CRYPTO_LIBRARY="${prefix}/lib/libcrypto.dylib"
+    configure.args-replace  -Dssl=OFF -Dssl=ON 
+    # configure.args-append   -DOPENSSL_INCLUDE_DIR="${prefix}/include" \
+    #                         -DOPENSSL_SSL_LIBRARY="${prefix}/lib/libssl.dylib" \
+    #                         -DOPENSSL_CRYPTO_LIBRARY="${prefix}/lib/libcrypto.dylib"
     depends_lib-append      port:openssl
 }
 
 variant xml description {Build with xml support} {
-    configure.args-delete   -Dxml=OFF
-    configure.args-append   -Dxml=ON \
-                            -DLIBXML2_INCLUDE_DIR="${prefix}/include/libxml2" \
+    configure.args-replace  -Dxml=OFF -Dxml=ON 
+    configure.args-append   -DLIBXML2_INCLUDE_DIR="${prefix}/include/libxml2" \
                             -DLIBXML2_LIBRARIES="${prefix}/lib/libxml2.dylib" \
                             -DLIBXML2_XMLLINT_EXECUTABLE="${prefix}/bin/xmllint"
     depends_lib-append      port:libxml2
 }
 
-# TODO
-#variant mysql conflicts mysql51 mysql55 mariadb percona description {Build with mysql5 support} {
-#    configure.args-delete   --disable-mysql
-#    configure.args-append   --enable-mysql \
-#                            --with-mysql-incdir="${prefix}/include/mysql5/mysql" \
-#                            --with-mysql-libdir="${prefix}/lib/mysql5/mysql"
-#    depends_lib-append      port:mysql5
-#}
-#
-#variant mysql51 conflicts mysql mysql55 mariadb percona description {Build with mysql51 support} {
-#    configure.args-delete   --disable-mysql
-#    configure.args-append   --enable-mysql \
-#                            --with-mysql-incdir="${prefix}/include/mysql51/mysql" \
-#                            --with-mysql-libdir="${prefix}/lib/mysql51/mysql"
-#    depends_lib-append      port:mysql51
-#}
-#
-#variant mysql55 conflicts mysql mysql51 mariadb percona description {Build with mysql55 support} {
-#    configure.args-delete   --disable-mysql
-#    configure.args-append   --enable-mysql \
-#                            --with-mysql-incdir="${prefix}/include/mysql55/mysql" \
-#                            --with-mysql-libdir="${prefix}/lib/mysql55/mysql"
-#    depends_lib-append      port:mysql55
-#}
-#
-#variant mariadb conflicts mysql mysql51 mysql55 percona description {Build with mariadb support} {
-#    configure.args-delete   --disable-mysql
-#    configure.args-append   --enable-mysql \
-#                            --with-mysql-incdir="${prefix}/include/mariadb/mysql" \
-#                            --with-mysql-libdir="${prefix}/lib/mariadb/mysql"
-#    depends_lib-append      port:mariadb
-#}
-#
-#variant percona conflicts mysql mysql51 mysql55 mariadb description {Build with percona support} {
-#    configure.args-delete   --disable-mysql
-#    configure.args-append   --enable-mysql \
-#                            --with-mysql-incdir="${prefix}/include/percona/mysql" \
-#                            --with-mysql-libdir="${prefix}/lib/percona/mysql"
-#    depends_lib-append      port:percona
-#}
-#
-#variant postgresql90 conflicts postgresql92 description {Build with PostgreSQL 9.0 support} {
-#    configure.args-delete   --disable-pgsql
-#    configure.args-append   --enable-pgsql \
-#                            --with-pgsql-incdir="${prefix}/include/postgresql90" \
-#                            --with-pgsql-libdir="${prefix}/lib/postgresql90"
-#    depends_lib-append      port:libpqxx port:postgresql90
-#}
-#
-#variant postgresql92 conflicts postgresql90 description {Build with PostgreSQL 9.2 support} {
-#    configure.args-delete   --disable-pgsql
-#    configure.args-append   --enable-pgsql \
-#                            --with-pgsql-incdir="${prefix}/include/postgresql92" \
-#                            --with-pgsql-libdir="${prefix}/lib/postgresql92"
-#    depends_lib-append      port:libpqxx port:postgresql92
-#}
+variant mysql conflicts mysql51 mysql55 mariadb percona description {Build with mysql5 support} {
+    configure.args-replace -Dmysql=OFF -Dmysql=ON
+    configure.args-append  -DMYSQL_CONFIG_EXECUTABLE=${prefix}"/lib/mysql5/bin/mysql_config"
+    depends_lib-append      port:mysql5
+}
 
-# TODO
-# variant pythia description {Pythia 8 support for root} {
-#    configure.args-delete   --disable-pythia8
-#    configure.args-append   --enable-pythia8 \
-#                            --with-pythia8-incdir=${prefix}/include \
-#                            --with-pythia8-libdir=${prefix}/lib
-#    depends_lib-append      port:pythia
+variant mysql51 conflicts mysql mysql55 mariadb percona description {Build with mysql51 support} {
+    configure.args-replace -Dmysql=OFF -Dmysql=ON
+    configure.args-append  -DMYSQL_CONFIG_EXECUTABLE=${prefix}"/lib/mysql51/bin/mysql_config"
+    depends_lib-append      port:mysql51
+}
+
+variant mysql55 conflicts mysql mysql51 mariadb percona description {Build with mysql55 support} {
+    configure.args-replace -Dmysql=OFF -Dmysql=ON
+    configure.args-append  -DMYSQL_CONFIG_EXECUTABLE=${prefix}"/lib/mysql55/bin/mysql_config"
+    depends_lib-append      port:mysql55
+}
+
+variant mariadb conflicts mysql mysql51 mysql55 percona description {Build with mariadb support} {
+    configure.args-replace -Dmysql=OFF -Dmysql=ON
+    configure.args-append  -DMYSQL_CONFIG_EXECUTABLE=${prefix}"/lib/mariadb/bin/mysql_config"
+    depends_lib-append      port:mariadb
+}
+
+variant percona conflicts mysql mysql51 mysql55 mariadb description {Build with percona support} {
+    configure.args-replace -Dmysql=OFF -Dmysql=ON
+    configure.args-append  -DMYSQL_CONFIG_EXECUTABLE=${prefix}"/lib/percona/bin/mysql_config"
+    depends_lib-append      port:percona
+}
+
+# variant postgresql90 conflicts postgresql92 description {Build with PostgreSQL 9.0 support} {
+#     configure.args-replace -Dpgsql=OFF -Dpgsql=ON
+#     configure.args-append  -DPOSTGRESQL_INCLUDE_DIR="${prefix}/include/postgresql90" \
+#                            -DPOSTGRESQL_LIBRARIES="${prefix}/lib/postgresql90"
+#     depends_lib-append      port:libpqxx port:postgresql90
 # }
+
+# variant postgresql92 conflicts postgresql90 description {Build with PostgreSQL 9.2 support} {
+#     configure.args-replace -Dpgsql=OFF -Dpgsql=ON
+#     configure.args-append  -DPOSTGRESQL_INCLUDE_DIR="${prefix}/include/postgresql92" \
+#                            -DPOSTGRESQL_LIBRARIES="${prefix}/lib/postgresql92"
+#     depends_lib-append      port:libpqxx port:postgresql92
+# }
+
+variant pythia description {Pythia 8 support for root} {
+    configure.args-replace -Dpythia8=OFF -Dpythia8=ON
+    # configure.args-append  -DPYTHIA8_INCLUDE_DIR=${prefix}/include \
+    #                        -DPYTHIA8_LIBRARY=${prefix}/lib
+    depends_lib-append      port:pythia
+}
 
 variant cocoa conflicts x11 description {Enables native OSX graphical backend} {
     # Force a compatible clang compiler
@@ -459,7 +434,7 @@ foreach ver ${gcc_versions} {
         set over_no_dot [join [split ${over} "."] ""]
         append variant_line " conflicts gcc${over_no_dot}"
     }
-    append variant_line { {}}
+    append variant_line { {} }
 
     eval $variant_line
 
@@ -481,10 +456,13 @@ foreach ver ${gcc_versions} {
         depends_lib-append path:lib/libgcc/libgcc_s.1.dylib:libgcc
         depends_build-append port:gcc${ver_no_dot}
 
-        # TODO: do we really need all three variables?
         configure.fc  ${prefix}/bin/gfortran-mp-${ver}
         configure.f77 ${prefix}/bin/gfortran-mp-${ver}
         configure.f90 ${prefix}/bin/gfortran-mp-${ver}
+
+        configure.args-replace -Dfortran=OFF -Dfortran=ON
+
+        configure.args-append -DCMAKE_F_COMPILER=${prefix}/bin/gfortran-mp-${ver}
     }
 }
 
