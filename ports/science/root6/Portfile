@@ -5,9 +5,9 @@ PortSystem          1.0
 
 PortGroup           active_variants 1.1
 PortGroup           cmake 1.0
+PortGroup           compiler_blacklist_versions 1.0
 PortGroup           github 1.0
 PortGroup           select 1.0
-
 
 # TODO: try to figure out if one could also build root6 on < 10.9
 # if {(${os.major} < 13 && ! [info exists configure.cxx_stdlib]) || (! [file exists /usr/lib/libc++.dylib])} {
@@ -377,10 +377,10 @@ variant pythia description {Pythia 8 support for root} {
 }
 
 variant cocoa conflicts x11 description {Enables native OSX graphical backend} {
+    # TODO: exact compiler fallback list
     # Force a compatible clang compiler
-    PortGroup compiler_blacklist_versions 1.0
-    compiler.blacklist-append {clang < 425} *gcc* macports-clang-2.9
-    compiler.fallback-append macports-clang-3.4 macports-clang-3.3 macports-clang-3.2 macports-clang-3.1 macports-clang-3.0
+    compiler.blacklist-append {clang < 425} macports-clang-2.9
+    compiler.fallback-append macports-clang-3.4 macports-clang-3.3
     # Enable cocoa support in configure
     configure.args-append   -Dcocoa=ON
 }
@@ -404,7 +404,7 @@ if { ![variant_isset cocoa] && ![variant_isset x11] } {
 # ========================================================================================
 
 # List of possible clang versions that work
-set clang_versions { 3.0 3.1 3.2 3.3 3.4 3.5 }
+set clang_versions { 3.3 3.4 3.5 }
 
 # Define the available variants
 foreach ver ${clang_versions} {

@@ -69,10 +69,10 @@ pre-configure {
 }
 
 # port specific location. For 'port select'
-set install_bindir  "${prefix}/libexec/root${version_major}/bin"
-set install_mandir  "${prefix}/libexec/root${version_major}/share/man"
+set install_bindir  "libexec/root${version_major}/bin"
+set install_mandir  "libexec/root${version_major}/share/man"
 
-configure.args      --bindir=${install_bindir}\
+configure.args      --bindir=${prefix}/${install_bindir}\
                     --incdir=${prefix}/include/root${version_major}\
                     --docdir=${prefix}/share/doc/root${version_major}\
                     --libdir=${prefix}/lib/root${version_major} \
@@ -80,7 +80,7 @@ configure.args      --bindir=${install_bindir}\
                     --tutdir=${prefix}/share/root${version_major}/tutorials \
                     --etcdir=${prefix}/etc/root${version_major} \
                     --datadir=${prefix}/share/root${version_major} \
-                    --mandir=${install_mandir} \
+                    --mandir=${prefix}/${install_mandir} \
                     --disable-builtin-glew \
                     --disable-builtin-pcre \
                     --disable-builtin-zlib \
@@ -164,7 +164,7 @@ if {${os.major} > 10} {
 }
 
 post-destroot {
-    reinplace "s|lib/python/genreflex|lib/root5/python/genreflex|g" ${destroot}${install_bindir}/genreflex
+    reinplace "s|lib/python/genreflex|lib/root${version_major}/python/genreflex|g" ${destroot}${install_bindir}/genreflex
 }
 
 variant debug description {Enable a debug build} {
@@ -301,7 +301,7 @@ if { ${active_python_variant} != "" } {
     if {![catch {set result [active_variants root6 python${ver_no_dot}]}]} {
         if {$result} {
             ui_error "Cannot install ${name} with +python${ver_no_dot} variant"
-            return -code error "root5 port is already installed with +python${ver_no_dot} and both cannot be active at once. Pick a different python variant."
+            return -code error "root6 port is already installed with +python${ver_no_dot} and both cannot be active at once. Pick a different python variant."
         }
     }
     set mypydir ${prefix}/Library/Frameworks/Python.framework/Versions/${active_python_variant}
