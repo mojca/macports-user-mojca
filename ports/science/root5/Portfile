@@ -147,8 +147,16 @@ platform darwin {
 }
 
 post-destroot {
-    # create a symlink 'root5' in bin
-    ln -s ${prefix}/${install_bindir}/root ${destroot}${prefix}/bin/root${version_major}
+    # create versioned symlinks for the content of libexec's bin dir.
+    foreach f [glob -directory ${destroot}${prefix}/${install_bindir} *] {
+        set filename  [file tail $f]
+        set extension [file extension $filename]
+        set base      [file rootname $filename]
+        set versioned_filename ${base}${version_major}${extension}
+        ln -s ${prefix}/${install_bindir}/${filename} ${destroot}${prefix}/bin/${versioned_filename}
+    }
+    # 'Fix' genreflex
+    reinplace "s|lib/python/genreflex|lib/root${version_major}/python/genreflex|g" ${destroot}${prefix}/${install_bindir}/genreflex
 }
 
 universal_variant   no
@@ -161,10 +169,6 @@ if {${os.major} > 10} {
     set default_gui_variant +cocoa
 } else {
     set default_gui_variant +x11
-}
-
-post-destroot {
-    reinplace "s|lib/python/genreflex|lib/root${version_major}/python/genreflex|g" ${destroot}${install_bindir}/genreflex
 }
 
 variant debug description {Enable a debug build} {

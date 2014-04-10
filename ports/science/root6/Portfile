@@ -64,6 +64,11 @@ depends_run         port:root_select
 select.group        root
 select.file         ${filespath}/${name}
 
+# TODO: exact compiler fallback/black list
+# Force a compatible compiler
+compiler.blacklist-append {clang < 425} macports-clang-2.9
+compiler.fallback-append macports-clang-3.5 macports-clang-3.4 macports-clang-3.3
+
 set install_bindir  "libexec/root${version_major}/bin"
 set install_mandir  "libexec/root${version_major}/share/man"
 
@@ -148,8 +153,16 @@ platform darwin {
 }
 
 post-destroot {
-    # create a symlink 'root6' in bin
-    ln -s ${prefix}/${install_bindir}/root ${destroot}${prefix}/bin/root${version_major}
+    # create versioned symlinks for the content of libexec's bin dir.
+    foreach f [glob -directory ${destroot}${prefix}/${install_bindir} *] {
+        set filename  [file tail $f]
+        set extension [file extension $filename]
+        set base      [file rootname $filename]
+        set versioned_filename ${base}${version_major}${extension}
+        ln -s ${prefix}/${install_bindir}/${filename} ${destroot}${prefix}/bin/${versioned_filename}
+    }
+    # 'Fix' genreflex
+    #reinplace "s|lib/python/genreflex|lib/root${version_major}/python/genreflex|g" ${destroot}${prefix}/${install_bindir}/genreflex
 }
 
 universal_variant   no
@@ -377,10 +390,6 @@ variant pythia description {Pythia 8 support for root} {
 }
 
 variant cocoa conflicts x11 description {Enables native OSX graphical backend} {
-    # TODO: exact compiler fallback list
-    # Force a compatible clang compiler
-    compiler.blacklist-append {clang < 425} macports-clang-2.9
-    compiler.fallback-append macports-clang-3.4 macports-clang-3.3
     # Enable cocoa support in configure
     configure.args-append   -Dcocoa=ON
 }
