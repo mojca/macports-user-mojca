@@ -54,6 +54,9 @@ post-patch {
     reinplace "s|\"/usr/lib\"|\"${prefix}/lib /usr/lib\"|g" ${worksrcpath}/configure
 }
 
+# port specific location
+set install_prefix ${prefix}/libexec/root${version_major}
+
 pre-configure {
     configure.args-append \
         --with-cc=${configure.cc} \
@@ -62,25 +65,13 @@ pre-configure {
         --with-f77=${configure.f77}
     # the build type (32 or 64 bit) -must- be for first argument
     if {${build_arch} eq "i386" || ${build_arch} eq "ppc"} {
-        configure.pre_args macosx --prefix=${prefix}
+        configure.pre_args macosx --prefix=${install_prefix}
     } else {
-        configure.pre_args macosx64 --prefix=${prefix}
+        configure.pre_args macosx64 --prefix=${install_prefix}
     }
 }
 
-# port specific location. For 'port select'
-set install_bindir  "libexec/root${version_major}/bin"
-set install_mandir  "libexec/root${version_major}/share/man"
-
-configure.args      --bindir=${prefix}/${install_bindir}\
-                    --incdir=${prefix}/include/root${version_major}\
-                    --docdir=${prefix}/share/doc/root${version_major}\
-                    --libdir=${prefix}/lib/root${version_major} \
-                    --testdir=${prefix}/share/root${version_major}/test \
-                    --tutdir=${prefix}/share/root${version_major}/tutorials \
-                    --etcdir=${prefix}/etc/root${version_major} \
-                    --datadir=${prefix}/share/root${version_major} \
-                    --mandir=${prefix}/${install_mandir} \
+configure.args      --etcdir=${install_prefix}/etc/root \
                     --disable-builtin-glew \
                     --disable-builtin-pcre \
                     --disable-builtin-zlib \
@@ -114,6 +105,7 @@ configure.args      --bindir=${prefix}/${install_bindir}\
                     --disable-soversion \
                     --disable-c++11 \
                     --disable-xrootd \
+                    --disable-oracle \
                     --enable-builtin-ftgl \
                     --enable-mathmore \
                     --enable-genvector \
@@ -147,16 +139,62 @@ platform darwin {
 }
 
 post-destroot {
-    # create versioned symlinks for the content of libexec's bin dir.
-    foreach f [glob -directory ${destroot}${prefix}/${install_bindir} *] {
+    # create versioned symlinks for the content of libexec
+    # bin dir
+    foreach f [glob -directory ${destroot}${install_prefix}/bin *] {
         set filename  [file tail $f]
         set extension [file extension $filename]
         set base      [file rootname $filename]
         set versioned_filename ${base}${version_major}${extension}
-        ln -s ${prefix}/${install_bindir}/${filename} ${destroot}${prefix}/bin/${versioned_filename}
+        ln -s ${install_prefix}/bin/${filename} ${destroot}${prefix}/bin/${versioned_filename}
     }
+    # lib dir
+    ln -s ${install_prefix}/lib/root ${destroot}${prefix}/lib/root${version_major}
+    # include dir
+    ln -s ${install_prefix}/include/root ${destroot}${prefix}/include/root${version_major}
+    # etc dir
+    ln -s ${install_prefix}/etc/root ${destroot}${prefix}/etc/root${version_major}
+    # share dir
+    ln -s ${install_prefix}/share ${destroot}${prefix}/share/root${version_major}
     # 'Fix' genreflex
-    reinplace "s|lib/python/genreflex|lib/root${version_major}/python/genreflex|g" ${destroot}${prefix}/${install_bindir}/genreflex
+    reinplace "s|lib/python/genreflex|lib/root${version_major}/python/genreflex|g" ${destroot}${install_prefix}/bin/genreflex
+    # Compress manpages in custom location (borrowed from mariadb)
+    set manpath ${install_prefix}/share/man
+    set gzip [findBinary gzip ${portutil::autoconf::gzip_path}]
+    foreach manpage [glob -type f ${destroot}${manpath}/man1/*] {
+        # Zip the man file
+        system "$gzip -9vf ${manpage}"
+        # Create man pages for versioned files
+        set filename  [file tail $manpage]
+        set extension [file extension $filename]
+        set base      [file rootname $filename]
+        set versioned_filename ${base}${version_major}${extension}.gz
+        set d [file tail $manpage]
+        ln -s ${manpath}/man1/${d}.gz ${destroot}${prefix}/share/man/man1/${versioned_filename}
+    }
+}
+
+set run_port_select "No"
+pre-activate {
+  if { ![file exists ${prefix}/bin/root]  &&
+       ![file exists ${prefix}/bin/root5] &&
+       ![file exists ${prefix}/bin/root6] } {
+     set run_port_select "Yes"
+     if { [file exists ${prefix}/etc/select/root/current] } {
+           delete ${prefix}/etc/select/root/current
+     }
+  }
+}
+
+post-activate {
+  ui_msg "======================================================================================"
+  if { ${run_port_select} == "Yes" } {
+      ui_msg "  Making root${version_major} your default root version. To change this run 'sudo port select root'"
+      catch { system "port select root root${version_major}" }
+  } else {
+      ui_msg "  To make root${version_major} your default root version, run 'sudo port select root root${version_major}'"
+  }
+  ui_msg "======================================================================================"
 }
 
 universal_variant   no
@@ -253,7 +291,7 @@ variant tmva description {Build the TMVA package} {
     configure.args-delete   --disable-tmva
     configure.args-append   --enable-tmva
     post-destroot {
-        set tmvaTuts ${destroot}${prefix}/share/root${version_major}/tutorials/tmva
+        set tmvaTuts ${destroot}${install_prefix}/share/root/tutorial/tmva
         file mkdir ${tmvaTuts}
         foreach f [glob ${worksrcpath}/tmva/test/*] { file copy $f ${tmvaTuts}/ }
     }
@@ -318,18 +356,12 @@ if { ${active_python_variant} != "" } {
         set mypylibdir  ${prefix}/Library/Frameworks/Python.framework/Versions/${active_python_variant}/lib/python${active_python_variant}
         set mypysitedir ${mypylibdir}/site-packages/
         file mkdir ${destroot}${mypysitedir}
-        foreach pyfile [glob ${destroot}${prefix}/lib/root${version_major}/*.py*] { move $pyfile ${destroot}${mypysitedir} }
-        ln -sf ${prefix}/lib/root${version_major}/libPyROOT.so ${destroot}${mypylibdir}/
+        foreach pyfile [glob ${destroot}${install_prefix}/lib/root/*.py*] { move $pyfile ${destroot}${mypysitedir}/ }
+        ln -sf ${install_prefix}/lib/root/libPyROOT.so ${destroot}${mypylibdir}/
     }
 }
 
 # ========================================================================================
-
-variant ruby description {Build with ruby support} {
-    configure.args-delete   --disable-ruby
-    configure.args-append   --enable-ruby
-    depends_lib-append      port:ruby
-}
 
 variant ssl description {Build with ssl support} {
     configure.args-delete   --disable-ssl
@@ -411,6 +443,13 @@ variant postgresql92 conflicts postgresql90 description {Build with PostgreSQL 9
                             --with-pgsql-libdir="${prefix}/lib/postgresql92"
     depends_lib-append      port:libpqxx port:postgresql92
 }
+
+# variant oracle description {Build with Oracle support} {
+#     configure.args-replace --disable-oracle --enable-oracle
+#     configure.args-append  --with-oracle-incdir="${prefix}/lib/oracle/sdk/include" \
+#                            --with-oracle-libdir="${prefix}/lib/oracle"
+#     depends_lib-append     port:oracle-instantclient
+# }
 
 variant pythia description {Pythia 8 support for root} {
     configure.args-delete   --disable-pythia8
@@ -524,7 +563,7 @@ if {[variant_isset qt_mac]} {
 # Note that g95 does not work here, so that variant is removed
 # ========================================================================================
 
-set gcc_versions {4.3 4.4 4.5 4.6 4.7 4.8 4.9}
+set gcc_versions { 4.3 4.4 4.5 4.6 4.7 4.8 4.9 }
 set default_fortran_variant +gcc48
 
 foreach ver ${gcc_versions} {
@@ -577,6 +616,15 @@ livecheck.regex             root_v(\[0-9a-z.\]+)\\.source
 # ========================================================================================
 # The following have build issues, are obsolete or experimental.
 # ========================================================================================
+
+# Problems finding includes ...
+# variant ruby description {Build with ruby support} {
+#     configure.args-delete   --disable-ruby
+#     configure.args-append   --enable-ruby \
+#                             --with-ruby-incdir="${prefix}/include/ruby-1.9.1" \
+#                             --with-ruby-libdir="${prefix}/lib"
+#     depends_lib-append      port:ruby19
+# }
 
 # Intefers with builtin freetype build (enforced by cocoa variant)
 # Also do not seem to be actually needed any more

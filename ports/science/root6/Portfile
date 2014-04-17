@@ -9,19 +9,20 @@ PortGroup           compiler_blacklist_versions 1.0
 PortGroup           github 1.0
 PortGroup           select 1.0
 
-# TODO: try to figure out if one could also build root6 on < 10.9
-# if {(${os.major} < 13 && ! [info exists configure.cxx_stdlib]) || (! [file exists /usr/lib/libc++.dylib])} {
-if {${os.major} < 13 } {
-    github.setup    root-mirror root e3dec6e203
-    version         5.99.05-beta
-    checksums       rmd160  69f6a99413908eed7789bc30939a621f45eac7a2 \
+# TODO:
+# - try to figure out if one could also build root6 on < 10.9
+# - version 5.99.06-beta is broken also on 10.9
+#if {${os.major} < 13 } {
+github.setup        root-mirror root e3dec6e203
+version             5.99.05-beta
+checksums           rmd160  69f6a99413908eed7789bc30939a621f45eac7a2 \
                     sha256  10f2956cd821471477a351c01355c2eb802c01e046764d18865e7416dfa810f8
-} else {
-    github.setup    root-mirror root 5-99-06 v
-    version         5.99.06-beta
-    checksums       rmd160  b8b5ae705aae185c0d6ed097a5efa6fbeb961bfb \
-                    sha256  c873d536769ff06616c0a9981e7f1db2414eaca0a1bcab045d4073b36644981a
-}
+#} else {
+#   github.setup    root-mirror root 5-99-06 v
+#   version         5.99.06-beta
+#   checksums       rmd160  b8b5ae705aae185c0d6ed097a5efa6fbeb961bfb \
+#                   sha256  c873d536769ff06616c0a9981e7f1db2414eaca0a1bcab045d4073b36644981a
+#}
 
 name                root6
 set version_major   6
@@ -69,19 +70,13 @@ select.file         ${filespath}/${name}
 compiler.blacklist-append {clang < 425} macports-clang-2.9
 compiler.fallback-append macports-clang-3.5 macports-clang-3.4 macports-clang-3.3
 
-set install_bindir  "libexec/root${version_major}/bin"
-set install_mandir  "libexec/root${version_major}/share/man"
+# port specific location
+set install_prefix ${prefix}/libexec/root${version_major}
 
 configure.args-append \
                     -Dgnuinstall=ON \
-                    -DCMAKE_INSTALL_BINDIR="${install_bindir}" \
-                    -DCMAKE_INSTALL_LIBDIR="lib/root${version_major}" \
-                    -DCMAKE_INSTALL_INCLUDEDIR="include/root${version_major}" \
-                    -DCMAKE_INSTALL_SYSCONFDIR="etc/root${version_major}" \
-                    -DCMAKE_INSTALL_DATAROOTDIR="share/root${version_major}" \
-                    -DCMAKE_INSTALL_DATADIR="share/root${version_major}" \
-                    -DCMAKE_INSTALL_DOCDIR="share/doc/root${version_major}" \
-                    -DCMAKE_INSTALL_MANDIR="${install_mandir}" \
+                    -DCMAKE_INSTALL_PREFIX="${install_prefix}" \
+                    -DCMAKE_INSTALL_SYSCONFDIR="${install_prefix}/etc/root" \
                     -Dfortran=OFF \
                     -Dbuiltin_freetype=ON \
                     -Dbuiltin_glew=OFF \
@@ -130,8 +125,13 @@ configure.args-append \
 configure.post_args ${worksrcpath}
 
 # TODO: temporary:
+configure.args-append       -DCMAKE_INCLUDE_PATH=${install_prefix}/include
+configure.cppflags-delete   -I${install_prefix}/include
+
 configure.args-append       -DCMAKE_INCLUDE_PATH=${prefix}/include
 configure.cppflags-delete   -I${prefix}/include
++configure.args-append       -DCMAKE_INCLUDE_PATH=${install_prefix}/include
++configure.cppflags-delete   -I${install_prefix}/include
 
 # TODO: Check ${configure.cxx_stdlib} directly once MacPorts 2.3 is released
 platform darwin {
@@ -153,16 +153,62 @@ platform darwin {
 }
 
 post-destroot {
-    # create versioned symlinks for the content of libexec's bin dir.
-    foreach f [glob -directory ${destroot}${prefix}/${install_bindir} *] {
+    # create versioned symlinks for the content of libexec
+    # bin dir
+    foreach f [glob -directory ${destroot}${install_prefix}/bin *] {
         set filename  [file tail $f]
         set extension [file extension $filename]
         set base      [file rootname $filename]
         set versioned_filename ${base}${version_major}${extension}
-        ln -s ${prefix}/${install_bindir}/${filename} ${destroot}${prefix}/bin/${versioned_filename}
+        ln -s ${install_prefix}/bin/${filename} ${destroot}${prefix}/bin/${versioned_filename}
     }
+    # lib dir
+    ln -s ${install_prefix}/lib/root ${destroot}${prefix}/lib/root${version_major}
+    # include dir
+    ln -s ${install_prefix}/include/root ${destroot}${prefix}/include/root${version_major}
+    # etc dir
+    ln -s ${install_prefix}/etc/root ${destroot}${prefix}/etc/root${version_major}
+    # share dir
+    ln -s ${install_prefix}/share ${destroot}${prefix}/share/root${version_major}
     # 'Fix' genreflex
-    #reinplace "s|lib/python/genreflex|lib/root${version_major}/python/genreflex|g" ${destroot}${prefix}/${install_bindir}/genreflex
+    #reinplace "s|lib/python/genreflex|lib/root${version_major}/python/genreflex|g" ${destroot}${install_prefix}/bin/genreflex
+    # Compress manpages in custom location (borrowed from mariadb)
+    set manpath ${install_prefix}/share/man
+    set gzip [findBinary gzip ${portutil::autoconf::gzip_path}]
+    foreach manpage [glob -type f ${destroot}${manpath}/man1/*] {
+        # Zip the man file
+        system "$gzip -9vf ${manpage}"
+        # Create man pages for versioned files
+        set filename  [file tail $manpage]
+        set extension [file extension $filename]
+        set base      [file rootname $filename]
+        set versioned_filename ${base}${version_major}${extension}.gz
+        set d [file tail $manpage]
+        ln -s ${manpath}/man1/${d}.gz ${destroot}${prefix}/share/man/man1/${versioned_filename}
+    }
+}
+
+set run_port_select "No"
+pre-activate {
+  if { ![file exists ${prefix}/bin/root]  &&
+       ![file exists ${prefix}/bin/root5] &&
+       ![file exists ${prefix}/bin/root6] } {
+     set run_port_select "Yes"
+     if { [file exists ${prefix}/etc/select/root/current] } {
+           delete ${prefix}/etc/select/root/current
+     }
+  }
+}
+
+post-activate {
+  ui_msg "======================================================================================"
+  if { ${run_port_select} == "Yes" } {
+      ui_msg "  Making root${version_major} your default root version. To change this run 'sudo port select root'"
+      catch { system "port select root root${version_major}" }
+  } else {
+      ui_msg "  To make root${version_major} your default root version, run 'sudo port select root root${version_major}'"
+  }
+  ui_msg "======================================================================================"
 }
 
 universal_variant   no
@@ -177,12 +223,13 @@ if {${os.major} > 10} {
     set default_gui_variant +x11
 }
 
-# Currently giving problems
+# TODO - Doesn't seem to work. To be reported upstream..
 # variant xrootd description {Build with XRootD support} {
-#     configure.args-replace  -Dxrootd=OFF -Dxrootd=ON
-#     configure.args-append   -Dbuiltin_xrootd=ON
-#     #configure.args-append   -DXROOTD_INCLUDE_DIR="${prefix}/include/xrootd"
-#     #depends_lib-append      port:xrootd
+#   system "export XRDSYS=${prefix}/lib"
+#   configure.args-replace  -Dxrootd=OFF -Dxrootd=ON
+#  #configure.args-append   -Dbuiltin_xrootd=ON
+#   configure.args-append   -DXROOTD_INCLUDE_DIR="${prefix}/include/xrootd"
+#   depends_lib-append      port:xrootd
 # }
 
 variant soversion description {Build with soversion support} {
@@ -191,7 +238,7 @@ variant soversion description {Build with soversion support} {
 
 variant graphviz description {Build with graphviz support} {
     configure.args-replace  -Dgviz=OFF -Dgviz=ON
-#   configure.args-append   -DGRAPHVIZ_INCLUDE_DIR="${prefix}/include" \
+    configure.args-append   -DGRAPHVIZ_INCLUDE_DIR="${prefix}/include"
 #                           -DGRAPHVIZ_CDT_LIBRARY="${prefix}/lib/libcdt.dylib" \
 #                           -DGRAPHVIZ_GRAPH_LIBRARY="${prefix}/lib/libcgraph.dylib" \
 #                           -DGRAPHVIZ_GVC_LIBRARY="${prefix}/lib/libgvc.dylib" \
@@ -208,8 +255,8 @@ variant avahi description {Build with avahi support} {
 
 variant fftw3 description {Build with fftw3 support} {
     configure.args-replace  -Dfftw3=OFF -Dfftw3=ON
-#   configure.args-append   -DFFTW_INCLUDE_DIR="${prefix}/include" \
-#                           -DFFTW_LIBRARY="${prefix}/lib"
+    configure.args-append   -DFFTW_INCLUDE_DIR="${prefix}/include" \
+                            -DFFTW_LIBRARY="${prefix}/lib/libfftw3.dylib"
     depends_lib-append      port:fftw-3
 }
 
@@ -221,15 +268,15 @@ variant gsl description {Build with gsl support} {
 
 variant fitsio description {Build with fitsio support} {
     configure.args-replace  -Dfitsio=OFF -Dfitsio=ON
-#   configure.args-append   -DCFITSIO_INCLUDE_DIR="${prefix}/include" \
-#                           -DCFITSIO_LIBRARIES="${prefix}/lib"
+    configure.args-append   -DCFITSIO_INCLUDE_DIR="${prefix}/include" \
+                            -DCFITSIO_LIBRARIES="${prefix}/lib"
     depends_lib-append      port:cfitsio
 }
 
 variant odbc description {Build with odbc support} {
     configure.args-replace  -Dodbc=OFF -Dodbc=ON
-#   configure.args-append   -DODBC_INCLUDE_DIR="${prefix}/include" \
-#                           -DODBC_LIBRARY="${prefix}/lib"
+    configure.args-append   -DODBC_INCLUDE_DIR="${prefix}/include" \
+                            -DODBC_LIBRARY="${prefix}/lib/libiodbc.dylib"
     depends_lib-append      port:libiodbc
 }
 
@@ -247,7 +294,7 @@ variant roofit description {Build the RooFit advanced fitting package} {
 variant tmva description {Build the TMVA package} {
     configure.args-replace  -Dtmva=OFF -Dtmva=ON
     post-destroot {
-        set tmvaTuts ${destroot}${prefix}/share/root${version_major}/tutorials/tmva
+        set tmvaTuts ${destroot}${install_prefix}/share/root/tutorial/tmva
         file mkdir ${tmvaTuts}
         foreach f [glob ${worksrcpath}/tmva/test/*] { file copy $f ${tmvaTuts}/ }
     }
@@ -267,8 +314,8 @@ variant opengl description {Build with opengl support} {
 # Setup various python variants
 # ========================================================================================
 
-# List of possible python versions
-set python_versions { 2.6 2.7 3.1 3.2 3.3 3.4 }
+# List of possible python versions ( 3.x does not seem to work yet )
+set python_versions { 2.6 2.7 }
 
 # Define the available variants
 foreach ver ${python_versions} {
@@ -304,23 +351,20 @@ if { ${active_python_variant} != "" } {
     }
     set mypydir ${prefix}/Library/Frameworks/Python.framework/Versions/${active_python_variant}
     configure.args-replace  -Dpython=OFF -Dpython=ON
-    configure.args-append   -DPYTHON_INCLUDE_DIR="${mypydir}/Headers"
+    configure.args-append   -DPYTHON_INCLUDE_DIR="${mypydir}/Headers" \
+                            -DPYTHON_LIBRARY="${prefix}/lib/libpython${active_python_variant}.dylib" \
+                            -DPYTHON_EXECUTABLE="${prefix}/bin/python${active_python_variant}"
     depends_lib-append      port:python${ver_no_dot}
     post-destroot {
         set mypylibdir  ${prefix}/Library/Frameworks/Python.framework/Versions/${active_python_variant}/lib/python${active_python_variant}
         set mypysitedir ${mypylibdir}/site-packages/
         file mkdir ${destroot}${mypysitedir}
-        foreach pyfile [glob ${destroot}${prefix}/lib/root${version_major}/*.py*] { move $pyfile ${destroot}${mypysitedir} }
-        ln -sf ${prefix}/lib/root${version_major}/libPyROOT.so ${destroot}${mypylibdir}/
+        foreach pyfile [glob ${destroot}${install_prefix}/lib/root/*.py*] { move $pyfile ${destroot}${mypysitedir}/ }
+        ln -sf ${install_prefix}/lib/root/libPyROOT.so ${destroot}${mypylibdir}/
     }
 }
 
 # ========================================================================================
-
-variant ruby description {Build with ruby support} {
-    configure.args-replace  -Druby=OFF -Druby=ON
-    depends_lib-append      port:ruby
-}
 
 variant ssl description {Build with ssl support} {
     configure.args-replace  -Dssl=OFF -Dssl=ON 
@@ -368,6 +412,7 @@ variant percona conflicts mysql mysql51 mysql55 mariadb description {Build with 
     depends_lib-append      port:percona
 }
 
+# TODO - Doesn't seem to work. To be reported upstream..
 # variant postgresql90 conflicts postgresql92 description {Build with PostgreSQL 9.0 support} {
 #     configure.args-replace -Dpgsql=OFF -Dpgsql=ON
 #     configure.args-append  -DPOSTGRESQL_INCLUDE_DIR="${prefix}/include/postgresql90" \
@@ -375,6 +420,7 @@ variant percona conflicts mysql mysql51 mysql55 mariadb description {Build with 
 #     depends_lib-append      port:libpqxx port:postgresql90
 # }
 
+# TODO - Doesn't seem to work. To be reported upstream..
 # variant postgresql92 conflicts postgresql90 description {Build with PostgreSQL 9.2 support} {
 #     configure.args-replace -Dpgsql=OFF -Dpgsql=ON
 #     configure.args-append  -DPOSTGRESQL_INCLUDE_DIR="${prefix}/include/postgresql92" \
@@ -382,12 +428,21 @@ variant percona conflicts mysql mysql51 mysql55 mariadb description {Build with 
 #     depends_lib-append      port:libpqxx port:postgresql92
 # }
 
-variant pythia description {Pythia 8 support for root} {
-    configure.args-replace  -Dpythia8=OFF -Dpythia8=ON
-#   configure.args-append   -DPYTHIA8_INCLUDE_DIR=${prefix}/include \
-#                           -DPYTHIA8_LIBRARY=${prefix}/lib
-    depends_lib-append      port:pythia
-}
+# variant oracle description {Build with Oracle support} {
+#     configure.args-replace --disable-oracle --enable-oracle
+#     configure.args-append  -DORACLE_PATH_INCLUDES="${prefix}/lib/oracle/sdk/include" \
+#                            -DORACLE_PATH_LIB="${prefix}/lib/oracle" \
+#                            -DORACLE_OCI_VERSION=8
+#     depends_lib-append     port:oracle-instantclient
+# }
+
+# TODO - Doesn't seem to work. To be reported upstream..
+# variant pythia description {Pythia 8 support for root} {
+#     configure.args-replace  -Dpythia8=OFF -Dpythia8=ON
+#     configure.args-append   -DPYTHIA8_INCLUDE_DIR=${prefix}/include \
+#                             -DPYTHIA8_LIBRARY=${prefix}/lib/libpythia8.dylib
+#     depends_lib-append      port:pythia
+# }
 
 variant cocoa conflicts x11 description {Enables native OSX graphical backend} {
     # Enable cocoa support in configure
@@ -452,8 +507,7 @@ if { ${active_clang_variant} != "" } {
 # Note that g95 does not work here, so that variant is removed
 # ========================================================================================
 
-# https://trac.macports.org/ticket/37732
-set gcc_versions {4.7 4.8 4.9}
+set gcc_versions { 4.7 4.8 4.9 }
 set default_fortran_variant +gcc48
 
 foreach ver ${gcc_versions} {
@@ -500,6 +554,12 @@ foreach ver ${gcc_versions} {
 }
 
 # ========================================================================================
+
+# Problems finding includes ...
+# variant ruby description {Build with ruby support} {
+#     configure.args-replace  -Druby=OFF -Druby=ON
+#     depends_lib-append      port:ruby
+# }
 
 # TODO
 # livecheck.type              regex

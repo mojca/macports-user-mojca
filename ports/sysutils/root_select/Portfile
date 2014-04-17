@@ -5,8 +5,8 @@ PortSystem          1.0
 PortGroup           select 1.0
 
 name                root_select
-conflicts           root
 version             1.0
+
 categories          sysutils science
 platforms           darwin
 maintainers         hep.phy.cam.ac.uk:jonesc mojca
