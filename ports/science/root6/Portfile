@@ -130,8 +130,6 @@ configure.cppflags-delete   -I${install_prefix}/include
 
 configure.args-append       -DCMAKE_INCLUDE_PATH=${prefix}/include
 configure.cppflags-delete   -I${prefix}/include
-+configure.args-append       -DCMAKE_INCLUDE_PATH=${install_prefix}/include
-+configure.cppflags-delete   -I${install_prefix}/include
 
 # TODO: Check ${configure.cxx_stdlib} directly once MacPorts 2.3 is released
 platform darwin {
