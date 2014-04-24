@@ -48,15 +48,16 @@ post-extract {
     file mkdir ${configure.dir}
 }
 
-depends_lib         port:xz \
-                    port:pcre \
-                    port:zlib \
-                    port:jpeg \
-                    port:giflib \
-                    port:tiff \
+depends_lib         port:expat \
                     port:gmp \
-                    port:expat \
-                    port:lzma
+                    port:giflib \
+                    port:jpeg \
+                    port:libpng \
+                    port:lzma \
+                    port:pcre \
+                    port:tiff \
+                    port:zlib \
+                    port:xz
                   # port:freetype
 
 depends_run         port:root_select
@@ -120,14 +121,13 @@ configure.args-append \
                     -Dunuran=ON \
                     -Dreflex=ON \
                     -Dtable=ON \
-                    -Dgdml=ON
+                    -Dgdml=ON \
+                    -DPNG_LIBRARY=${prefix}/lib/libpng.dylib \
+                    -DPNG_PNG_INCLUDE_DIR=${prefix}/include
 
 configure.post_args ${worksrcpath}
 
 # TODO: temporary:
-configure.args-append       -DCMAKE_INCLUDE_PATH=${install_prefix}/include
-configure.cppflags-delete   -I${install_prefix}/include
-
 configure.args-append       -DCMAKE_INCLUDE_PATH=${prefix}/include
 configure.cppflags-delete   -I${prefix}/include
 
@@ -449,11 +449,9 @@ variant cocoa conflicts x11 description {Enables native OSX graphical backend} {
 
 variant x11 conflicts cocoa description {Enables X11 graphical backend} {
     # Dependencies on X11 ports
-    depends_lib-append      port:xorg-libX11 port:mesa port:Xft2 port:xpm port:libpng
+    depends_lib-append      port:xorg-libX11 port:mesa port:Xft2 port:xpm
     # Disable cocoa
-    configure.args-append   -Dcocoa=OFF \
-                            -DPNG_LIBRARY=${prefix}/lib/libpng.dylib \
-                            -DPNG_PNG_INCLUDE_DIR=${prefix}/include
+    configure.args-append   -Dcocoa=OFF
 }
 
 # If neither graphical variant is set, use default
