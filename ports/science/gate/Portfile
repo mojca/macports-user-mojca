@@ -11,19 +11,19 @@ PortGroup           active_variants 1.1
 set                 git_sha f97fe6c0a0
 set                 git_date 20140507
 
-# TODO: temporary - if checksums are desired
+# Using GitHub just for the sake of downloadable zips
 PortGroup           github 1.0
-github.setup        OpenGATE Gate ${git_sha}
+github.setup        OpenGATE gate ${git_sha}
+version             7.0
+# version           7.0-git-${git_date}-${git_sha}
 
 ## official repository
-# fetch.type          git
-# git.url             http://git.opengatecollaboration.org/git/opengate-public.git
-# git.branch          <sha>
+# fetch.type        git
+# git.url           http://git.opengatecollaboration.org/git/opengate-public.git
+# git.branch        <sha>
 
-name                gate
-version             7.0-git-${git_date}-${git_sha}
 categories          science
-maintainers         mojca
+maintainers         mojca openmaintainer
 license             LGPL
 description         GATE description
 long_description    GATE is dedicated to numerical simulations in medical imaging and radiotherapy. \
@@ -90,6 +90,11 @@ if {![variant_isset geant495]} {
     patchfiles      patch-addmenu.diff
 }
 
+configure.args-append \
+                    -DGATE_USE_SYSTEM_CLHEP=OFF \
+                    -DROOT_CONFIG_EXECUTABLE=${prefix}/libexec/root5/bin/root-config
+                    # ROOT is optional: we could make a variant if needed
+
 post-patch {
     # patch examples if needed
     if {[variant_isset examples]} {
@@ -146,7 +151,7 @@ post-destroot {
 
 variant examples description {Install examples to doc} {
 }
-variant geant495 conflicts geant496 geant4100 description {Use Geant4 9.5} {
+variant geant495 conflicts geant496 geant4100 description {Use Geant4 9.5 (deprecated)} {
     # TODO: this can probably be done in a more elegant way
     #       how to copy datadir and cmakedir from geant4 without duplication?
     set geant.data_versions ${geant.data_versions_9.5}
@@ -166,7 +171,7 @@ variant geant496 conflicts geant495 geant4100 description {Use Geant4 9.6} {
     require_active_variants geant4.9.6 qt
     configure.args-append   -DGeant4_DIR=${geant.cmakedir}
 }
-variant geant4100 conflicts geant495 geant496 description {Use Geant4 10.0 (doesn't work yet)} {
+variant geant4100 conflicts geant495 geant496 description {Use Geant4 10.0 (not yet officially supported)} {
     set geant.data_versions ${geant.data_versions_10.0}
     set geant.datadir       ${prefix}/share/Geant4/Data/Geant4.10.0
     set geant.cmakedir      ${prefix}/lib/Geant4-10.0.0
@@ -179,7 +184,3 @@ variant geant4100 conflicts geant495 geant496 description {Use Geant4 10.0 (does
 if {![variant_isset geant495] && ![variant_isset geant496] && ![variant_isset geant4100]} {
     default_variants +geant496
 }
-
-configure.args-append \
-                    -DGATE_USE_SYSTEM_CLHEP=OFF \
-                    -DROOT_CONFIG_EXECUTABLE=${prefix}/libexec/root5/bin/root-config
