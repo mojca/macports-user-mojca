@@ -163,7 +163,7 @@ post-destroot {
 
     set destdocdir ${destroot}${prefix}/share/doc/${name}
     xinstall -d -m 0755 ${destdocdir}
-    xinstall -m 0644 ${distpath}/${name}.pdf ${destdocdir}
+    xinstall -m 0644 ${workpath}/${distname}/docs/${name}.pdf ${destdocdir}
 
     # copy demo files
     file copy ${workpath}/${distname}/demo ${destdocdir}
