@@ -8,7 +8,7 @@ PortGroup           active_variants 1.1
 
 name                py-pyphant
 version             1.0b3
-# revision            1
+revision            1
 categories-append   science
 maintainers         fmf.uni-freiburg.de:servicegruppe.wissinfo \
                     fmf.uni-freiburg.de:alexander.held rowue
@@ -42,8 +42,7 @@ license             BSD
 
 platforms           darwin
 
-python.versions     26 27
-python.default_version 27
+python.versions     27
 
 # py-scipy is not universal
 universal_variant   no
@@ -61,6 +60,24 @@ if {${name} ne ${subport}} {
     }
 }
 
+# these two could probably be combined
+subport py26-${distname} {
+    replaced_by     py27-${distname}
+    PortGroup       obsolete 1.0
+    depends_build
+    depends_lib
+    depends_run
+}
+foreach n {fmf imageprocessing osc statistics tools} {
+    subport py26-${distname}-${n} {
+        replaced_by py27-${distname}-${n}
+        PortGroup   obsolete 1.0
+        depends_build
+        depends_lib
+        depends_run
+    }
+}
+
 foreach python.vers ${python.versions} {
     subport py${python.vers}-${distname} {
         PortGroup           app 1.0
@@ -74,6 +91,8 @@ foreach python.vers ${python.versions} {
         app.executable      pyphant-${python.branch}
         app.icon            ${filespath}/Pyphant.icns
 
+        wxWidgets.use       wxPython-3.0
+
         # TODO: check which ones of these are runtime dependencies as opposed to dependencies for building
         depends_lib-append  port:py${python.version}-numpy \
                             port:py${python.version}-scipy \
@@ -84,38 +103,14 @@ foreach python.vers ${python.versions} {
                             port:py${python.version}-paste \
                             port:py${python.version}-mx-base \
                             port:py${python.version}-sogl \
-                            
+                            port:py${python.version}-wxpython-3.0
+
         depends_run-append  port:py${python.version}-configobj \
                             port:py${python.version}-tornado
 
-        # TODO: remove support for wxGTK one day
-        variant wxgtk28 conflicts wxwidgets30 description {Use 32-bit carbon-based wxPython 2.8} {
-            wxWidgets.use       wxGTK-2.8
-            depends_lib-append  port:py${python.version}-wxpython-2.8
-            require_active_variants py${python.version}-wxpython-2.8 gtk
-        }
-        variant wxwidgets30 conflicts wxgtk28 escription {Use wxPython 3.0} {
-            wxWidgets.use       wxPython-3.0
-            depends_lib-append  port:py${python.version}-wxpython-3.0
-        }
-        if {![variant_isset wxgtk28] && ![variant_isset wxwidgets30]} {
-            # TODO: check which version of py${python.version}-wxpython-X.Y is installed instead
-            #       and use 3.0 by default unless py2.x-wxpython-2.8 is already active
-            if {${python.version} == 26} {
-                default_variants +wxgtk28
-            } else {
-                default_variants +wxwidgets30
-            }
-        }
         pre-destroot {
-            if {[variant_isset wxwidgets30]} {
-                file copy ${filespath}/pyphant.quartz ${destroot}${prefix}/bin
-                file rename ${destroot}${prefix}/bin/pyphant.quartz ${destroot}${prefix}/bin/pyphant-${python.branch}
-            } else {
-                file copy ${filespath}/pyphant ${destroot}${prefix}/bin
-                file rename ${destroot}${prefix}/bin/pyphant ${destroot}${prefix}/bin/pyphant-${python.branch}
-                reinplace "s|@APPDIR@|${applications_dir}|" ${destroot}${prefix}/bin/pyphant-${python.branch}
-            }
+            file copy ${filespath}/pyphant.quartz ${destroot}${prefix}/bin
+            file rename ${destroot}${prefix}/bin/pyphant.quartz ${destroot}${prefix}/bin/pyphant-${python.branch}
             reinplace "s|@PREFIX@|${prefix}|" ${destroot}${prefix}/bin/pyphant-${python.branch}
             reinplace "s|@PYTHONBRANCH@|${python.branch}|" ${destroot}${prefix}/bin/pyphant-${python.branch}
         }
