@@ -1,0 +1,116 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           active_variants 1.1
+PortGroup           github          1.0
+PortGroup           select          1.0
+PortGroup           wxWidgets       1.0
+
+set svn_revision    76625
+set git_checksum    86e4b188d7
+github.setup        wxWidgets wxWidgets ${git_checksum}
+name                wxWidgets-3.1
+version             3.1.0-r${svn_revision}
+
+set installname     wxWidgets
+set wxtype          osx_cocoa
+
+if {${subport} eq ${name}} {
+    wxWidgets.use   wxWidgets-3.2
+}
+set branch          [join [lrange [split ${version} .] 0 1] .]
+
+categories          graphics devel
+platforms           darwin
+license             wxwidgets-3.1
+maintainers         mojca openmaintainer
+
+description         C++ framework for cross-platform GUI development
+long_description    wxWidgets ${branch} is an open-source cross-platform C++ \
+                    GUI framework for Mac OS, Unix, Linux, Windows.
+
+homepage            http://www.wxwidgets.org/
+distname            wxWidgets
+
+dist_subdir         ${distname}/${version}
+
+checksums           rmd160  14b330b8b89f2009ee86c9fc0012945adaf47f3d \
+                    sha256  d7e05026488cdc1ab238172ddf504baf9513dc9d3cb604d19eeb67d87035e0f4
+
+depends_lib         port:jpeg \
+                    port:tiff \
+                    port:libpng \
+                    port:zlib \
+                    port:libiconv \
+                    port:expat
+
+depends_run         port:wxWidgets_select
+
+select.group        wxWidgets
+select.file         ${filespath}/${subport}
+
+worksrcdir          ${distname}/build
+
+patch.dir           ${worksrcpath}/..
+
+patchfiles-append   patch-configure.diff
+
+post-patch {
+    reinplace "s|@@PREFIX@@|${prefix}|g" ${patch.dir}/configure
+}
+
+configure.cmd       ../configure
+configure.args      --prefix=${wxWidgets.prefix} \
+                    --with-libiconv-prefix=${prefix} \
+                    --with-libjpeg \
+                    --with-libtiff \
+                    --with-libpng \
+                    --with-zlib \
+                    --with-opengl \
+                    --with-cocoa \
+                    --without-sdl \
+                    --enable-aui \
+                    --disable-sdltest \
+                    --enable-unicode \
+                    --enable-display \
+                    --enable-xrc \
+                    --enable-graphics_ctx \
+                    --with-macosx-sdk=no \
+                    --with-macosx-version-min=no
+
+post-destroot {
+    set confscript ${wxWidgets.prefix}/lib/wx/config/${wxtype}-unicode-${branch}
+    ln -sf ${confscript} ${destroot}${wxWidgets.prefix}/bin/wx-config
+    xinstall -m 755 -d ${destroot}${prefix}/share/bakefile/presets
+}
+
+destroot.keepdirs ${destroot}${prefix}/share/bakefile/presets
+
+variant universal {
+    set archs [join ${configure.universal_archs} ,]
+    # --disable-precomp-headers is automatically selected with cocoa, but not with gtk
+    # http://trac.wxwidgets.org/ticket/15454
+    configure.args-append   --enable-universal_binary=${archs} \
+                            --disable-precomp-headers
+}
+
+variant monolithic description {build only one library} {
+    configure.args-append   --enable-monolithic
+}
+
+variant debug description {add debug info to libraries} {
+    configure.args-append   --enable-debug
+}
+
+variant stdlib description {add support for various standard library features} {
+    configure.args-append   --enable-stl \
+                            --enable-std_containers \
+                            --enable-std_iostreams \
+                            --enable-std_string \
+                            --enable-std_string_conv_in_wxstring
+}
+
+# livecheck.type    regex
+# livecheck.url     ${homepage}/downloads/
+# livecheck.regex   Release.*(\[23\]\\.\[0-9\]\\.\[0-9\]+)
