@@ -43,8 +43,7 @@ depends_lib         port:fftw-3 \
 patchfiles          patch-configure.diff \
                     patch-include-Make-Install.make.diff \
                     patch-is_void.diff \
-                    patch-lib-init-grass.sh.diff \
-                    patch-ffmpeg.diff
+                    patch-lib-init-grass.sh.diff
 
 post-patch {
     reinplace "s|@@APPLICATIONS_DIR@@|${applications_dir}|" ${worksrcpath}/configure
@@ -157,6 +156,7 @@ variant ffmpeg description {Add ffmpeg support} {
     configure.args-append   --with-ffmpeg \
                             --with-ffmpeg-includes=\"${prefix}/include/libavcodec  \
                                                      ${prefix}/include/libavformat \
+                                                     ${prefix}/include/libavutil \
                                                      ${prefix}/include/libswscale\" \
                             --with-ffmpeglibs=${prefix}/lib
 }
