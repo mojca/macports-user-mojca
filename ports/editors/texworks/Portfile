@@ -6,7 +6,7 @@ PortGroup           cmake 1.0
 PortGroup           qt4 1.0
 PortGroup           active_variants 1.1
 
-svn.revision        1350
+svn.revision        1365
 
 name                texworks
 version             0.5.0-svn${svn.revision}
@@ -36,11 +36,8 @@ configure.args-append \
 build.dir           ${configure.dir}
 
 depends_lib         port:hunspell \
-                    port:poppler \
+                    port:poppler-qt4-mac \
                     port:zlib
-
-require_active_variants poppler qt4
-require_active_variants poppler quartz
 
 post-destroot {
     # alternatively set the DESTDIR straight to ${destroot}${applications_dir}
