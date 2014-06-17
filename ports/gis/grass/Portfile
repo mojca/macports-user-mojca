@@ -1,0 +1,760 @@
+# $Id$
+
+PortSystem        1.0
+PortGroup         wxWidgets 1.0
+PortGroup         active_variants 1.1
+
+name              grass
+epoch             1
+version           7.0.0beta2
+maintainers       nomaintainer
+categories        gis
+license           GPL-2+
+platforms         darwin
+
+description       GRASS
+long_description  GRASS is a Geographic Information System (GIS) used for \
+                  geospatial data management and analysis.
+
+homepage          http://grass.osgeo.org/
+master_sites      ${homepage}grass[join [lrange [split ${version} .] 0 1] {}]/source/
+
+checksums         rmd160  bfc01c12afa8929fc17568359551861cd413089b \
+                  sha256  b360de82f9683f04383f03c4b584287be233fa76d05b0cb1f50d57d2de5cffdd
+
+depends_build     port:pkgconfig
+depends_lib       port:fftw-3 \
+                  port:freetype \
+                  port:gdal \
+                  port:geos \
+                  port:jpeg \
+                  port:libpng \
+                  port:mesa \
+                  lib:libXm:openmotif \
+                  port:proj47 \
+                  port:tk \
+                  path:lib/pkgconfig/cairo.pc:cairo \
+                  port:readline
+
+# https://trac.macports.org/ticket/32790
+# this should probably only apply to some Xcode versions
+# compiler.blacklist  *clang*
+
+patchfiles \
+    patch-configure.diff \
+    patch-include-Make-Install.make.diff \
+    patch-is_void.diff \
+    patch-lib-init-grass.sh.diff \
+    patch-ffmpeg.diff
+
+post-patch {
+    reinplace "s|@@APPLICATIONS_DIR@@|${applications_dir}|" ${worksrcpath}/configure
+    # http://trac.osgeo.org/grass/ticket/2169
+    # reinplace "s|CC=gcc|CC=${configure.cc}|" ${worksrcpath}/gem/Makefile
+}
+
+# List of all python scripts. Used later to ensure usage of python26/python27
+# (insteaf of the currently active python)
+# Work around bug http://trac.osgeo.org/grass/ticket/1758
+set python_scripts [ list \
+    doc/gui/wxpython/example/dialogs.py \
+    doc/gui/wxpython/example/frame.py \
+    doc/gui/wxpython/example/g.gui.example.py \
+    doc/gui/wxpython/example/toolbars.py \
+    doc/python/m.distance.py \
+    doc/python/raster_example_ctypes.py \
+    doc/python/vector_example_ctypes.py \
+    general/g.mapsets/g.mapsets_picker.py \
+    general/g.parser/test.py \
+    gui/scripts/d.rast3d.py \
+    gui/scripts/d.wms.py \
+    gui/wxpython/animation/__init__.py \
+    gui/wxpython/animation/anim.py \
+    gui/wxpython/animation/controller.py \
+    gui/wxpython/animation/data.py \
+    gui/wxpython/animation/dialogs.py \
+    gui/wxpython/animation/frame.py \
+    gui/wxpython/animation/g.gui.animation.py \
+    gui/wxpython/animation/mapwindow.py \
+    gui/wxpython/animation/nviztask.py \
+    gui/wxpython/animation/provider.py \
+    gui/wxpython/animation/temporal_manager.py \
+    gui/wxpython/animation/toolbars.py \
+    gui/wxpython/animation/utils.py \
+    gui/wxpython/core/__init__.py \
+    gui/wxpython/core/debug.py \
+    gui/wxpython/core/gcmd.py \
+    gui/wxpython/core/gconsole.py \
+    gui/wxpython/core/giface.py \
+    gui/wxpython/core/globalvar.py \
+    gui/wxpython/core/layerlist.py \
+    gui/wxpython/core/menutree.py \
+    gui/wxpython/core/render.py \
+    gui/wxpython/core/settings.py \
+    gui/wxpython/core/toolboxes.py \
+    gui/wxpython/core/treemodel.py \
+    gui/wxpython/core/units.py \
+    gui/wxpython/core/utils.py \
+    gui/wxpython/core/workspace.py \
+    gui/wxpython/core/ws.py \
+    gui/wxpython/dbmgr/__init__.py \
+    gui/wxpython/dbmgr/base.py \
+    gui/wxpython/dbmgr/dialogs.py \
+    gui/wxpython/dbmgr/g.gui.dbmgr.py \
+    gui/wxpython/dbmgr/manager.py \
+    gui/wxpython/dbmgr/sqlbuilder.py \
+    gui/wxpython/dbmgr/vinfo.py \
+    gui/wxpython/gcp/__init__.py \
+    gui/wxpython/gcp/g.gui.gcp.py \
+    gui/wxpython/gcp/manager.py \
+    gui/wxpython/gcp/mapdisplay.py \
+    gui/wxpython/gcp/statusbar.py \
+    gui/wxpython/gcp/toolbars.py \
+    gui/wxpython/gis_set.py \
+    gui/wxpython/gis_set_error.py \
+    gui/wxpython/gmodeler/__init__.py \
+    gui/wxpython/gmodeler/dialogs.py \
+    gui/wxpython/gmodeler/frame.py \
+    gui/wxpython/gmodeler/g.gui.gmodeler.py \
+    gui/wxpython/gmodeler/giface.py \
+    gui/wxpython/gmodeler/menudata.py \
+    gui/wxpython/gmodeler/model.py \
+    gui/wxpython/gmodeler/preferences.py \
+    gui/wxpython/gmodeler/toolbars.py \
+    gui/wxpython/gui_core/__init__.py \
+    gui/wxpython/gui_core/dialogs.py \
+    gui/wxpython/gui_core/forms.py \
+    gui/wxpython/gui_core/ghelp.py \
+    gui/wxpython/gui_core/goutput.py \
+    gui/wxpython/gui_core/gselect.py \
+    gui/wxpython/gui_core/mapdisp.py \
+    gui/wxpython/gui_core/menu.py \
+    gui/wxpython/gui_core/preferences.py \
+    gui/wxpython/gui_core/prompt.py \
+    gui/wxpython/gui_core/pystc.py \
+    gui/wxpython/gui_core/query.py \
+    gui/wxpython/gui_core/simplelmgr.py \
+    gui/wxpython/gui_core/toolbars.py \
+    gui/wxpython/gui_core/treeview.py \
+    gui/wxpython/gui_core/widgets.py \
+    gui/wxpython/iclass/__init__.py \
+    gui/wxpython/iclass/dialogs.py \
+    gui/wxpython/iclass/digit.py \
+    gui/wxpython/iclass/frame.py \
+    gui/wxpython/iclass/g.gui.iclass.py \
+    gui/wxpython/iclass/plots.py \
+    gui/wxpython/iclass/statistics.py \
+    gui/wxpython/iclass/toolbars.py \
+    gui/wxpython/icons/__init__.py \
+    gui/wxpython/icons/grass_icons.py \
+    gui/wxpython/icons/icon.py \
+    gui/wxpython/iscatt/__init__.py \
+    gui/wxpython/iscatt/controllers.py \
+    gui/wxpython/iscatt/core_c.py \
+    gui/wxpython/iscatt/dialogs.py \
+    gui/wxpython/iscatt/frame.py \
+    gui/wxpython/iscatt/iscatt_core.py \
+    gui/wxpython/iscatt/plots.py \
+    gui/wxpython/iscatt/toolbars.py \
+    gui/wxpython/lmgr/__init__.py \
+    gui/wxpython/lmgr/frame.py \
+    gui/wxpython/lmgr/giface.py \
+    gui/wxpython/lmgr/layertree.py \
+    gui/wxpython/lmgr/menudata.py \
+    gui/wxpython/lmgr/pyshell.py \
+    gui/wxpython/lmgr/toolbars.py \
+    gui/wxpython/location_wizard/__init__.py \
+    gui/wxpython/location_wizard/base.py \
+    gui/wxpython/location_wizard/dialogs.py \
+    gui/wxpython/location_wizard/wizard.py \
+    gui/wxpython/mapdisp/__init__.py \
+    gui/wxpython/mapdisp/frame.py \
+    gui/wxpython/mapdisp/gprint.py \
+    gui/wxpython/mapdisp/main.py \
+    gui/wxpython/mapdisp/statusbar.py \
+    gui/wxpython/mapdisp/test_mapdisp.py \
+    gui/wxpython/mapdisp/toolbars.py \
+    gui/wxpython/mapswipe/__init__.py \
+    gui/wxpython/mapswipe/dialogs.py \
+    gui/wxpython/mapswipe/frame.py \
+    gui/wxpython/mapswipe/g.gui.mapswipe.py \
+    gui/wxpython/mapswipe/mapwindow.py \
+    gui/wxpython/mapswipe/toolbars.py \
+    gui/wxpython/mapwin/__init__.py \
+    gui/wxpython/mapwin/analysis.py \
+    gui/wxpython/mapwin/base.py \
+    gui/wxpython/mapwin/buffered.py \
+    gui/wxpython/mapwin/decorations.py \
+    gui/wxpython/mapwin/graphics.py \
+    gui/wxpython/modules/__init__.py \
+    gui/wxpython/modules/colorrules.py \
+    gui/wxpython/modules/extensions.py \
+    gui/wxpython/modules/histogram.py \
+    gui/wxpython/modules/mcalc_builder.py \
+    gui/wxpython/modules/vclean.py \
+    gui/wxpython/nviz/__init__.py \
+    gui/wxpython/nviz/animation.py \
+    gui/wxpython/nviz/main.py \
+    gui/wxpython/nviz/mapwindow.py \
+    gui/wxpython/nviz/preferences.py \
+    gui/wxpython/nviz/tools.py \
+    gui/wxpython/nviz/workspace.py \
+    gui/wxpython/nviz/wxnviz.py \
+    gui/wxpython/psmap/__init__.py \
+    gui/wxpython/psmap/dialogs.py \
+    gui/wxpython/psmap/frame.py \
+    gui/wxpython/psmap/g.gui.psmap.py \
+    gui/wxpython/psmap/instructions.py \
+    gui/wxpython/psmap/menudata.py \
+    gui/wxpython/psmap/toolbars.py \
+    gui/wxpython/psmap/utils.py \
+    gui/wxpython/rlisetup/__init__.py \
+    gui/wxpython/rlisetup/frame.py \
+    gui/wxpython/rlisetup/functions.py \
+    gui/wxpython/rlisetup/g.gui.rlisetup.py \
+    gui/wxpython/rlisetup/sampling_frame.py \
+    gui/wxpython/rlisetup/wizard.py \
+    gui/wxpython/scripts/vkrige.py \
+    gui/wxpython/timeline/__init__.py \
+    gui/wxpython/timeline/frame.py \
+    gui/wxpython/timeline/g.gui.timeline.py \
+    gui/wxpython/tools/build_modules_xml.py \
+    gui/wxpython/tools/update_menudata.py \
+    gui/wxpython/vdigit/__init__.py \
+    gui/wxpython/vdigit/dialogs.py \
+    gui/wxpython/vdigit/g.gui.vdigit.py \
+    gui/wxpython/vdigit/main.py \
+    gui/wxpython/vdigit/mapwindow.py \
+    gui/wxpython/vdigit/preferences.py \
+    gui/wxpython/vdigit/toolbars.py \
+    gui/wxpython/vdigit/wxdigit.py \
+    gui/wxpython/vdigit/wxdisplay.py \
+    gui/wxpython/vnet/__init__.py \
+    gui/wxpython/vnet/dialogs.py \
+    gui/wxpython/vnet/toolbars.py \
+    gui/wxpython/vnet/vnet_core.py \
+    gui/wxpython/vnet/vnet_data.py \
+    gui/wxpython/vnet/vnet_utils.py \
+    gui/wxpython/vnet/widgets.py \
+    gui/wxpython/web_services/__init__.py \
+    gui/wxpython/web_services/cap_interface.py \
+    gui/wxpython/web_services/dialogs.py \
+    gui/wxpython/web_services/widgets.py \
+    gui/wxpython/wxgui.py \
+    gui/wxpython/wxplot/__init__.py \
+    gui/wxpython/wxplot/base.py \
+    gui/wxpython/wxplot/dialogs.py \
+    gui/wxpython/wxplot/histogram.py \
+    gui/wxpython/wxplot/profile.py \
+    gui/wxpython/wxplot/scatter.py \
+    imagery/i.atcorr/create_iwave.py \
+    lib/init/grass.py \
+    lib/init/prompt.py \
+    lib/python/__init__.py \
+    lib/python/ctypes/__init__.py \
+    lib/python/ctypes/arraystats.py \
+    lib/python/ctypes/cluster.py \
+    lib/python/ctypes/ctypesgen.py \
+    lib/python/ctypes/ctypesgencore/__init__.py \
+    lib/python/ctypes/ctypesgencore/ctypedescs.py \
+    lib/python/ctypes/ctypesgencore/descriptions.py \
+    lib/python/ctypes/ctypesgencore/expressions.py \
+    lib/python/ctypes/ctypesgencore/libraryloader.py \
+    lib/python/ctypes/ctypesgencore/messages.py \
+    lib/python/ctypes/ctypesgencore/options.py \
+    lib/python/ctypes/ctypesgencore/parser/__init__.py \
+    lib/python/ctypes/ctypesgencore/parser/cdeclarations.py \
+    lib/python/ctypes/ctypesgencore/parser/cgrammar.py \
+    lib/python/ctypes/ctypesgencore/parser/cparser.py \
+    lib/python/ctypes/ctypesgencore/parser/ctypesparser.py \
+    lib/python/ctypes/ctypesgencore/parser/datacollectingparser.py \
+    lib/python/ctypes/ctypesgencore/parser/lex.py \
+    lib/python/ctypes/ctypesgencore/parser/lextab.py \
+    lib/python/ctypes/ctypesgencore/parser/parsetab.py \
+    lib/python/ctypes/ctypesgencore/parser/pplexer.py \
+    lib/python/ctypes/ctypesgencore/parser/preprocessor.py \
+    lib/python/ctypes/ctypesgencore/parser/yacc.py \
+    lib/python/ctypes/ctypesgencore/printer/__init__.py \
+    lib/python/ctypes/ctypesgencore/printer/defaultheader.py \
+    lib/python/ctypes/ctypesgencore/printer/preamble.py \
+    lib/python/ctypes/ctypesgencore/printer/printer.py \
+    lib/python/ctypes/ctypesgencore/printer/test.py \
+    lib/python/ctypes/ctypesgencore/processor/__init__.py \
+    lib/python/ctypes/ctypesgencore/processor/dependencies.py \
+    lib/python/ctypes/ctypesgencore/processor/operations.py \
+    lib/python/ctypes/ctypesgencore/processor/pipeline.py \
+    lib/python/ctypes/date.py \
+    lib/python/ctypes/dbmi.py \
+    lib/python/ctypes/display.py \
+    lib/python/ctypes/g3d.py \
+    lib/python/ctypes/gis.py \
+    lib/python/ctypes/gmath.py \
+    lib/python/ctypes/grass.py \
+    lib/python/ctypes/imagery.py \
+    lib/python/ctypes/loader.py \
+    lib/python/ctypes/nviz.py \
+    lib/python/ctypes/ogsf.py \
+    lib/python/ctypes/preamble.py \
+    lib/python/ctypes/proj.py \
+    lib/python/ctypes/raster.py \
+    lib/python/ctypes/raster3d.py \
+    lib/python/ctypes/stats.py \
+    lib/python/ctypes/trans.py \
+    lib/python/ctypes/vector.py \
+    lib/python/ctypes/vedit.py \
+    lib/python/imaging/__init__.py \
+    lib/python/imaging/images2avi.py \
+    lib/python/imaging/images2gif.py \
+    lib/python/imaging/images2ims.py \
+    lib/python/imaging/images2swf.py \
+    lib/python/pydispatch/__init__.py \
+    lib/python/pydispatch/dispatcher.py \
+    lib/python/pydispatch/errors.py \
+    lib/python/pydispatch/robust.py \
+    lib/python/pydispatch/robustapply.py \
+    lib/python/pydispatch/saferef.py \
+    lib/python/pydispatch/signal.py \
+    lib/python/pygrass/__init__.py \
+    lib/python/pygrass/docs/conf.py \
+    lib/python/pygrass/errors.py \
+    lib/python/pygrass/functions.py \
+    lib/python/pygrass/gis/__init__.py \
+    lib/python/pygrass/gis/region.py \
+    lib/python/pygrass/messages/__init__.py \
+    lib/python/pygrass/modules/__init__.py \
+    lib/python/pygrass/modules/grid/__init__.py \
+    lib/python/pygrass/modules/grid/grid.py \
+    lib/python/pygrass/modules/grid/patch.py \
+    lib/python/pygrass/modules/grid/split.py \
+    lib/python/pygrass/modules/interface/__init__.py \
+    lib/python/pygrass/modules/interface/flag.py \
+    lib/python/pygrass/modules/interface/module.py \
+    lib/python/pygrass/modules/interface/parameter.py \
+    lib/python/pygrass/modules/interface/read.py \
+    lib/python/pygrass/modules/interface/typedict.py \
+    lib/python/pygrass/modules/shortcuts.py \
+    lib/python/pygrass/orderdict.py \
+    lib/python/pygrass/raster/__init__.py \
+    lib/python/pygrass/raster/abstract.py \
+    lib/python/pygrass/raster/buffer.py \
+    lib/python/pygrass/raster/category.py \
+    lib/python/pygrass/raster/history.py \
+    lib/python/pygrass/raster/raster_type.py \
+    lib/python/pygrass/raster/rowio.py \
+    lib/python/pygrass/raster/segment.py \
+    lib/python/pygrass/shell/__init__.py \
+    lib/python/pygrass/shell/conversion.py \
+    lib/python/pygrass/shell/show.py \
+    lib/python/pygrass/tests/__init__.py \
+    lib/python/pygrass/tests/benchmark.py \
+    lib/python/pygrass/tests/set_mapset.py \
+    lib/python/pygrass/vector/__init__.py \
+    lib/python/pygrass/vector/abstract.py \
+    lib/python/pygrass/vector/basic.py \
+    lib/python/pygrass/vector/find.py \
+    lib/python/pygrass/vector/geometry.py \
+    lib/python/pygrass/vector/sql.py \
+    lib/python/pygrass/vector/table.py \
+    lib/python/pygrass/vector/vector_type.py \
+    lib/python/script/__init__.py \
+    lib/python/script/array.py \
+    lib/python/script/core.py \
+    lib/python/script/db.py \
+    lib/python/script/raster.py \
+    lib/python/script/raster3d.py \
+    lib/python/script/task.py \
+    lib/python/script/vector.py \
+    lib/python/temporal/__init__.py \
+    lib/python/temporal/abstract_dataset.py \
+    lib/python/temporal/abstract_map_dataset.py \
+    lib/python/temporal/abstract_space_time_dataset.py \
+    lib/python/temporal/aggregation.py \
+    lib/python/temporal/base.py \
+    lib/python/temporal/c_libraries_interface.py \
+    lib/python/temporal/core.py \
+    lib/python/temporal/datetime_math.py \
+    lib/python/temporal/extract.py \
+    lib/python/temporal/factory.py \
+    lib/python/temporal/gui_support.py \
+    lib/python/temporal/list_stds.py \
+    lib/python/temporal/mapcalc.py \
+    lib/python/temporal/metadata.py \
+    lib/python/temporal/open_stds.py \
+    lib/python/temporal/register.py \
+    lib/python/temporal/sampling.py \
+    lib/python/temporal/space_time_datasets.py \
+    lib/python/temporal/spatial_extent.py \
+    lib/python/temporal/spatial_topology_dataset_connector.py \
+    lib/python/temporal/spatio_temporal_relationships.py \
+    lib/python/temporal/stds_export.py \
+    lib/python/temporal/stds_import.py \
+    lib/python/temporal/temporal_algebra.py \
+    lib/python/temporal/temporal_extent.py \
+    lib/python/temporal/temporal_granularity.py \
+    lib/python/temporal/temporal_raster3d_algebra.py \
+    lib/python/temporal/temporal_raster_algebra.py \
+    lib/python/temporal/temporal_raster_base_algebra.py \
+    lib/python/temporal/temporal_raster_operator.py \
+    lib/python/temporal/temporal_topology_dataset_connector.py \
+    lib/python/temporal/temporal_vector_algebra.py \
+    lib/python/temporal/temporal_vector_operator.py \
+    lib/python/temporal/unit_tests.py \
+    lib/python/temporal/unittests_register.py \
+    lib/python/temporal/unittests_temporal_raster3d_algebra.py \
+    lib/python/temporal/unittests_temporal_raster_algebra.py \
+    lib/python/temporal/univar_statistics.py \
+    locale/grass_po_stats.py \
+    man/build_check.py \
+    man/build_check_rest.py \
+    man/build_class.py \
+    man/build_class_rest.py \
+    man/build_full_index.py \
+    man/build_full_index_rest.py \
+    man/build_html.py \
+    man/build_index.py \
+    man/build_index_rest.py \
+    man/build_keywords.py \
+    man/build_rest.py \
+    man/build_topics.py \
+    man/sphinx/conf.py \
+    raster/r.gwflow/valid_calc_7x7.py \
+    raster/r.gwflow/valid_calc_excavation.py \
+    raster/r.solute.transport/example.py \
+    raster/r.solute.transport/seguin_verify.py \
+    raster/r.solute.transport/seguin_verify_well.py \
+    scripts/d.correlate/d.correlate.py \
+    scripts/d.out.file/d.out.file.py \
+    scripts/d.polar/d.polar.py \
+    scripts/d.rast.edit/d.rast.edit.py \
+    scripts/d.rast.leg/d.rast.leg.py \
+    scripts/d.redraw/d.redraw.py \
+    scripts/d.shadedmap/d.shadedmap.py \
+    scripts/d.vect.thematic/d.vect.thematic.py \
+    scripts/db.dropcolumn/db.dropcolumn.py \
+    scripts/db.droptable/db.droptable.py \
+    scripts/db.in.ogr/db.in.ogr.py \
+    scripts/db.out.ogr/db.out.ogr.py \
+    scripts/db.test/db.test.py \
+    scripts/db.univar/db.univar.py \
+    scripts/g.extension/g.extension.py \
+    scripts/g.extension.all/g.extension.all.py \
+    scripts/g.manual/g.manual.py \
+    scripts/i.image.mosaic/i.image.mosaic.py \
+    scripts/i.in.spotvgt/i.in.spotvgt.py \
+    scripts/i.landsat.rgb/i.landsat.rgb.py \
+    scripts/i.oif/i.oif.py \
+    scripts/i.pansharpen/i.pansharpen.py \
+    scripts/i.spectral/i.spectral.py \
+    scripts/i.tasscap/i.tasscap.py \
+    scripts/m.proj/m.proj.py \
+    scripts/r.blend/r.blend.py \
+    scripts/r.buffer.lowmem/r.buffer.lowmem.py \
+    scripts/r.colors.stddev/r.colors.stddev.py \
+    scripts/r.fillnulls/r.fillnulls.py \
+    scripts/r.grow/r.grow.py \
+    scripts/r.in.aster/r.in.aster.py \
+    scripts/r.in.srtm/r.in.srtm.py \
+    scripts/r.in.wms/r.in.wms.py \
+    scripts/r.in.wms/wms_base.py \
+    scripts/r.in.wms/wms_cap_parsers.py \
+    scripts/r.in.wms/wms_drv.py \
+    scripts/r.in.wms/wms_gdal_drv.py \
+    scripts/r.mask/r.mask.py \
+    scripts/r.out.xyz/r.out.xyz.py \
+    scripts/r.pack/r.pack.py \
+    scripts/r.plane/r.plane.py \
+    scripts/r.reclass.area/r.reclass.area.py \
+    scripts/r.rgb/r.rgb.py \
+    scripts/r.tileset/r.tileset.py \
+    scripts/r.unpack/r.unpack.py \
+    scripts/r3.in.xyz/r3.in.xyz.py \
+    scripts/v.build.all/v.build.all.py \
+    scripts/v.centroids/v.centroids.py \
+    scripts/v.convert.all/v.convert.all.py \
+    scripts/v.db.addcolumn/v.db.addcolumn.py \
+    scripts/v.db.addtable/v.db.addtable.py \
+    scripts/v.db.dropcolumn/v.db.dropcolumn.py \
+    scripts/v.db.droprow/v.db.droprow.py \
+    scripts/v.db.droptable/v.db.droptable.py \
+    scripts/v.db.join/v.db.join.py \
+    scripts/v.db.reconnect.all/v.db.reconnect.all.py \
+    scripts/v.db.renamecolumn/v.db.renamecolumn.py \
+    scripts/v.db.univar/v.db.univar.py \
+    scripts/v.db.update/v.db.update.py \
+    scripts/v.dissolve/v.dissolve.py \
+    scripts/v.in.e00/v.in.e00.py \
+    scripts/v.in.geonames/v.in.geonames.py \
+    scripts/v.in.gns/v.in.gns.py \
+    scripts/v.in.gps/v.in.gps.py \
+    scripts/v.in.lines/v.in.lines.py \
+    scripts/v.in.mapgen/v.in.mapgen.py \
+    scripts/v.in.sites.all/v.in.sites.all.py \
+    scripts/v.in.wfs/v.in.wfs.py \
+    scripts/v.krige/v.krige.py \
+    scripts/v.out.gps/v.out.gps.py \
+    scripts/v.pack/v.pack.py \
+    scripts/v.rast.stats/v.rast.stats.py \
+    scripts/v.report/v.report.py \
+    scripts/v.unpack/v.unpack.py \
+    scripts/v.what.vect/v.what.vect.py \
+    scripts/wxpyimgview/wxpyimgview.py \
+    scripts/wxpyimgview/wxpyimgview_gui.py \
+    temporal/t.create/t.create.py \
+    temporal/t.info/t.info.py \
+    temporal/t.list/t.list.py \
+    temporal/t.merge/t.merge.py \
+    temporal/t.rast.accdetect/t.rast.accdetect.py \
+    temporal/t.rast.accumulate/t.rast.accumulate.py \
+    temporal/t.rast.aggregate/t.rast.aggregate.py \
+    temporal/t.rast.aggregate.ds/t.rast.aggregate.ds.py \
+    temporal/t.rast.colors/t.rast.colors.py \
+    temporal/t.rast.export/t.rast.export.py \
+    temporal/t.rast.extract/t.rast.extract.py \
+    temporal/t.rast.gapfill/t.rast.gapfill.py \
+    temporal/t.rast.import/t.rast.import.py \
+    temporal/t.rast.list/t.rast.list.py \
+    temporal/t.rast.mapcalc/t.rast.mapcalc.py \
+    temporal/t.rast.mapcalc2/t.rast.mapcalc2.py \
+    temporal/t.rast.neighbors/t.rast.neighbors.py \
+    temporal/t.rast.out.vtk/t.rast.out.vtk.py \
+    temporal/t.rast.series/t.rast.series.py \
+    temporal/t.rast.to.rast3/t.rast.to.rast3.py \
+    temporal/t.rast.univar/t.rast.univar.py \
+    temporal/t.rast3d.extract/t.rast3d.extract.py \
+    temporal/t.rast3d.list/t.rast3d.list.py \
+    temporal/t.rast3d.mapcalc/t.rast3d.mapcalc.py \
+    temporal/t.rast3d.mapcalc2/t.rast3d.mapcalc2.py \
+    temporal/t.rast3d.univar/t.rast3d.univar.py \
+    temporal/t.register/t.register.py \
+    temporal/t.remove/t.remove.py \
+    temporal/t.rename/t.rename.py \
+    temporal/t.sample/t.sample.py \
+    temporal/t.select/t.select.py \
+    temporal/t.shift/t.shift.py \
+    temporal/t.snap/t.snap.py \
+    temporal/t.support/t.support.py \
+    temporal/t.topology/t.topology.py \
+    temporal/t.unregister/t.unregister.py \
+    temporal/t.vect.db.select/t.vect.db.select.py \
+    temporal/t.vect.export/t.vect.export.py \
+    temporal/t.vect.extract/t.vect.extract.py \
+    temporal/t.vect.import/t.vect.import.py \
+    temporal/t.vect.list/t.vect.list.py \
+    temporal/t.vect.mapcalc/t.vect.mapcalc.py \
+    temporal/t.vect.observe.strds/t.vect.observe.strds.py \
+    temporal/t.vect.univar/t.vect.univar.py \
+    temporal/t.vect.what.strds/t.vect.what.strds.py \
+    tools/create_python_init_file.py \
+    tools/g.html2man/g.html2man.py \
+    tools/g.html2man/groff.py \
+    tools/g.html2man/html.py \
+    tools/g.html2man/rest.py \
+    tools/mkhtml.py \
+    tools/mkrest.py \
+    tools/reindent.py \
+    tools/thumbnails.py ]
+
+configure.ldflags-append -framework OpenGL -framework Accelerate
+configure.args \
+    --with-fftw-includes=${prefix}/include \
+    --with-fftw-libs=${prefix}/lib \
+    --with-freetype \
+    --with-freetype-includes=${prefix}/include/freetype2 \
+    --with-freetype-libs=${prefix}/lib \
+    --with-gdal=${prefix}/bin/gdal-config \
+    --with-jpeg-includes=${prefix}/include \
+    --with-jpeg-libs=${prefix}/lib \
+    --with-motif \
+    --with-motif-includes=${prefix}/include \
+    --with-motif-libs=${prefix}/lib \
+    --with-png-includes=${prefix}/include \
+    --with-png-libs=${prefix}/lib \
+    --with-proj-includes=${prefix}/lib/proj47/include \
+    --with-proj-libs=${prefix}/lib/proj47/lib \
+    --with-proj-share=${prefix}/lib/proj47/share/proj \
+    --with-tcltk-includes=${prefix}/include \
+    --with-tcltk-libs=${prefix}/lib \
+    --with-cxx \
+    --with-x \
+    --without-postgres \
+    --enable-largefile \
+    --with-cairo \
+    --with-cairo-includes=${prefix}/include/cairo \
+    --with-cairo-libs=${prefix}/lib \
+    --with-blas \
+    --with-lapack \
+    --with-readline \
+    --with-readline-includes=${prefix}/include/readline \
+    --with-readline-libs=${prefix}/lib \
+    --with-regex-includes=/usr/include \
+    --with-regex-lib=/usr/lib
+
+build.target        default
+
+variant mysql5 description {Add MySQL 5 support} {
+    depends_lib-append    path:bin/mysql_config5:mysql5
+    configure.args-append --with-mysql
+    configure.args-append --with-mysql-includes=${prefix}/include/mysql5/mysql
+    configure.args-append --with-mysql-libs=${prefix}/lib/mysql5/mysql
+    configure.env-append  MYSQLD_CONFIG=${prefix}/lib/mysql5/bin/mysql_config
+}
+
+variant postgresql83 conflicts postgresql84 postgresql90 postgresql91 postgresql92 postgresql93 description {Add PostgreSQL 8.3 support} {
+    depends_lib-append    port:postgresql83
+    configure.args-delete --without-postgres
+    configure.args-append --with-postgres
+    configure.args-append --with-postgres-includes=${prefix}/include/postgresql83
+    configure.args-append --with-postgres-libs=${prefix}/lib/postgresql83
+}
+
+variant postgresql84 conflicts postgresql83 postgresql90 postgresql91 postgresql92 postgresql93 description {Add PostgreSQL 8.4 support} {
+    depends_lib-append    port:postgresql84
+    configure.args-delete --without-postgres
+    configure.args-append --with-postgres
+    configure.args-append --with-postgres-includes=${prefix}/include/postgresql84
+    configure.args-append --with-postgres-libs=${prefix}/lib/postgresql84
+}
+
+variant postgresql90 conflicts postgresql83 postgresql84 postgresql91 postgresql92 postgresql93 description {Add PostgreSQL 9.0 support} {
+    depends_lib-append    port:postgresql90
+    configure.args-delete --without-postgres
+    configure.args-append --with-postgres
+    configure.args-append --with-postgres-includes=${prefix}/include/postgresql90
+    configure.args-append --with-postgres-libs=${prefix}/lib/postgresql90
+}
+
+variant postgresql91 conflicts postgresql83 postgresql84 postgresql90 postgresql92 postgresql93 description {Add PostgreSQL 9.1 support} {
+    depends_lib-append    port:postgresql91
+    configure.args-delete --without-postgres
+    configure.args-append --with-postgres
+    configure.args-append --with-postgres-includes=${prefix}/include/postgresql91
+    configure.args-append --with-postgres-libs=${prefix}/lib/postgresql91
+}
+
+variant postgresql92 conflicts postgresql83 postgresql84 postgresql90 postgresql91 postgresql93 description {Add PostgreSQL 9.2 support} {
+    depends_lib-append    port:postgresql92
+    configure.args-delete --without-postgres
+    configure.args-append --with-postgres
+    configure.args-append --with-postgres-includes=${prefix}/include/postgresql92
+    configure.args-append --with-postgres-libs=${prefix}/lib/postgresql92
+}
+
+variant postgresql93 conflicts postgresql83 postgresql84 postgresql90 postgresql91 postgresql92 description {Add PostgreSQL 9.3 support} {
+    depends_lib-append    port:postgresql93
+    configure.args-delete --without-postgres
+    configure.args-append --with-postgres
+    configure.args-append --with-postgres-includes=${prefix}/include/postgresql93
+    configure.args-append --with-postgres-libs=${prefix}/lib/postgresql93
+}
+
+variant sqlite3 description {Add SQLite 3 support} {
+    depends_lib-append    port:sqlite3
+    configure.args-append --with-sqlite
+    configure.args-append --with-sqlite-includes=${prefix}/include
+    configure.args-append --with-sqlite-libs=${prefix}/lib
+}
+
+variant ffmpeg description {Add ffmpeg support} {
+    depends_lib-append    path:lib/libavcodec.dylib:ffmpeg
+    configure.args-append --with-ffmpeg \
+                          --with-ffmpeg-includes=\"${prefix}/include/libavcodec  \
+                                                   ${prefix}/include/libavformat \
+                                                   ${prefix}/include/libswscale\" \
+                          --with-ffmpeglibs=${prefix}/lib
+}
+
+# python26 variant is only present to allow 'grass +wxgtk28' to coexist with py27-wxpython-3.0
+# once support for wxWidgets 3.0 is complete, support for Python 2.6 may be removed
+variant python26 conflicts python27 wxwidgets30 description {} {
+    depends_lib-append    port:python26
+    set python_bin        ${frameworks_dir}/Python.framework/Versions/2.6/bin/python2.6
+    #                     Enable support for wxGUI Python extensions
+    #                     (by removing this we wouldn't need to depend on py-wxpython-x.y)
+    configure.args-append --with-python=${frameworks_dir}/Python.framework/Versions/2.6/bin/python2.6-config
+    build.args-append     PYTHON=${python_bin}
+    # TODO: this port doesn't work with the python portgroup because the group changes too much
+    # but it would make sense to fix this in such a way that python_bin could be determined automatically
+
+    post-patch {
+        # for some reason it fails if python_bin is not defined inside post-patch (figure out why)
+        set python_bin ${frameworks_dir}/Python.framework/Versions/2.6/bin/python2.6
+        reinplace "s|@@PYTHON@@|${python_bin}|" ${worksrcpath}/lib/init/grass.sh
+        foreach f $python_scripts {
+            reinplace "s|/usr/bin/env python|${python_bin}|" $f
+        }
+    }
+}
+
+variant python27 conflicts python26 description {} {
+    depends_lib-append    port:python27
+    set python_bin        ${frameworks_dir}/Python.framework/Versions/2.7/bin/python2.7
+    configure.args-append --with-python=${frameworks_dir}/Python.framework/Versions/2.7/bin/python2.7-config
+    build.args-append     PYTHON=${python_bin}
+
+    post-patch {
+        set python_bin ${frameworks_dir}/Python.framework/Versions/2.7/bin/python2.7
+        reinplace "s|@@PYTHON@@|${python_bin}|" ${worksrcpath}/lib/init/grass.sh
+        foreach f $python_scripts {
+            reinplace "s|/usr/bin/env python|${python_bin}|" $f
+        }
+    }
+}
+
+# TODO: in principle wxWidgets is optional and could be disable with
+#       --disable-wxwidgets if there is demand for that
+#       grass 4.6.3 is not compatible with wxWidgets 3.0 yet
+variant wxwidgets30 conflicts wxwidgets28 wxgtk28 python26 description {Use Cocoa-based wxWidgets 3.0 (experimental)} {
+    wxWidgets.use         wxPython-3.0
+    depends_lib-append    port:${wxWidgets.port}
+    configure.args-append --with-wxwidgets=${wxWidgets.wxconfig}
+}
+variant wxwidgets28 conflicts wxwidgets30 wxgtk28 description {Use Carbon-based wxWidgets 2.8} {
+    # untested (might not work)
+    wxWidgets.use         wxWidgets-2.8
+    depends_lib-append    port:${wxWidgets.port}
+    configure.args-append --with-wxwidgets=${wxWidgets.wxconfig}
+}
+variant wxgtk28 conflicts wxwidgets30 wxwidgets28 description {Use GTK-based wxWidgets 2.8} {
+    wxWidgets.use         wxGTK-2.8
+    depends_lib-append    port:${wxWidgets.port}
+    configure.args-append --with-wxwidgets=${wxWidgets.wxconfig}
+}
+
+if {![variant_isset wxwidgets30] && ![variant_isset wxwidgets28] && ![variant_isset wxgtk28]} {
+    default_variants-append +wxwidgets30
+}
+if {![variant_isset python26] && ![variant_isset python27]} {
+    if {[variant_isset wxgtk28] || [variant_isset wxwidgets28]} {
+        default_variants-append +python26
+    } else {
+        default_variants-append +python27
+    }
+}
+
+# TODO: if py27-wxpython-3.0 is installed, grass +wxgtk28 cannot be installed with +python27
+#       we could remove this limitation by disabling wxpython support altogether
+#       (in case there is demand for it)
+# TODO: the code below is ugly; any suggestions for improving it are welcome
+if {[variant_isset wxwidgets30]} {
+    depends_lib-append port:py27-wxpython-3.0
+} else {
+    if {[variant_isset python26]} {
+        depends_lib-append port:py26-wxpython-2.8
+        if {[variant_isset wxwidgets28]} {
+            require_active_variants py26-wxpython-2.8 carbon gtk
+        } else {
+            require_active_variants py26-wxpython-2.8 gtk carbon
+        }
+    } elseif {[variant_isset python27]} {
+        depends_lib-append port:py27-wxpython-2.8
+        if {[variant_isset wxwidgets28]} {
+            require_active_variants py27-wxpython-2.8 carbon gtk
+        } else {
+            require_active_variants py27-wxpython-2.8 gtk carbon
+        }
+    }
+}
+
+livecheck.type      regex
+livecheck.url       http://grass.osgeo.org/download/software/sources/
+livecheck.regex     grass-(\[0-9.\]+)${extract.suffix}
