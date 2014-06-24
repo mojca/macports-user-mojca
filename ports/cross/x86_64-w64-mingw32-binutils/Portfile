@@ -1,0 +1,32 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           crossbinutils 1.0
+
+set core_name       w64-mingw32
+set vers            2.24
+
+crossbinutils.setup x86_64-${core_name} ${vers}
+
+checksums           rmd160  b4aa3ea5ba9d0d9f817b2cf136e7f911f692af8d \
+                    sha256  e5e8c5be9664e7f7f96e0d09919110ab5ad597794f5b1809871177a0f0f14137
+
+subport i686-${core_name}-binutils {
+    crossbinutils.setup i686-${core_name} ${vers}
+}
+
+configure.args-append \
+                    --enable-targets=x86_64-${core_name},i686-${core_name} \
+                    --disable-werror
+
+maintainers         mojca openmaintainer
+homepage            http://mingw-w64.sourceforge.net/
+
+# http://www.drangon.org/mingw/
+# http://pete.akeo.ie/2010/07/compiling-mingw-w64-with-multilib-on.html
+# https://github.com/mirror/mingw-w64/blob/master/mingw-w64-doc/howto-build/mingw-w64-howto-build-adv.txt
+#   --enable-targets=x86_64-w64-mingw32,i686-w64-mingw32 \
+#   --target=x86_64-w64-mingw32
+
+# name for the port could also be w64-mingw32-binutils
