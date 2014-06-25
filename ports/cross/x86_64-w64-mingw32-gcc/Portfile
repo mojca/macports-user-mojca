@@ -18,8 +18,8 @@ checksums           gcc-${version}.tar.bz2 \
                     rmd160  2c7214ff607cbe822282c04d1d6f9fea765c82c5 \
                     sha256  6a8e4f11b185f4fe2ed9d7fc053e80f8c7e73f800c045f51f9d8bea33f080f1e
 
-depends_lib-append  ${crossgcc.target}-binutils \
-                    ${crossgcc.target}-headers
+depends_lib-append  port:${crossgcc.target}-binutils \
+                    port:${crossgcc.target}-headers
 
 # TODO: check the difference in headers installed by MinGW and those by the compiler!!!
 

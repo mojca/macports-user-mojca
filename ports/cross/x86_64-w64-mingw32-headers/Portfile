@@ -9,7 +9,9 @@ set crossgcc.target x86_64-${core_name}
 
 github.setup        mirror mingw-w64 3.1.0 v
 # TODO: rename this port
-name                x86_64-w64-mingw32-headers
+name                ${crossgcc.target}-headers
+
+subport ${crossgcc.target}-crt {}
 
 platforms           darwin
 # TODO: distributable
@@ -31,21 +33,56 @@ post-extract {
 
 dist_subdir         mingw-w64
 
+# TODO: set a variable to replace mingw-w64
 configure.dir       ${workpath}/build
 configure.cmd       ${worksrcpath}/mingw-w64-headers/configure
 configure.args      --prefix=${prefix}/${crossgcc.target} \
-                    --host=${crossgcc.target} \
-                    --enable-sdk=no
-#                   --build=<host triplet>
+                    --host=${crossgcc.target}
+configure.pre_args-delete \
+                    --prefix=${prefix}
+
+if {${subport} eq ${name}} {
+    # configure.args-append   --enable-sdk=no|all
+    
+    pre-destroot {
+        # gcc needs the cross directory structure to be present
+        # in order to fill it during installation.
+        file mkdir "${destroot}/${prefix}/${crossgcc.target}/lib"
+        file mkdir "${destroot}/${prefix}/${crossgcc.target}/lib32"
+        ln -s lib  "${destroot}/${prefix}/${crossgcc.target}/lib64"
+        ln -s "${crossgcc.target}" "${destroot}/${prefix}/mingw"
+    }
+} elseif {${subport} eq "${crossgcc.target}-crt"} {
+    # only part of gcc is needed
+    depends_lib-append      port:${crossgcc.target}-binutils \
+                            port:${crossgcc.target}-gcc \
+                            port:${crossgcc.target}-headers
+    configure.cmd           ${worksrcpath}/mingw-w64-crt/configure
+    configure.args-append   --enable-lib32 \
+                            --enable-lib64
+    # configure.cppflags
+    configure.cppflags      "-I${prefix}/${crossgcc.target}/include"
+
+    # ----- from crossgcc (not sure if needed) ----
+    # the generated compiler doesn't accept -arch
+    configure.cc_archflags
+    configure.cxx_archflags
+    configure.objc_archflags
+    configure.ld_archflags
+
+    # the bootstrap compiler doesn't accept -stdlib
+    configure.cxx_stdlib
+
+    # We don't need system includes(this prevents xgcc to include system-wide
+    # unwind.h if it is present)!
+    compiler.cpath
+    # -----
+
+    # is there a more elegant way?
+    configure.cc  ${prefix}/bin/x86_64-w64-mingw32-gcc
+    configure.cxx ${prefix}/bin/x86_64-w64-mingw32-g++
+    configure.cpp ${prefix}/bin/x86_64-w64-mingw32-cpp
+}
 
 # this port installs files to ${prefix}/${crossgcc.target}
 destroot.violate_mtree yes
-
-pre-destroot {
-    # gcc needs the cross directory structure to be present
-    # in order to fill it during installation.
-    file mkdir "${destroot}/${prefix}/${crossgcc.target}/lib"
-    file mkdir "${destroot}/${prefix}/${crossgcc.target}/lib32"
-    ln -s lib  "${destroot}/${prefix}/${crossgcc.target}/lib64"
-    ln -s "${crossgcc.target}" "${destroot}/${prefix}/mingw"
-}
