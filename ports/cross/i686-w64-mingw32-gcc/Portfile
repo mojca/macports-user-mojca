@@ -9,7 +9,8 @@ set mingw_arch      i686
 set mingw_target    ${mingw_arch}-${mingw_name}
 set mingw_prefix    ${prefix}/${mingw_target}
 
-crossgcc.setup      ${mingw_arch}-${mingw_name} 4.9.0
+# crossgcc.setup      ${mingw_arch}-${mingw_name} 4.9.0
+crossgcc.setup      ${mingw_arch}-${mingw_name} 4.8.3
 subport             ${mingw_arch}-${mingw_name}-libgcc {}
 
 # name              x86_64-w64-mingw32-gcc
@@ -17,8 +18,11 @@ subport             ${mingw_arch}-${mingw_name}-libgcc {}
 
 maintainers         mojca openmaintainer
 
-checksums           rmd160  ac561660744127fa009ae75202d1ac81ac8d7668 \
-                    sha256  b9b047a97bade9c1c89970bc8e211ff57b7b8998a1730a80a653d329f8ed1257
+# for 4.9.0
+# checksums           rmd160  ac561660744127fa009ae75202d1ac81ac8d7668 \
+#                     sha256  b9b047a97bade9c1c89970bc8e211ff57b7b8998a1730a80a653d329f8ed1257
+checksums           rmd160  2c7214ff607cbe822282c04d1d6f9fea765c82c5 \
+                    sha256  6a8e4f11b185f4fe2ed9d7fc053e80f8c7e73f800c045f51f9d8bea33f080f1e
 
 depends_lib-append  port:${crossgcc.target}-binutils \
                     port:${crossgcc.target}-headers
