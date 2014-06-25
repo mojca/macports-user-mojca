@@ -1,0 +1,50 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           crossgcc 1.0
+
+set mingw_name      w64-mingw32
+set mingw_arch      i686
+set mingw_target    ${mingw_arch}-${mingw_name}
+set mingw_prefix    ${prefix}/${mingw_target}
+
+crossgcc.setup      ${mingw_arch}-${mingw_name} 4.9.0
+subport             ${mingw_arch}-${mingw_name}-libgcc {}
+
+# name              x86_64-w64-mingw32-gcc
+# set branch        [join [lrange [split ${version} .] 0 1] .]
+
+maintainers         mojca openmaintainer
+
+checksums           rmd160  ac561660744127fa009ae75202d1ac81ac8d7668 \
+                    sha256  b9b047a97bade9c1c89970bc8e211ff57b7b8998a1730a80a653d329f8ed1257
+
+depends_lib-append  port:${crossgcc.target}-binutils \
+                    port:${crossgcc.target}-headers
+
+# TODO: check the difference in headers installed by MinGW and those by the compiler!!!
+
+configure.args-append \
+                    --prefix=${mingw_prefix} \
+                    --with-sysroot=${mingw_prefix} \
+                    --enable-shared \
+                    --with-dwarf \
+                    --enable-fully-dynamic-string \
+                    --enable-libssp \
+                    --enable-lto
+
+if {${subport} eq ${name}} {
+    build.target        all-gcc
+    destroot.target     install-gcc
+} else {
+    build.target        all-target-libgcc
+    destroot.target     install-target-libgcc
+}
+
+# TODO:
+# - first build gcc with "make all-gcc & make install-gcc"
+# - then build CRT
+# - then libgcc in the same folder as the compiler was being built (make all-target-libgcc, make install-target-libgcc)
+# - then pthreads
+# - and another build of the compiler (make, make install)
