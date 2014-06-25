@@ -51,6 +51,13 @@ if {${subport} ne ${name}} {
                                 --host=${mingw_target}
     configure.pre_args-delete   --prefix=${prefix}
 
+    if {${mingw_dir} eq "headers"} {
+        post-destroot {
+            file mkdir "${destroot}/${mingw_prefix}/mingw"
+            ln -s "../include" "${destroot}/${mingw_prefix}/mingw/include"
+        }
+    }
+
     # CRT
     if {${mingw_dir} eq "crt"} {
         depends_lib-append      port:${mingw_target}-binutils \
