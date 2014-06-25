@@ -1,0 +1,51 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           GitHub 1.0
+
+set core_name       w64-mingw32
+set crossgcc.target x86_64-${core_name}
+
+github.setup        mirror mingw-w64 3.1.0 v
+# TODO: rename this port
+name                x86_64-w64-mingw32-headers
+
+platforms           darwin
+# TODO: distributable
+license             ZPL-2.1
+maintainers         mojca openmaintainer
+
+description         mingw-w64 Headers (TODO)
+long_description    mingw-w64 Headers (TODO)
+
+homepage            http://mingw-w64.sourceforge.net/
+
+checksums           rmd160  573bcc1499ee840fd5f171aacdc85b6a6ca6e5ba \
+                    sha256  d3bd21dca42779ef8f713e5b215d0aac2eb87bc88745d84b17df62aca4ff7d56
+
+build.dir           ${workpath}/build
+post-extract {
+    file mkdir "${build.dir}"
+}
+
+dist_subdir         mingw-w64
+
+configure.dir       ${workpath}/build
+configure.cmd       ${worksrcpath}/mingw-w64-headers/configure
+configure.args      --prefix=${prefix}/${crossgcc.target} \
+                    --host=${crossgcc.target} \
+                    --enable-sdk=no
+#                   --build=<host triplet>
+
+# this port installs files to ${prefix}/${crossgcc.target}
+destroot.violate_mtree yes
+
+pre-destroot {
+    # gcc needs the cross directory structure to be present
+    # in order to fill it during installation.
+    file mkdir "${destroot}/${prefix}/${crossgcc.target}/lib"
+    file mkdir "${destroot}/${prefix}/${crossgcc.target}/lib32"
+    ln -s lib  "${destroot}/${prefix}/${crossgcc.target}/lib64"
+    ln -s "${crossgcc.target}" "${destroot}/${prefix}/mingw"
+}
