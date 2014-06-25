@@ -165,6 +165,9 @@ variant python27 description {} {
     # TODO: this port doesn't work with the python portgroup because the group changes too much
     # but it would make sense to fix this in such a way that python_bin could be determined automatically
     depends_lib-append      port:python27
+    if {[variant_isset wxwidgets30]} {
+        depends_lib-append  port:py27-wxpython-3.0
+    }
     set python_bin          ${frameworks_dir}/Python.framework/Versions/2.7/bin/python2.7
     #                       Enable support for wxGUI Python extensions
     #                       (by removing this we wouldn't need to depend on py-wxpython-x.y)
