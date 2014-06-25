@@ -1,0 +1,42 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           crossgcc 1.0
+
+set core_name       w64-mingw32
+
+# or 4.9.0?
+crossgcc.setup      x86_64-${core_name} 4.8.3
+
+# name              x86_64-w64-mingw32-gcc
+# set branch        [join [lrange [split ${version} .] 0 1] .]
+
+maintainers         mojca openmaintainer
+
+checksums           gcc-${version}.tar.bz2 \
+                    rmd160  2c7214ff607cbe822282c04d1d6f9fea765c82c5 \
+                    sha256  6a8e4f11b185f4fe2ed9d7fc053e80f8c7e73f800c045f51f9d8bea33f080f1e
+
+depends_lib-append  ${crossgcc.target}-binutils \
+                    ${crossgcc.target}-headers
+
+# TODO: check the difference in headers installed by MinGW and those by the compiler!!!
+
+configure.args-append \
+                    --enable-64bit \
+                    --with-sysroot=${prefix} \
+                    --enable-shared \
+                    --with-dwarf \
+                    --enable-fully-dynamic-string \
+                    --enable-libssp \
+                    --enable-lto
+
+build.target        all-gcc
+destroot.target     install-gcc
+
+# TODO:
+# - after this is done, we need to build CRT
+# - then libgcc in the same folder as the compiler was being built (make all-target-libgcc, make install-target-libgcc)
+# - then pthreads
+# - and another build of the compiler (make, make install)
