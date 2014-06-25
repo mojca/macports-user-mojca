@@ -64,9 +64,9 @@ if {${subport} ne ${name}} {
                                 port:${mingw_target}-gcc \
                                 port:${mingw_target}-headers
         # maybe that's already default?
-        configure.args-append   --enable-lib${mingw_bits}
+        configure.args-append   --enable-lib${mingw_bits} \
+                                --with-sysroot=${mingw_prefix}
         configure.cppflags      "-I${mingw_prefix}/include"
-        configure.args          --with-sysroot=${mingw_prefix} \
 
         # ----- from crossgcc (not sure if needed) ----
         # the generated compiler doesn't accept -arch
@@ -84,9 +84,9 @@ if {${subport} ne ${name}} {
         # -----
 
         # is there a more elegant way?
-        configure.cc  ${prefix}/bin/${mingw_target}-gcc
-        configure.cxx ${prefix}/bin/${mingw_target}-g++
-        configure.cpp ${prefix}/bin/${mingw_target}-cpp 
+        # configure.cc  ${prefix}/bin/${mingw_target}-gcc
+        # configure.cxx ${prefix}/bin/${mingw_target}-g++
+        # configure.cpp ${prefix}/bin/${mingw_target}-cpp
     }
 
     destroot.violate_mtree  yes
