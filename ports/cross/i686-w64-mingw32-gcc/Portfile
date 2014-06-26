@@ -32,6 +32,7 @@ depends_lib-append  port:${crossgcc.target}-binutils \
 configure.args-append \
                     --prefix=${mingw_prefix} \
                     --with-sysroot=${mingw_prefix} \
+                    --disable-multilib \
                     --enable-shared \
                     --with-dwarf \
                     --enable-fully-dynamic-string \
@@ -41,9 +42,18 @@ configure.args-append \
 if {${subport} eq ${name}} {
     build.target        all-gcc
     destroot.target     install-gcc
+
+    # TODO: this code should be removed once --prefix gets fixed
+    post-destroot {
+        ui_info "path: ${destroot}${mingw_prefix}/bin"
+        foreach file [glob -tails -directory ${destroot}${mingw_prefix}/bin ${mingw_target}-*] {
+            ln -s "${mingw_prefix}/bin/${file}" "${destroot}${prefix}/bin/"
+        }
+    }
 } else {
-    build.target        all-target-libgcc
-    destroot.target     install-target-libgcc
+    # TODO: test if make && make install works even without pthreads support (just temporary)
+    # build.target      all-target-libgcc
+    # destroot.target   install-target-libgcc
 }
 
 # TODO:
