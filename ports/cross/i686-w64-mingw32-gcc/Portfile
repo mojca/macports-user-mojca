@@ -9,26 +9,24 @@ set mingw_arch      i686
 set mingw_target    ${mingw_arch}-${mingw_name}
 set mingw_prefix    ${prefix}/${mingw_target}
 
-# crossgcc.setup      ${mingw_arch}-${mingw_name} 4.9.0
 crossgcc.setup      ${mingw_arch}-${mingw_name} 4.8.3
 subport             ${mingw_arch}-${mingw_name}-libgcc {}
 
-# name              x86_64-w64-mingw32-gcc
+# name              i686-w64-mingw32-gcc
 # set branch        [join [lrange [split ${version} .] 0 1] .]
 
 maintainers         mojca openmaintainer
 
-# for 4.9.0
-# checksums           rmd160  ac561660744127fa009ae75202d1ac81ac8d7668 \
-#                     sha256  b9b047a97bade9c1c89970bc8e211ff57b7b8998a1730a80a653d329f8ed1257
 checksums           rmd160  2c7214ff607cbe822282c04d1d6f9fea765c82c5 \
                     sha256  6a8e4f11b185f4fe2ed9d7fc053e80f8c7e73f800c045f51f9d8bea33f080f1e
+# for 4.9.0 (which doesn't work yet
+# checksums           rmd160  ac561660744127fa009ae75202d1ac81ac8d7668 \
+#                     sha256  b9b047a97bade9c1c89970bc8e211ff57b7b8998a1730a80a653d329f8ed1257
 
 depends_lib-append  port:${crossgcc.target}-binutils \
                     port:${crossgcc.target}-headers
 
-# TODO: check the difference in headers installed by MinGW and those by the compiler!!!
-
+# TODO: check the difference in headers installed by MinGW and those by the compiler
 configure.args-append \
                     --prefix=${mingw_prefix} \
                     --with-sysroot=${mingw_prefix} \
@@ -51,9 +49,12 @@ if {${subport} eq ${name}} {
         }
     }
 } else {
+    depends_lib-append  port:${crossgcc.target}-crt
+
     # TODO: test if make && make install works even without pthreads support (just temporary)
     # build.target      all-target-libgcc
     # destroot.target   install-target-libgcc
+    # TODO: remove files already installed by main port (maybe use registry_port_registered)
 }
 
 # TODO:

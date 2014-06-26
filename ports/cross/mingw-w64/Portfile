@@ -89,5 +89,5 @@ if {${subport} ne ${name}} {
 
     destroot.violate_mtree  yes
 } else {
-    # TODO: make just a placeholder, maybe save the docs
+    # TODO: make just a placeholder, maybe save the docs; don't install anything
 }

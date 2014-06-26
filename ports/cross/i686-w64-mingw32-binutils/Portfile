@@ -11,6 +11,9 @@ set mingw_prefix    ${prefix}/${mingw_target}
 
 crossbinutils.setup ${mingw_target} 2.24
 
+maintainers         mojca openmaintainer
+homepage            http://mingw-w64.sourceforge.net/
+
 checksums           rmd160  b4aa3ea5ba9d0d9f817b2cf136e7f911f692af8d \
                     sha256  e5e8c5be9664e7f7f96e0d09919110ab5ad597794f5b1809871177a0f0f14137
 
@@ -31,6 +34,3 @@ post-destroot {
         ln -s "${mingw_prefix}/bin/${file}" "${destroot}${prefix}/bin/"
     }
 }
-
-maintainers         mojca openmaintainer
-homepage            http://mingw-w64.sourceforge.net/
