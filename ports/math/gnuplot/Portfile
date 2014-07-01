@@ -41,6 +41,7 @@ depends_lib                 port:expat \
                             port:gd2 \
                             port:jpeg \
                             port:libcaca \
+                            port:libcerf \
                             port:libiconv \
                             port:libpng \
                             port:ncurses \
@@ -50,8 +51,8 @@ depends_lib                 port:expat \
 minimum_xcodeversions       {9 3.1}
 
 configure.args              --with-readline=${prefix} \
-                            --with-gd=${prefix} \
                             --with-caca=${prefix} \
+                            --with-gd=${prefix} \
                             --without-aquaterm \
                             --without-x \
                             --infodir='\${prefix}/share/info' \
@@ -97,7 +98,6 @@ variant luaterm description "Enable lua-based terminals" {
 }
 
 variant pangocairo description "Enable cairo-based terminals" {
-    depends_lib-append      path:lib/pkgconfig/pango.pc:pango
     configure.args-delete   --without-cairo
 }
 
@@ -108,7 +108,7 @@ variant pdflib description "Enable pdflib-based pdf terminal" {
 
 variant wxwidgets description "Enable wxt terminal" {
     wxWidgets.use           wxWidgets-3.0
-    depends_lib-append      port:${wxWidgets.port} path:lib/pkgconfig/pango.pc:pango
+    depends_lib-append      port:${wxWidgets.port}
     configure.args-delete   --disable-wxwidgets
     configure.args-append   --with-wx=${wxWidgets.wxdir}
 }
@@ -117,9 +117,23 @@ variant wxwidgets description "Enable wxt terminal" {
 variant wxwidgets30     description "Legacy compatibility variant" {}
 variant wxwidgets_devel description "Legacy compatibility variant" {}
 
-variant qt description "Enable qt terminal" {
+variant qt conflicts qt5 description "Enable qt terminal with Qt 4" {
     depends_lib-append      port:qt4-mac
     configure.args-replace  --without-qt --with-qt=qt4
+}
+
+variant qt5 conflicts qt description "Enable qt terminal with Qt 5" {
+    depends_lib-append          port:qt5-mac
+    # TODO: this is a workaround for a bug, either in gnuplot or in qt5 packaging on Mac
+    configure.ldflags-append    "-F${frameworks_dir}"
+    configure.cxxflags-append   "-F${frameworks_dir}" \
+                                "-I${frameworks_dir}/QtCore.framework/Versions/5/Headers" \
+                                "-I${frameworks_dir}/QtGui.framework/Versions/5/Headers" \
+                                "-I${frameworks_dir}/QtNetwork.framework/Versions/5/Headers" \
+                                "-I${frameworks_dir}/QtSvg.framework/Versions/5/Headers" \
+                                "-I${frameworks_dir}/QtWidgets.framework/Versions/5/Headers"
+
+    configure.args-replace  --without-qt --with-qt=qt5
 }
 
 # Ideally one would enable just PMB by default, but '--with-bitmap-terminals'
@@ -135,6 +149,10 @@ if {[variant_isset wxwidgets30] || [variant_isset wxwidgets_devel]} {
     default_variants-append +wxwidgets
 }
 
+if {[variant_isset pangocairo] || [variant_isset wxwidgets]} {
+    depends_lib-append      path:lib/pkgconfig/pango.pc:pango
+}
+
 # Building and installing TeX macro files for TikZ could/should be done by gnuplot's Makefile,
 # but without a patch that would require a dependency on texlive.
 # Apart from that the files would fly to the wrong place in TDS,
@@ -142,14 +160,14 @@ if {[variant_isset wxwidgets30] || [variant_isset wxwidgets_devel]} {
 # So we 'manually' generate and copy the necessary files.
 post-build {
     if {[variant_isset luaterm]} {
-        system -W ${workpath}/${distname}/share/LaTeX "${prefix}/bin/lua ../../term/lua/gnuplot-tikz.lua style"
+        system -W ${worksrcpath}/share/LaTeX "${prefix}/bin/lua ../../term/lua/gnuplot-tikz.lua style"
     }
 }
 
 post-destroot {
     if {[variant_isset luaterm]} {
         set texmf ${destroot}${texlive_texmfports}
-        set luadir ${workpath}/${distname}/share/LaTeX
+        set luadir ${worksrcpath}/share/LaTeX
         xinstall -d -m 0755 ${texmf}/tex/context/third/gnuplot-lua-tikz
         xinstall -d -m 0755 ${texmf}/tex/generic/gnuplot-lua-tikz
         xinstall -d -m 0755 ${texmf}/tex/latex/gnuplot-lua-tikz
@@ -163,10 +181,10 @@ post-destroot {
 
     set destdocdir ${destroot}${prefix}/share/doc/${name}
     xinstall -d -m 0755 ${destdocdir}
-    xinstall -m 0644 ${workpath}/${distname}/docs/${name}.pdf ${destdocdir}
+    xinstall -m 0644 ${worksrcpath}/docs/${name}.pdf ${destdocdir}
 
     # copy demo files
-    file copy ${workpath}/${distname}/demo ${destdocdir}
+    file copy ${worksrcpath}/demo ${destdocdir}
     foreach {makefile} {Makefile Makefile.in Makefile.am Makefile.am.in} {
         delete ${destdocdir}/demo/${makefile}
     }
