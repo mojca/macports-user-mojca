@@ -1,5 +1,0 @@
-#!/bin/bash
-LOGNAME=`logname`
-export LOGNAME
-cd $HOME
-@PREFIX@/bin/wxPyphant-@PYTHONBRANCH@
