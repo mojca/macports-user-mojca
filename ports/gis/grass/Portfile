@@ -1,3 +1,4 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=2:ts=2:sts=2
 # $Id$
 
 PortSystem          1.0
@@ -6,7 +7,7 @@ PortGroup           active_variants 1.1
 
 name                grass
 epoch               1
-version             7.0.0beta2
+version             7.0.0beta3
 maintainers         nomaintainer
 categories          gis
 license             GPL-2+
@@ -19,8 +20,8 @@ long_description    GRASS is a Geographic Information System (GIS) used for \
 homepage            http://grass.osgeo.org/
 master_sites        ${homepage}grass[join [lrange [split ${version} .] 0 1] {}]/source/
 
-checksums           rmd160  bfc01c12afa8929fc17568359551861cd413089b \
-                    sha256  b360de82f9683f04383f03c4b584287be233fa76d05b0cb1f50d57d2de5cffdd
+checksums           rmd160  1d5fb0242ab5e6c999890f02873468c92ea9461e \
+                    sha256  5804b82bd2ffdc40dc1c5bed10d95f66bce87242d6e8849f7cc5d70c9849f09b
 
 depends_build       port:pkgconfig
 depends_lib         port:fftw-3 \
@@ -75,6 +76,7 @@ configure.args \
     --with-x \
     --without-postgres \
     --enable-largefile \
+    --enable-macosx-app \
     --with-cairo \
     --with-cairo-includes=${prefix}/include/cairo \
     --with-cairo-libs=${prefix}/lib \
