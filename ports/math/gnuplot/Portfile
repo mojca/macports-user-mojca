@@ -8,7 +8,7 @@ PortGroup                   xcodeversion    1.0
 PortGroup                   wxWidgets       1.0
 
 name                        gnuplot
-version                     5.0.rc1
+version                     5.0.rc3
 categories                  math science
 # the license has some inconvenient requirements that we're not meeting
 # to be allowed to distribute binaries
@@ -28,11 +28,12 @@ long_description            Gnuplot is a command-driven interactive function \
                             actual data to theoretical curves.
 
 homepage                    http://gnuplot.sourceforge.net/
-master_sites                sourceforge:project/gnuplot/gnuplot/${version}
+# master_sites              sourceforge:project/gnuplot/gnuplot/${version}
+master_sites                "sourceforge:project/gnuplot/gnuplot/5.0%20release%20candidates"
 dist_subdir                 ${name}/${version}
 
-checksums                   rmd160  2f3b83e27492889ecb888b57382066b423ce1229 \
-                            sha256  0943f29f3a954fd2ee2cacd4f881e7471dccd18742ce117e41b225864219bd8a \
+checksums                   rmd160  d04107aa7baf02517317c607563d7d98ada17d07 \
+                            sha256  abf803360db3a83e40423d6bce36e166ea88ae0c1f83614e8b70c12e96d62f15
 
 depends_build               path:bin/pkg-config:pkgconfig
 
@@ -113,10 +114,6 @@ variant wxwidgets description "Enable wxt terminal" {
     configure.args-append   --with-wx=${wxWidgets.wxdir}
 }
 
-# remove in September 2014
-variant wxwidgets30     description "Legacy compatibility variant" {}
-variant wxwidgets_devel description "Legacy compatibility variant" {}
-
 variant qt conflicts qt5 description "Enable qt terminal with Qt 4" {
     depends_lib-append      port:qt4-mac
     configure.args-replace  --without-qt --with-qt=qt4
@@ -144,10 +141,6 @@ variant old_bitmap_terminals description "Enable PBM (Portable Bit Map) and othe
 }
 
 default_variants            +aquaterm +luaterm +pangocairo +wxwidgets +x11
-
-if {[variant_isset wxwidgets30] || [variant_isset wxwidgets_devel]} {
-    default_variants-append +wxwidgets
-}
 
 if {[variant_isset pangocairo] || [variant_isset wxwidgets]} {
     depends_lib-append      path:lib/pkgconfig/pango.pc:pango
