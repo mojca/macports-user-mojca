@@ -6,14 +6,14 @@ PortGroup           python      1.0
 PortGroup           wxWidgets   1.0
 
 name                py-wxpython-3.0-phoenix
-version             3.0.1.dev75629
+version             3.0.3.dev1709+30e7d68
 set wx_version      [join [lrange [split ${version} .] 0 2] .]
 set branch          [join [lrange [split ${version} .] 0 1] .]
 categories-append   graphics devel
 license             wxwidgets-3.1
 # wxWidgets Library License (LGPL derivative)
 platforms           darwin
-maintainers         mojca
+maintainers         mojca openmaintainer
 
 description         Python interface to the wxWidgets ${branch} cross platform GUI
 
@@ -27,23 +27,21 @@ homepage            http://wiki.wxpython.org/ProjectPhoenix
 #                   http://www.wxpython.org/
 master_sites        http://wxpython.org/Phoenix/snapshot-builds/
 
+checksums           rmd160  d53864ed5fa13f741fb99b7e85834fd7cd0d7a72 \
+                    sha256  21f233f3baf2ff6c3f95468bf55373729437e52baa33f7ceb2348a5dd1f771dd
+
+python.versions     27 34
+python.default_version 34
+
 distname            wxPython_Phoenix
-
-checksums           rmd160  2a3a0fe4b670597dc03908a42dbac1ccb7369373 \
-                    sha256  62f9610340e80b0a5c32ffb0882ccc15eeb09bb5be47856006cb97817e5681e9
-
-python.versions     27 33 34
-python.default_version 33
-
 distfiles           ${distname}-${version}${extract.suffix}
-worksrcdir          ${distname}-${version}/Phoenix
+worksrcdir          ${distname}-${version}
 dist_subdir         wxWidgets/${wx_version}
 
 if {${name} ne ${subport}} {
     conflicts       py${python.version}-wxpython-2.8 \
                     py${python.version}-wxpython-3.0
 
-    # version 3.0.0 is too old for Phoenix to compile, else we would use it
     # TODO: it would be really nice to split this port into separate wxWidgets and Python part
     # to avoid constant need to recompile wxWidgets and to be able to reuse it for different Python versions
     # wxWidgets.use   wxWidgets-3.0
@@ -63,5 +61,5 @@ if {${name} ne ${subport}} {
 } else {
     livecheck.type  regex
     livecheck.url   ${master_sites}
-    livecheck.regex wxPython_Phoenix-(3.\[0-9\]+\\.\[0-9\]+\\.dev\[0-9\]+)${extract.suffix}
+    livecheck.regex wxPython_Phoenix-(3.\[0-9\]+\\.\[0-9\]+\\.dev\[+0-9a-f\]+)${extract.suffix}
 }
