@@ -3,7 +3,7 @@ http://trac.osgeo.org/grass/ticket/1839
 
 --- include/Make/Install.make.orig
 +++ include/Make/Install.make
-@@ -48,21 +48,21 @@
+@@ -50,21 +50,21 @@
  	fi
  
  install-check-parent:
@@ -29,7 +29,7 @@ http://trac.osgeo.org/grass/ticket/1839
  		echo "  Perhaps you need root access." >&2 ; \
  		echo "  Installation aborted, exiting Make." >&2 ; \
  		exit 1; \
-@@ -71,7 +71,7 @@
+@@ -73,7 +73,7 @@
  install-check-prefix:
  	@ result=`echo "$(INST_DIR)" | awk '{ if ($$1 ~ /grass/) print $$1 }'`; \
  	if [ "$$result" = "" ] ; then \
@@ -38,7 +38,7 @@ http://trac.osgeo.org/grass/ticket/1839
  		echo "  does not contain the word 'grass'." >&2 ; \
  		echo "  It is highly recommended that the word 'grass' be part" >&2 ; \
  		echo "  of your install directory to avoid conflicts." >&2 ; \
-@@ -94,35 +94,30 @@
+@@ -96,35 +96,30 @@
  PLATMAKE = include/Make/Platform.make
  GRASSMAKE = include/Make/Grass.make
  
@@ -90,7 +90,7 @@ http://trac.osgeo.org/grass/ticket/1839
  	sed -e 's#'@GISBASE@'#'$(INST_DIR)'#g' \
  	    -e 's#'@LD_LIBRARY_PATH_VAR@'#'$(LD_LIBRARY_PATH_VAR)'#g' \
  	    -e 's#'@CONFIG_PROJSHARE@'#'$(PROJSHARE)'#g' \
-@@ -143,16 +138,16 @@
+@@ -145,16 +135,16 @@
      -e 's#^\(ARCH_BINDIR.[^=]*\).*#\1= $(UNIX_BIN)#g' $< > $@
  endef
  

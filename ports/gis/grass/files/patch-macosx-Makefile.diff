@@ -1,0 +1,40 @@
+--- macosx/Makefile.orig
++++ macosx/Makefile
+@@ -79,20 +79,23 @@ else
+ endif
+ 
+ install-macosxapp:
+-	-$(MAKE_DIR_CMD) ${INST_DIR_TARGET}/bin
+-	-$(MAKE_DIR_CMD) ${INST_DIR_TARGET}/etc
+-	-$(MAKE_DIR_CMD) ${PREFIX_TARGET}/${MACOSX_APP_NAME}/Contents/Resources/Scripts
+-	-$(MAKE_DIR_CMD) ${PREFIX_TARGET}/${MACOSX_APP_NAME}/Contents/Resources/English.lproj/MainMenu.nib
+-	$(INSTALL) app/build_html_user_index.sh ${INST_DIR_TARGET}/etc
+-	$(INSTALL) app/build_gui_user_menu.sh ${INST_DIR_TARGET}/etc
+-	$(INSTALL) app/python_wrapper ${INST_DIR_TARGET}/bin/python 
+-	$(INSTALL_DATA) app/app.icns ${PREFIX_TARGET}/${MACOSX_APP_NAME}/Contents/Resources
+-	$(INSTALL_DATA) app/${OBJDIR}/Info.plist ${PREFIX_TARGET}/${MACOSX_APP_NAME}/Contents
+-	$(INSTALL_DATA) app/PkgInfo ${PREFIX_TARGET}/${MACOSX_APP_NAME}/Contents
+-	$(INSTALL) app/${OBJDIR}/GRASS.scpt ${PREFIX_TARGET}/${MACOSX_APP_NAME}/Contents/Resources/Scripts/
+-	$(INSTALL) app/${OBJDIR}/grass.sh ${INST_DIR_TARGET}
+-	$(INSTALL) app/${OBJDIR}/GRASS ${INST_DIR_TARGET}
+-	$(INSTALL_DATA) app/English.lproj/MainMenu.nib/* ${PREFIX_TARGET}/${MACOSX_APP_NAME}/Contents/Resources/English.lproj/MainMenu.nib
++	echo "INST_DIR: ${INST_DIR}"
++	echo "INST_DIR_TARGET: ${INST_DIR_TARGET}"
++	echo "PREFIX_TARGET ${PREFIX_TARGET}"
++	-$(MAKE_DIR_CMD) $(DESTDIR)${INST_DIR_TARGET}/Contents/MacOS/bin
++	-$(MAKE_DIR_CMD) $(DESTDIR)${INST_DIR_TARGET}/Contents/MacOS/etc
++	-$(MAKE_DIR_CMD) $(DESTDIR)${INST_DIR_TARGET}/Contents/Resources/Scripts
++	-$(MAKE_DIR_CMD) $(DESTDIR)${INST_DIR_TARGET}/Contents/Resources/English.lproj/MainMenu.nib
++	$(INSTALL) app/build_html_user_index.sh $(DESTDIR)${INST_DIR_TARGET}/Contents/MacOS/etc
++	$(INSTALL) app/build_gui_user_menu.sh $(DESTDIR)${INST_DIR_TARGET}/Contents/MacOS/etc
++	$(INSTALL) app/python_wrapper $(DESTDIR)${INST_DIR_TARGET}/Contents/MacOS/bin/python
++	$(INSTALL_DATA) app/app.icns $(DESTDIR)${INST_DIR_TARGET}/Contents/Resources
++	$(INSTALL_DATA) app/${OBJDIR}/Info.plist $(DESTDIR)${INST_DIR_TARGET}/Contents
++	$(INSTALL_DATA) app/PkgInfo $(DESTDIR)${INST_DIR_TARGET}/Contents
++	$(INSTALL) app/${OBJDIR}/GRASS.scpt $(DESTDIR)${INST_DIR_TARGET}/Contents/Resources/Scripts
++	$(INSTALL) app/${OBJDIR}/grass.sh $(DESTDIR)${INST_DIR_TARGET}/Contents/MacOS/bin
++	$(INSTALL) app/${OBJDIR}/GRASS $(DESTDIR)${INST_DIR_TARGET}/Contents/MacOS/bin
++	$(INSTALL_DATA) app/English.lproj/MainMenu.nib/* $(DESTDIR)${INST_DIR_TARGET}/Contents/Resources/English.lproj/MainMenu.nib
+ 
+ install-basic-macosx:
+ 	-tar cBCf $(GISBASE) - . | tar xBCf $(INST_DIR_TARGET) - 2>/dev/null
