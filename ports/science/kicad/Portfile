@@ -1,0 +1,52 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           cmake 1.0
+PortGroup           github 1.0
+PortGroup           wxWidgets 1.0
+
+github.setup        KiCad kicad-source-mirror 83ecd43
+
+name                kicad
+# version           x
+
+checksums           rmd160  9c661edc6e3851fad1c01b2667fa9e2c74c8edb2 \
+                    sha256  cffe8fe5d5820792394a753712b64696d6ded8513c106a2da24d9cfa006bd64b
+
+description         KiCad is an electronic design automation software suite
+long_description    KiCad is an EDA software suite for the creation of professional schematics \
+                    and printed circuit boards up to 32 copper layers with additional technical layers.
+
+categories          science
+platforms           darwin
+license             GPL-2
+maintainers         mojca openmaintainer
+
+cmake.out_of_source yes
+wxWidgets.use       wxPython-3.0
+
+depends_build-append \
+                    port:bzr \
+                    port:doxygen \
+                    port:pkgconfig
+
+depends_lib-append  port:boost \
+                    port:bzip2 \
+                    port:cairo \
+                    port:glew \
+                    port:openssl \
+                    port:python27 \
+                    port:swig \
+                    port:${wxWidgets.port} \
+                    port:py27-wxpython-3.0
+
+configure.args-append \
+                    -DwxWidgets_CONFIG_EXECUTABLE=${wxWidgets.wxconfig} \
+                    -DKICAD_SCRIPTING=ON \
+                    -DKICAD_SCRIPTING_MODULES=ON \
+                    -DKICAD_SCRIPTING_WXPYTHON=ON \
+                    -DPYTHON_EXECUTABLE=${prefix}/bin/python2.7 \
+                    -DPYTHON_SITE_PACKAGE_PATH=${frameworks_dir}/Python.framework/Versions/2.7/lib/python2.7/site-packages \
+                    -DBazaar_EXECUTABLE=${prefix}/bin/bzr \
+                    -DKICAD_SKIP_BOOST=ON
