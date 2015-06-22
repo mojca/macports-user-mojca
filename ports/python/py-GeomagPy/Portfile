@@ -13,9 +13,9 @@ maintainers         mojca openmaintainer
 description         Geomagnetic analysis tools.
 long_description    ${description}
 
-homepage            http://pypi.python.org/pypi/GeomagPy/
-master_sites        https://pypi.python.org/packages/source/G/GeomagPy
-distname            GeomagPy-0.1.328
+homepage            http://pypi.python.org/pypi/${python.rootname}/
+master_sites        pypi:[string index ${python.rootname} 0]/${python.rootname}
+distname            ${python.rootname}-${version}
 
 checksums           rmd160  c43f289f3a3bb6285427f5c6c2e0a54e4195ade3 \
                     sha256  1863f3b9ce17390342e1f4f3bb2bba42f38c702e3ebd19425af5334459bc17e4
@@ -41,16 +41,16 @@ if {${name} ne ${subport}} {
 
     post-patch {
         reinplace "s|/usr/bin/env python|${python.bin}|" ${worksrcpath}/magpy/gui/xmagpy.py
-        system "chmod +x ${worksrcpath}/magpy/gui/xmagpy.py"
         delete ${worksrcpath}/bin/example.py
     }
 
     post-destroot {
-        ln -s ${python.pkgd}/magpy/gui/xmagpy.py ${destroot}${prefix}/bin/xmagpy-${python.branch}
+        set f ${python.pkgd}/magpy/gui/xmagpy.py
+        file attributes ${destroot}${f} -permissions 0755
+        ln -s ${f} ${destroot}${prefix}/bin/xmagpy-${python.branch}
     }
 
     livecheck.type      none
 } else {
-    livecheck.type      regex
-    livecheck.url       ${master_sites}
+    livecheck.type      pypi
 }
