@@ -1,0 +1,11 @@
+--- setup.py.orig
++++ setup.py
+@@ -11,7 +11,7 @@ setup(
+     author='R. Leonhardt, R. Bailey',
+     author_email='roman.leonhardt@zamg.ac.at',
+     packages=['magpy', 'magpy.opt', 'magpy.examples', 'magpy.lib', 'magpy.acquisition', 'magpy.collector', 'magpy.gui'],
+-    scripts=['bin/example.py'],
++    scripts=[],
+     url='http://pypi.python.org/pypi/GeomagPy/',
+     license='LICENSE.txt',
+     description='Geomagnetic analysis tools.',

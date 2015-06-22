@@ -1,0 +1,56 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           python 1.0
+
+name                py-GeomagPy
+version             0.1.328
+platforms           darwin
+license             GPL-3
+maintainers         mojca openmaintainer
+
+description         Geomagnetic analysis tools.
+long_description    ${description}
+
+homepage            http://pypi.python.org/pypi/GeomagPy/
+master_sites        https://pypi.python.org/packages/source/G/GeomagPy
+distname            GeomagPy-0.1.328
+
+checksums           rmd160  c43f289f3a3bb6285427f5c6c2e0a54e4195ade3 \
+                    sha256  1863f3b9ce17390342e1f4f3bb2bba42f38c702e3ebd19425af5334459bc17e4
+
+python.versions     27 34
+
+# TODO:
+# - provide a separate +gui option that is enabled by default
+# - spacepy might be missing
+if {${name} ne ${subport}} {
+    # TODO: mysql
+    depends_build-append \
+                    port:py${python.version}-setuptools
+    depends_run-append \
+                    port:py${python.version}-numpy \
+                    port:py${python.version}-scipy \
+                    port:py${python.version}-netcdf4 \
+                    port:py${python.version}-pexpect \
+                    port:py${python.version}-wxpython-3.0
+
+    patchfiles      patch-gui-xmagpy.py.diff \
+                    patch-setup.py.diff
+
+    post-patch {
+        reinplace "s|/usr/bin/env python|${python.bin}|" ${worksrcpath}/magpy/gui/xmagpy.py
+        system "chmod +x ${worksrcpath}/magpy/gui/xmagpy.py"
+        delete ${worksrcpath}/bin/example.py
+    }
+
+    post-destroot {
+        ln -s ${python.pkgd}/magpy/gui/xmagpy.py ${destroot}${prefix}/bin/xmagpy-${python.branch}
+    }
+
+    livecheck.type      none
+} else {
+    livecheck.type      regex
+    livecheck.url       ${master_sites}
+}
