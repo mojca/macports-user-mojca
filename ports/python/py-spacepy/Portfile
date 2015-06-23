@@ -1,0 +1,53 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           python 1.0
+
+name                py-spacepy
+version             0.1.5
+platforms           darwin
+license             PSF
+maintainers         mojca openmaintainer
+
+description         Python-Based Tools for the Space Science Community
+long_description    ${description}
+
+homepage            http://spacepy.lanl.gov
+master_sites        sourceforge:project/${python.rootname}/${python.rootname}/${python.rootname}-${version}
+distname            ${python.rootname}-${version}
+
+# TODO: add the documentation file to some reasonable place where it can be found
+distfiles-append    ${python.rootname}-${version}-doc.pdf
+extract.only        ${distname}${extract.suffix}
+
+checksums           ${distname}${extract.suffix} \
+                    rmd160  9cc0d8bb078ed4b19a45fa06856d1aa6cef28225 \
+                    sha256  b6f4e6a73f495ce91b740c17bf451251eaea91df0fad12783efeb6fefe8f8d3d \
+                    ${python.rootname}-${version}-doc.pdf \
+                    rmd160  1451fa866192c6e27a2840c625874eb6e8204df9 \
+                    sha256  1c7dd7b4fe45424753ba0964f8576c5b373bb6bcf7a0018628d33b7c81813d91
+
+python.versions     27 34
+
+if {${name} ne ${subport}} {
+    # TODO: figure out which ones are build dependencies and which ones are runtime
+    # sudo apt-get install python-dev python-numpy build-essential \
+    # python-scipy python-matplotlib python-networkx python-h5py \
+    # python-f2py gfortran ncurses-dev
+    depends_lib-append \
+                    port:cdf \
+                    port:py${python.version}-h5py \
+                    port:py${python.version}-matplotlib \
+                    port:py${python.version}-networkx \
+                    port:py${python.version}-numpy \
+                    port:py${python.version}-scipy
+
+    # ffnet not found; required for LANLstar.
+    #   - see http://ffnet.sourceforge.net/install.html
+    # f2py failed; IRBEM will not be available.
+
+    livecheck.type      none
+} else {
+    livecheck.regex     "${python.rootname}-(\[a-zA-Z0-9.\]+)\/${python.rootname}-"
+}
