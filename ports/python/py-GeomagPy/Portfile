@@ -2,10 +2,12 @@
 # $Id$
 
 PortSystem          1.0
+PortGroup           app 1.0
 PortGroup           python 1.0
 
-name                py-GeomagPy
-version             0.1.328
+name                py-geomagpy
+python.rootname     GeomagPy
+version             0.1.334
 platforms           darwin
 license             GPL-3
 maintainers         mojca openmaintainer
@@ -17,14 +19,14 @@ homepage            http://pypi.python.org/pypi/${python.rootname}/
 master_sites        pypi:[string index ${python.rootname} 0]/${python.rootname}
 distname            ${python.rootname}-${version}
 
-checksums           rmd160  c43f289f3a3bb6285427f5c6c2e0a54e4195ade3 \
-                    sha256  1863f3b9ce17390342e1f4f3bb2bba42f38c702e3ebd19425af5334459bc17e4
+checksums           rmd160  6882dbe689ca2c39877e8cc284ef44f9ecdc5c08 \
+                    sha256  4551cf10d4fae1305ab178de5e1e9a579911832093c1dd866f825bf9fd9f8899
 
 python.versions     27 34
 
 # TODO:
-# - provide a separate +gui option that is enabled by default
 # - spacepy might be missing
+# - propenly enable and test MySQL
 if {${name} ne ${subport}} {
     # TODO: mysql
     depends_build-append \
@@ -49,6 +51,13 @@ if {${name} ne ${subport}} {
         file attributes ${destroot}${f} -permissions 0755
         ln -s ${f} ${destroot}${prefix}/bin/xmagpy-${python.branch}
     }
+
+    # this could be a +gui option, enabled by default
+    app.name            MagPy-${python.version}
+    # this doesn't work because post-destroot did not finish yet and xmagpy doesn't exist
+    # app.executable    xmagpy-${python.version}
+    app.executable      ${python.pkgd}/magpy/gui/xmagpy.py
+    app.icon            ${worksrcpath}/magpy/gui/magpy.png
 
     livecheck.type      none
 } else {
