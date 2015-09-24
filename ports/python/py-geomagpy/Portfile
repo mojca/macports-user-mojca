@@ -2,7 +2,6 @@
 # $Id$
 
 PortSystem          1.0
-PortGroup           app 1.0
 PortGroup           python 1.0
 
 name                py-geomagpy
@@ -31,12 +30,13 @@ if {${name} ne ${subport}} {
     # TODO: mysql
     depends_build-append \
                     port:py${python.version}-setuptools
+    # mysql and scipy are optional
     depends_run-append \
                     port:py${python.version}-numpy \
                     port:py${python.version}-scipy \
+                    port:py${python.version}-mysql \
                     port:py${python.version}-netcdf4 \
-                    port:py${python.version}-pexpect \
-                    port:py${python.version}-wxpython-3.0
+                    port:py${python.version}-pexpect
 
     patchfiles      patch-gui-xmagpy.py.diff \
                     patch-setup.py.diff
@@ -51,13 +51,6 @@ if {${name} ne ${subport}} {
         file attributes ${destroot}${f} -permissions 0755
         ln -s ${f} ${destroot}${prefix}/bin/xmagpy-${python.branch}
     }
-
-    # this could be a +gui option, enabled by default
-    app.name            MagPy-${python.version}
-    # this doesn't work because post-destroot did not finish yet and xmagpy doesn't exist
-    # app.executable    xmagpy-${python.version}
-    app.executable      ${python.pkgd}/magpy/gui/xmagpy.py
-    app.icon            ${worksrcpath}/magpy/gui/magpy.png
 
     livecheck.type      none
 } else {
