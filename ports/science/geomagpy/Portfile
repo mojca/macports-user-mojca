@@ -1,0 +1,54 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           app 1.0
+
+name                geomagpy
+version             0.1.334
+categories          science python
+platforms           darwin
+license             GPL-3
+maintainers         mojca openmaintainer
+supported_archs     noarch
+
+description         GUI for MagPy (geomagnetic analysis tools)
+long_description    ${description}
+
+homepage            http://pypi.python.org/pypi/GeomagPy/
+distfiles
+
+use_configure       no
+build               {}
+destroot            {}
+
+app.name            MagPy
+
+variant python27 conflicts python34 description {Use Python 2.7 for the GUI} {
+    set python.version  27
+    set python.branch   2.7
+
+    depends_build-append \
+                    port:py${python.version}-geomagpy
+    depends_run     port:py${python.version}-geomagpy \
+                    port:py${python.version}-wxpython-3.0
+
+    app.executable  xmagpy-${python.branch}
+    app.icon        ${frameworks_dir}/Python.framework/Versions/${python.branch}/magpy/gui/magpy.png
+}
+variant python34 conflicts python27 description {Use Python 3.4 for the GUI (does not work yet)} {
+    set python.version  34
+    set python.branch   3.4
+
+    depends_build-append \
+                    port:py${python.version}-geomagpy
+    depends_run     port:py${python.version}-geomagpy
+                    # phoenix
+
+    app.executable  xmagpy-${python.branch}
+    app.icon        ${frameworks_dir}/Python.framework/Versions/${python.branch}/magpy/gui/magpy.png
+}
+
+if {![variant_isset python27] && ![variant_isset python34]} {
+    default_variants-append +python27
+}
