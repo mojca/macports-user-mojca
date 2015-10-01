@@ -1,0 +1,30 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           perl5 1.0
+
+perl5.setup         App-gh 0.57 ../by-authors/id/C/CO/CORNELIUS
+platforms           darwin
+maintainers         nomaintainer
+supported_archs     noarch
+
+description         An apt-like Github utility
+
+long_description    ${description}
+
+checksums           sha256 2d329deb03f70508af6a22216912b91c9292ece4e0eec653495d3a0a8a83ca52 \
+                    rmd160 4c7df2d0f13e9f07b3db25e46150fd0f075b442f
+
+depends_lib-append  port:p5-try-tiny \
+                    port:p5-uri \
+                    port:p5-scope-guard \
+                    port:p5-file-homedir \
+                    port:p5-app-cli \
+                    port:p5-io-pager \
+                    port:p5-json-xs \
+                    port:p5-error \
+                    port:p5-html-strip \
+                    port:p5-libwww-perl
+
+
