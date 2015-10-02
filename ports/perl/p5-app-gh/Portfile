@@ -4,27 +4,29 @@
 PortSystem          1.0
 PortGroup           perl5 1.0
 
+perl5.branches      5.16 5.18 5.20 5.22
 perl5.setup         App-gh 0.57 ../by-authors/id/C/CO/CORNELIUS
 platforms           darwin
 maintainers         nomaintainer
+license             {Artistic-1 GPL}
 supported_archs     noarch
 
 description         An apt-like Github utility
-
 long_description    ${description}
 
-checksums           sha256 2d329deb03f70508af6a22216912b91c9292ece4e0eec653495d3a0a8a83ca52 \
-                    rmd160 4c7df2d0f13e9f07b3db25e46150fd0f075b442f
+checksums           rmd160 4c7df2d0f13e9f07b3db25e46150fd0f075b442f \
+                    sha256 2d329deb03f70508af6a22216912b91c9292ece4e0eec653495d3a0a8a83ca52
 
-depends_lib-append  port:p5-try-tiny \
-                    port:p5-uri \
-                    port:p5-scope-guard \
-                    port:p5-file-homedir \
-                    port:p5-app-cli \
-                    port:p5-io-pager \
-                    port:p5-json-xs \
-                    port:p5-error \
-                    port:p5-html-strip \
-                    port:p5-libwww-perl
-
-
+if {${perl5.major} != ""} {
+    depends_lib-append \
+                    port:p${perl5.major}-try-tiny \
+                    port:p${perl5.major}-uri \
+                    port:p${perl5.major}-scope-guard \
+                    port:p${perl5.major}-file-homedir \
+                    port:p${perl5.major}-app-cli \
+                    port:p${perl5.major}-io-pager \
+                    port:p${perl5.major}-json-xs \
+                    port:p${perl5.major}-error \
+                    port:p${perl5.major}-html-strip \
+                    port:p${perl5.major}-libwww-perl
+}
