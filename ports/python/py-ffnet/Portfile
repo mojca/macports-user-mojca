@@ -1,0 +1,36 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           python 1.0
+
+name                py-ffnet
+version             0.8.0
+platforms           darwin
+license             GPL
+maintainers         mojca openmaintainer
+
+description         Feed forward neural network solution for python
+long_description    ffnet is a fast and easy-to-use feed-forward neural network training solution for python
+
+homepage            http://ffnet.sourceforge.net
+master_sites        pypi:[string index ${python.rootname} 0]/${python.rootname}
+distname            ${python.rootname}-${version}
+
+checksums           rmd160  e65fed42038c1c4ed04f8946fa4220b3adc9316a \
+                    sha256  6c413ca0066039b1bd0601c6332e4dc765ee978a4f28df04ed399edcff4171e1
+
+python.versions     27 34
+
+if {${name} ne ${subport}} {
+    depends_build-append \
+                        port:py${python.version}-setuptools \
+                        port:py${python.version}-numpy
+    depends_run-append  port:py${python.version}-numpy \
+                        port:py${python.version}-scipy \
+                        port:py${python.version}-networkx
+
+    livecheck.type      none
+} else {
+    livecheck.type      pypi
+}
