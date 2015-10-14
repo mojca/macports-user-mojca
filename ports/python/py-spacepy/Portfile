@@ -5,16 +5,18 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-spacepy
+# python.rootname   SpacePy
 version             0.1.5
 platforms           darwin
 license             PSF
 maintainers         mojca openmaintainer
 
-description         Python-Based Tools for the Space Science Community
+description         SpacePy Tools for Space Science Applications
 long_description    ${description}
 
 homepage            http://spacepy.lanl.gov
 master_sites        sourceforge:project/${python.rootname}/${python.rootname}/${python.rootname}-${version}
+# master_sites      pypi:[string index ${python.rootname} 0]/${python.rootname}
 distname            ${python.rootname}-${version}
 
 # TODO: add the documentation file to some reasonable place where it can be found
@@ -47,7 +49,13 @@ if {${name} ne ${subport}} {
     #   - see http://ffnet.sourceforge.net/install.html
     # f2py failed; IRBEM will not be available.
 
-    livecheck.type      none
+#   configure.env-append \
+#                   PATH=$env(PATH):${python.prefix}/bin
+#   build.env-append \
+#                   PATH=$env(PATH):${python.prefix}/bin
+
+    livecheck.type  none
 } else {
-    livecheck.regex     "${python.rootname}-(\[a-zA-Z0-9.\]+)\/${python.rootname}-"
+    livecheck.regex "${python.rootname}-(\[a-zA-Z0-9.\]+)\/${python.rootname}-"
+#   livecheck.type  pypi
 }
