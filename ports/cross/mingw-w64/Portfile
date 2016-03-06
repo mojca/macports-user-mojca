@@ -4,7 +4,7 @@
 PortSystem          1.0
 PortGroup           github 1.0
 
-github.setup        mirror mingw-w64 3.1.0 v
+github.setup        mirror mingw-w64 5.0-rc1 v
 set mingw_name      w64-mingw32
 
 platforms           darwin
@@ -12,13 +12,14 @@ platforms           darwin
 license             ZPL-2.1
 maintainers         mojca openmaintainer
 
-description         mingw-w64 (TODO)
-long_description    mingw-w64 (TODO)
+description         GCC for Windows 64 & 32 bits
+long_description    Mingw-w64 is an advancement of the original mingw.org project, \
+                    created to support the GCC compiler on Windows systems.
 
 homepage            http://mingw-w64.sourceforge.net/
 
-checksums           rmd160  573bcc1499ee840fd5f171aacdc85b6a6ca6e5ba \
-                    sha256  d3bd21dca42779ef8f713e5b215d0aac2eb87bc88745d84b17df62aca4ff7d56
+checksums           rmd160  1e5d3985bc45f92a8bb5fc0ded21778ce2d26d3e \
+                    sha256  3af7ce4d95d6ed4769cd43761278b90b9535d4ebe4d7a71d8496a0cfc934ad7f
 
 configure.dir       ${workpath}/build
 build.dir           ${configure.dir}
