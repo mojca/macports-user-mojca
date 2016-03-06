@@ -9,13 +9,13 @@ set mingw_name      w64-mingw32
 set mingw_target    x86_64-${mingw_name}
 set mingw_prefix    ${prefix}/${mingw_target}
 
-crossbinutils.setup ${mingw_target} 2.24
+crossbinutils.setup ${mingw_target} 2.26
 
 maintainers         mojca openmaintainer
 homepage            http://mingw-w64.sourceforge.net/
 
-checksums           rmd160  b4aa3ea5ba9d0d9f817b2cf136e7f911f692af8d \
-                    sha256  e5e8c5be9664e7f7f96e0d09919110ab5ad597794f5b1809871177a0f0f14137
+checksums           rmd160  ce0400ffcc1200280854fefb29f97b63507bad14 \
+                    sha256  c2ace41809542f5237afc7e3b8f32bb92bc7bc53c6232a84463c423b0714ecd9
 
 # TODO: try to use ${prefix} for --prefix and --with-sysroot,
 #       but figure out how to do that consistently
