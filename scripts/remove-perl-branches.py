@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 
 import glob
 import re
@@ -17,8 +17,8 @@ def replace_perl_versions(filename):
         match = re.search(r'^perl5.branches\s+(.*)', line)
         if match:
             versions_old = match.group(1)
-            # remove 5.8 5.10 5.12 5.14
-            versions_new = re.sub(r'5[.](8|10|12|14)\s+', '', versions_old)
+            # remove 5.16 5.28 5.20
+            versions_new = re.sub(r'5[.](16|18|20)\s+', '', versions_old)
             # new version string (properly formatted for 20 spaces)
             line_new     = "perl5.branches      {}".format(versions_new)
             # just debug output
