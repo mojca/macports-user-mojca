@@ -19,7 +19,7 @@ checksums           rmd160  ce0400ffcc1200280854fefb29f97b63507bad14 \
 
 # TODO: try to use ${prefix} for --prefix and --with-sysroot,
 #       but figure out how to do that consistently
-configure.pre_args-delete \
+configure.args-delete \
                     --prefix=${prefix}
 configure.args-append \
                     --prefix=${mingw_prefix} \

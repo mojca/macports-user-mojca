@@ -9,24 +9,24 @@ set mingw_arch      x86_64
 set mingw_target    ${mingw_arch}-${mingw_name}
 set mingw_prefix    ${prefix}/${mingw_target}
 
-crossgcc.setup      ${mingw_arch}-${mingw_name} 4.8.3
-subport             ${mingw_arch}-${mingw_name}-libgcc {}
+crossgcc.setup      ${mingw_target} 5.3.0
+dist_subdir         gcc5
 
 # name              x86_64-w64-mingw32-gcc
 # set branch        [join [lrange [split ${version} .] 0 1] .]
 
 maintainers         mojca openmaintainer
 
-checksums           rmd160  2c7214ff607cbe822282c04d1d6f9fea765c82c5 \
-                    sha256  6a8e4f11b185f4fe2ed9d7fc053e80f8c7e73f800c045f51f9d8bea33f080f1e
-# for 4.9.0 (which doesn't work yet
-# checksums           rmd160  ac561660744127fa009ae75202d1ac81ac8d7668 \
-#                     sha256  b9b047a97bade9c1c89970bc8e211ff57b7b8998a1730a80a653d329f8ed1257
+checksums           rmd160  b06fec59ceb37aeb042bdb9e1703e53d0834d085 \
+                    sha256  b84f5592e9218b73dbae612b5253035a7b34a9a1f7688d2e1bfaaf7267d5c4db
 
-depends_lib-append  port:${crossgcc.target}-binutils \
-                    port:${crossgcc.target}-headers
+depends_lib-append  port:${mingw_target}-binutils \
+                    port:${mingw_target}-headers
 
 # TODO: check the difference in headers installed by MinGW and those by the compiler
+# this doesn't work
+configure.args-delete \
+                    --prefix=${prefix}
 configure.args-append \
                     --prefix=${mingw_prefix} \
                     --with-sysroot=${mingw_prefix} \
@@ -36,6 +36,17 @@ configure.args-append \
                     --enable-fully-dynamic-string \
                     --enable-libssp \
                     --enable-lto
+
+# TODO:
+#   --enable-version-specific-runtime-libs
+#       Installs libgcc/libstdc++ and other target support libraries in such a
+#       way that multiple GCC installs can coexist simultaneously.
+#   --enable-libgomp
+#       Enable OpenMP support, it is not enabled by default on MinGW platforms.
+#       Requires pthreads-win32 (target) installed.
+#   --with-{cloog,ppl}=<host dir>
+#       Tells GCC where the host support libraries are installed to.
+#       (i.e. search <host dir>/include & <host dir>/lib)
 
 if {${subport} eq ${name}} {
     build.target        all-gcc
@@ -47,12 +58,34 @@ if {${subport} eq ${name}} {
         foreach file [glob -tails -directory ${destroot}${mingw_prefix}/bin ${mingw_target}-*] {
             ln -s "${mingw_prefix}/bin/${file}" "${destroot}${prefix}/bin/"
         }
+        # TODO:
+        # delete contents of ${destroot}/${prefix}/share/x86_64-w64-mingw32-gcc/locale
     }
-} else {
-    depends_lib-append  port:${crossgcc.target}-crt
-
-    # TODO: test if make && make install works even without pthreads support (just temporary)
-    # build.target      all-target-libgcc
-    # destroot.target   install-target-libgcc
-    # TODO: remove files already installed by main port (maybe use registry_port_registered)
 }
+
+subport ${mingw_target}-libgcc {
+    depends_lib-append  port:${mingw_target}-crt \
+                        port:${mingw_target}-gcc
+
+    build.target        all-target-libgcc
+    destroot.target     install-target-libgcc
+    # move libgcc_*.dll to a more suitable place
+}
+subport ${mingw_target}-all {
+    # TODO: pthread-win32
+    depends_lib-append  port:${mingw_target}-gcc \
+                        port:${mingw_target}-libgcc
+
+    post-destroot {
+        # TODO:
+        # - delete contents of
+        #   ${destroot}/${prefix}/share/x86_64-w64-mingw32-gcc/locale
+    }
+}
+
+# TODO:
+# - first build gcc with "make all-gcc & make install-gcc"
+# - then build CRT
+# - then libgcc in the same folder as the compiler was being built (make all-target-libgcc, make install-target-libgcc)
+# - then pthreads
+# - and another build of the compiler (make, make install)
