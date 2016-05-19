@@ -1,0 +1,11 @@
+--- Libraries/MiKTeX/Core/Utils/AutoTraceTime.h.orig
++++ Libraries/MiKTeX/Core/Utils/AutoTraceTime.h
+@@ -43,7 +43,7 @@ public:
+     {
+       if (SessionImpl::GetSession()->trace_time->IsEnabled())
+       {
+-        SessionImpl::GetSession()->trace_time->WriteFormattedLine("core", "%s %s %s clock ticks", str1.c_str(), str2.c_str(), std::to_string(clock() - start));
++        SessionImpl::GetSession()->trace_time->WriteFormattedLine("core", "%s %s %s clock ticks", str1.c_str(), str2.c_str(), std::to_string(clock() - start).c_str());
+       }
+     }
+     catch (const std::exception &)
