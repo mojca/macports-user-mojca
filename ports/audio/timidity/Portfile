@@ -1,0 +1,25 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+
+# https://trac.macports.org/ticket/51842
+
+name                timidity
+set realname        TiMidity++
+version             2.14.0
+categories          multimedia
+platforms           darwin
+license             GPL2+
+maintainers         mojca openmaintainer
+
+homepage            http://timidity.sourceforge.net/
+master_sites        sourceforge:project/timidity/${realname}/${realname}-${version}/
+#                   https://sourceforge.net/p/timidity/git/ci/master/tree/
+
+use_xz              yes
+
+distname            ${realname}-${version}
+
+checksums           rmd160  7f35165e2b15733dc221b4fde8b7b8c6f158d755 \
+                    sha256  abf0c8367959e85c9e635b8fbd5183fc27bd380e0ef5e45de4158784538c86fc
