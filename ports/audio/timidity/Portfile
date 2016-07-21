@@ -8,10 +8,15 @@ PortSystem          1.0
 name                timidity
 set realname        TiMidity++
 version             2.14.0
-categories          multimedia
+categories          audio multimedia
 platforms           darwin
 license             GPL2+
 maintainers         mojca openmaintainer
+
+description         TiMidity++ is a software synthesizer for MIDI files
+long_description    TiMidity++ is a software synthesizer that can play MIDI files. \
+                    It can synthesize waveform data from a MIDI file and instrument data in real time \
+                    and either play it or save it into various audio file formats.
 
 homepage            http://timidity.sourceforge.net/
 master_sites        sourceforge:project/timidity/${realname}/${realname}-${version}/
@@ -23,3 +28,42 @@ distname            ${realname}-${version}
 
 checksums           rmd160  7f35165e2b15733dc221b4fde8b7b8c6f158d755 \
                     sha256  abf0c8367959e85c9e635b8fbd5183fc27bd380e0ef5e45de4158784538c86fc
+
+depends_run         port:freepats
+
+patchfiles          patch-interface-tk_c.c.diff
+
+# add support for more formats:
+# - libogg
+# - libvorbis
+# - flac
+# - speex
+# - libao
+configure.args      --enable-audio=darwin,speex,libao
+
+# add support for gui:
+# - ncurses: ncurses interface.
+# - slang: S-Lang interface.
+# - motif: Motif interface.  Motif interface also works under Lestiff.
+# - tcltk: Tcl/Tk interface.
+# - emacs: Emacs front-end.  Type M-x timidity to invoke.
+# - xaw: X Athena Widget interface.
+# - xskin: X skin interface.
+# - gtk: GTK+ interface.
+
+post-destroot {
+    set sharedir ${destroot}${prefix}/share/${name}
+    xinstall -d -m 0755 ${sharedir}
+    ln -sf "../freepats/Drum_000"     ${sharedir}/
+    ln -sf "../freepats/Tone_000"     ${sharedir}/
+    ln -sf "../freepats/freepats.cfg" ${sharedir}/timidity.cfg
+
+    # TODO: compress man pages
+}
+
+variant tcltk description "Build with Tcl/Tk interface" {
+    depends_lib-append      port:tk
+    configure.args-append   --enable-tcltk=yes
+}
+
+default_variants    +tcltk

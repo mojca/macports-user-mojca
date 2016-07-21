@@ -1,0 +1,17 @@
+# https://www.tcl.tk/man/tcl/TclLib/Interp.htm
+# the source code is incompatible with Tcl/Tk 8.6
+# this is a simple workaround
+#
+# a better way would be to take the upstream patch from git 2014-05-12
+# https://sourceforge.net/p/timidity/git/ci/ffdfb523049900e30fe438625d7e9b807f3e16fe/
+#
+--- interface/tk_c.c.orig
++++ interface/tk_c.c
+@@ -46,6 +46,7 @@
+ #include <sys/ipc.h>
+ #include <sys/shm.h>
+ #include <sys/sem.h>
++#define USE_INTERP_RESULT
+ #include <tcl.h>
+ #include <tk.h>
+ #include <sys/wait.h>
