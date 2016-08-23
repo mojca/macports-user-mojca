@@ -1,0 +1,13 @@
+https://sourceforge.net/p/miktex/bugs/2481/
+
+--- Programs/MiKTeX/initexmf/initexmf.cpp.orig
++++ Programs/MiKTeX/initexmf/initexmf.cpp
+@@ -2739,7 +2739,7 @@ void IniTeXMFApp::MakeMaps(bool force)
+   }
+   if (printOnly)
+   {
+-    PrintOnly("mkfntmap %s", arguments.ToString());
++    PrintOnly("mkfntmap %s", arguments.ToString().c_str());
+   }
+   else
+   {

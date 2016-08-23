@@ -1,0 +1,31 @@
+https://sourceforge.net/p/miktex/patches/10/
+
+--- Libraries/MiKTeX/KPathSeaEmulation/kpsemu.cpp.orig
++++ Libraries/MiKTeX/KPathSeaEmulation/kpsemu.cpp
+@@ -463,6 +463,12 @@ MIKTEXKPSCEEAPI(int) miktex_xfseeko64(FILE * pfile, MIKTEX_INT64 offset, int whe
+     MIKTEX_FATAL_CRT_ERROR_2("fseeko64", "fileName", lpszFileName);
+   }
+   return 0;
++#elif defined(__APPLE__)
++  if (fseeko(pfile, offset, where) != 0)
++  {
++    MIKTEX_FATAL_CRT_ERROR_2("fseeko", "fileName", lpszFileName);
++  }
++  return 0;
+ #else
+ #  error Unimplemented: miktex_xfseeko64()
+ #endif
+@@ -505,6 +511,13 @@ MIKTEXKPSCEEAPI(MIKTEX_INT64) miktex_xftello64(FILE * pfile, const char * lpszFi
+   }
+   return pos;
+ 
++#elif defined(__APPLE__)
++  MIKTEX_INT64 pos = ftello(pfile);
++  if (pos < 0)
++  {
++    MIKTEX_FATAL_CRT_ERROR_2("ftello", "fileName", lpszFileName);
++  }
++  return pos;
+ #else
+ #  error Unimplemented: miktex_xftello64
+ #endif

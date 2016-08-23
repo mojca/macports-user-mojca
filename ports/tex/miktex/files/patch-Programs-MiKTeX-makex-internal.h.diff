@@ -1,0 +1,13 @@
+https://sourceforge.net/p/miktex/bugs/2480/
+
+--- Programs/MiKTeX/makex/internal.h.orig
++++ Programs/MiKTeX/makex/internal.h
+@@ -40,7 +40,7 @@
+ #include <cstdlib>
+ #include <string>
+ 
+-#include <malloc.h>
++#include <malloc/malloc.h>
+ 
+ #include <getopt.h>
+ 

@@ -4,9 +4,10 @@
 PortSystem          1.0
 PortGroup           cmake 1.0
 PortGroup           compiler_blacklist_versions 1.0
+# java
 
 name                miktex
-version             2.9-2016-05-18
+version             2.9-2016-06-27
 categories          tex
 platforms           darwin
 license             unknown
@@ -20,8 +21,8 @@ homepage            http://miktex.org/
 master_sites        http://mirrors.ctan.org/systems/win32/miktex/source/
 use_xz              yes
 
-checksums           rmd160  e14030b6d16c8032a80ecc86c12eb7eaf6573c7f \
-                    sha256  9b91e8c2abf6a1e8288d9ec71572855c6aaf1970eca1fafb9416368a1c943c12
+checksums           rmd160  a95e1244b4e658889046aede32ad1833681c5ed0 \
+                    sha256  c3b1e2b35113d5f7d9d78c827a1d9ff07253e0b4725263e5664e1dc66f00b0b0
 
 cmake.out_of_source yes
 
@@ -33,11 +34,12 @@ depends_build-append \
                     port:bison \
                     port:dos2unix \
                     port:flex \
+                    port:fop \
                     port:ImageMagick \
-                    port:pandoc \
                     port:pkgconfig \
                     port:python27 \
-                    port:xsltproc
+                    port:libxslt
+                    #port:pandoc
 depends_lib-append  port:apr \
                     port:apr-util \
                     port:botan \
@@ -70,10 +72,10 @@ depends_lib-append  port:apr \
 
 # port:mspack
 
-patchfiles          patch-CMakeLists.txt.diff \
-                    patch-BuildUtilities-c4p-gram.y.diff \
-                    patch-Libraries-MiKTeX-Core-Utils-AutoTraceTime.h.diff \
-                    patch-Libraries-MiKTeX-Core-Session-SessionImpl.h.diff
+#patchfiles          \
+#                    patch-Libraries-MiKTeX-Core-Session-SessionImpl.h.diff
+
+#                   patch-Libraries-MiKTeX-App-CMakeLists.txt.diff
 
 configure.args-append \
                     -DWITH_UI_QT=OFF \
@@ -93,3 +95,14 @@ platform darwin {
         depends_lib-append port:libcxx
     }
 }
+
+# https://sourceforge.net/p/miktex/bugs/2484/
+
+# https://sourceforge.net/p/miktex/bugs/2487/
+
+# https://sourceforge.net/p/miktex/bugs/2491/
+
+# https://sourceforge.net/p/miktex/bugs/2492/
+# - move man to ${prefix/share/
+# - move texmfs to ${prefix}/share/texmfs (but this might be hardcoded somewhere, so not sure if it can be moved easily)
+

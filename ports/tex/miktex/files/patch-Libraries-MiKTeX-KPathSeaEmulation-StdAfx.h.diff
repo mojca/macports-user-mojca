@@ -1,0 +1,13 @@
+https://sourceforge.net/p/miktex/bugs/2480/
+
+--- Libraries/MiKTeX/KPathSeaEmulation/StdAfx.h.orig
++++ Libraries/MiKTeX/KPathSeaEmulation/StdAfx.h
+@@ -23,7 +23,7 @@
+ 
+ #include <cstdarg>
+ #include <cstdlib>
+-#include <malloc.h>
++#include <malloc/malloc.h>
+ #if defined(MIKTEX_UNIX)
+ #include <sys/time.h>
+ #endif

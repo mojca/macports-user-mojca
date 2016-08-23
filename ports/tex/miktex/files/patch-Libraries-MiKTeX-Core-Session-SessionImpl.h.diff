@@ -1,9 +1,9 @@
---- Libraries/MiKTeX/Core/Session/SessionImpl.h.diff
+--- Libraries/MiKTeX/Core/Session/SessionImpl.h.orig
 +++ Libraries/MiKTeX/Core/Session/SessionImpl.h
-@@ -91,6 +91,17 @@ public:
+@@ -89,6 +89,17 @@ inline bool operator< (const LanguageInfo_ & lhs, const LanguageInfo_ & rhs)
    }
- 
- };
+   return lhs.key < rhs.key;
+ }
 +static bool operator< (const LanguageInfo_ & lhs, const LanguageInfo_ & rhs) {
 +    if (lhs.key == "english")
 +    {

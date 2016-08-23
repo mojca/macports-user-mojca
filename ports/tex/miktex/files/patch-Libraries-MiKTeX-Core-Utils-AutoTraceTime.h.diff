@@ -1,3 +1,5 @@
+https://sourceforge.net/p/miktex/bugs/2481/
+
 --- Libraries/MiKTeX/Core/Utils/AutoTraceTime.h.orig
 +++ Libraries/MiKTeX/Core/Utils/AutoTraceTime.h
 @@ -43,7 +43,7 @@ public:

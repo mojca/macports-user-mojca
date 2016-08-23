@@ -1,0 +1,141 @@
+https://sourceforge.net/p/miktex/bugs/2490/
+
+This patch belongs to the build tree
+
+--- Programs/TeXAndFriends/xetex/xetex.cc.orig
++++ Programs/TeXAndFriends/xetex/xetex.cc
+@@ -3704,7 +3704,7 @@ copynativeglyphinfo (halfword src,  halfword dest)
+ {
+   C4P_integer glyphcount;
+   C4P_PROC_ENTRY (69);
+-  if (g_mem[ src + (C4P_integer)     5l ].c4p_P2.ptr != (C4P_integer)     nullptr ())
++  if (g_mem[ src + (C4P_integer)     5l ].c4p_P2.ptr !=  nullptr ())
+     {
+       glyphcount = g_mem[ src + (C4P_integer)     4l ].c4p_P2.qqqq.b3;
+       g_mem[ dest + (C4P_integer)     5l ].c4p_P2.ptr = xmallocchararray (glyphcount * (C4P_integer)     10l);
+@@ -5426,7 +5426,7 @@ flushnodelist (halfword p)
+                   case 41l:
+                     {
+                       {
+-                        if (g_mem[ p + (C4P_integer)     5l ].c4p_P2.ptr != (C4P_integer)     nullptr ())
++                        if (g_mem[ p + (C4P_integer)     5l ].c4p_P2.ptr != nullptr ())
+                           {
+                             libcfree (g_mem[ p + (C4P_integer)     5l ].c4p_P2.ptr);
+                             g_mem[ p + (C4P_integer)     5l ].c4p_P2.ptr = nullptr ();
+@@ -13673,7 +13673,7 @@ effectivechar (C4P_boolean errp,  internalfontnumber f,  quarterword c)
+   C4P_integer c4p_result;
+   
+   C4P_PROC_ENTRY (185);
+-  if ( (! g_xtxligaturepresent)  &&  (g_fontmapping[ f ] != (C4P_integer)     nullptr ()) )
++  if ( (! g_xtxligaturepresent)  &&  (g_fontmapping[ f ] != nullptr ()) )
+     c = applytfmfontmapping (g_fontmapping[ f ], c);
+   g_xtxligaturepresent = false;
+   result = c;
+@@ -19457,7 +19457,7 @@ effectivecharinfo (internalfontnumber f,  quarterword c)
+   fourquarters c4p_result;
+   
+   C4P_PROC_ENTRY (228);
+-  if ( (! g_xtxligaturepresent)  &&  (g_fontmapping[ f ] != (C4P_integer)     nullptr ()) )
++  if ( (! g_xtxligaturepresent)  &&  (g_fontmapping[ f ] != nullptr ()) )
+     c = applytfmfontmapping (g_fontmapping[ f ], c);
+   g_xtxligaturepresent = false;
+   if (! g_mltexenabledp)
+@@ -19612,7 +19612,7 @@ newnativecharacter (internalfontnumber f,  unicodescalar c)
+   halfword c4p_result;
+   
+   C4P_PROC_ENTRY (231);
+-  if (g_fontmapping[ f ] != (C4P_integer)     0l)
++  if (g_fontmapping[ f ] != 0l)
+     {
+       if (c > (C4P_integer)     65535l)
+         {
+@@ -19882,7 +19882,7 @@ loadnativefont (halfword u,  strnumber nom,  strnumber aire,  scaled s)
+   C4P_PROC_ENTRY (235);
+   c4p_result = 0l;
+   fontengine = findnativefont (g_nameoffile, s);
+-  if (fontengine == (C4P_integer)     0l)
++  if (fontengine == 0l)
+     goto c4p_L30;
+   if (s >= (C4P_integer)     0l)
+     actualsize = s;
+@@ -20177,7 +20177,7 @@ getinputnormalizationstate (void)
+   C4P_integer c4p_result;
+   
+   C4P_PROC_ENTRY (238);
+-  if (g_eqtb == (C4P_integer)     nullptr ())
++  if (g_eqtb == nullptr ())
+     c4p_result = 0l;
+   else
+     c4p_result = g_eqtb[ 8938816l ].c4p_P2.c4p_int;
+@@ -22696,7 +22696,7 @@ hlistout (void)
+         do {
+           g_f = g_mem[ p ].c4p_P2.hh.c4p_P1.c4p_P0.b0;
+           g_c = g_mem[ p ].c4p_P2.hh.c4p_P1.c4p_P0.b1;
+-          if ( (p != (C4P_integer)     g_memtop - (C4P_integer)     12l)  &&  (g_fontmapping[ g_f ] != (C4P_integer)     nullptr ()) )
++          if ( (p != (C4P_integer)     g_memtop - (C4P_integer)     12l)  &&  (g_fontmapping[ g_f ] != nullptr ()) )
+             g_c = applytfmfontmapping (g_fontmapping[ g_f ], g_c);
+           if (g_f != (C4P_integer)     g_dvif)
+             {
+@@ -23111,7 +23111,7 @@ hlistout (void)
+                       {
+                         if (g_mem[ p ].c4p_P2.hh.c4p_P1.c4p_P0.b1 == (C4P_integer)     41l)
+                           {
+-                            if ( (g_mem[ p + (C4P_integer)     4l ].c4p_P2.qqqq.b2 > (C4P_integer)     0l)  ||  (g_mem[ p + (C4P_integer)     5l ].c4p_P2.ptr != (C4P_integer)     nullptr ()) )
++                            if ( (g_mem[ p + (C4P_integer)     4l ].c4p_P2.qqqq.b2 > (C4P_integer)     0l)  ||  (g_mem[ p + (C4P_integer)     5l ].c4p_P2.ptr != nullptr ()) )
+                               {
+                                 {
+                                   g_dvibuf[ g_dviptr ] = 254l;
+@@ -23143,7 +23143,7 @@ hlistout (void)
+                           }
+                         else
+                           {
+-                            if (g_mem[ p + (C4P_integer)     5l ].c4p_P2.ptr != (C4P_integer)     nullptr ())
++                            if (g_mem[ p + (C4P_integer)     5l ].c4p_P2.ptr != nullptr ())
+                               {
+                                 {
+                                   g_dvibuf[ g_dviptr ] = 253l;
+@@ -24390,7 +24390,7 @@ charpw (halfword p,  smallnumber side)
+     goto c4p_L10;
+   if ( ( ( (p)  != (C4P_integer)      - (C4P_integer) 268435455l &&  (!  (p >= (C4P_integer)     g_himemmin) )  &&  (g_mem[ p ].c4p_P2.hh.c4p_P1.c4p_P0.b0 == (C4P_integer)     8l)  &&  ( (g_mem[ p ].c4p_P2.hh.c4p_P1.c4p_P0.b1 == (C4P_integer)     40l)  ||  (g_mem[ p ].c4p_P2.hh.c4p_P1.c4p_P0.b1 == (C4P_integer)     41l) ) ) ) )
+     {
+-      if (g_mem[ p + (C4P_integer)     5l ].c4p_P2.ptr != (C4P_integer)     nullptr ())
++      if (g_mem[ p + (C4P_integer)     5l ].c4p_P2.ptr != nullptr ())
+         {
+           f = g_mem[ p + (C4P_integer)     4l ].c4p_P2.qqqq.b1;
+           c4p_result = roundxnoverd (g_fontinfo[ 6l + (C4P_integer)     g_parambase[ f ] ].c4p_P2.c4p_int, getnativewordcp (p, side), 1000l);
+@@ -27615,7 +27615,7 @@ makemathaccent (halfword q)
+               if ( (w2 < (C4P_integer)     0l) )
+                 {
+                   otassemblyptr = getotassemblyptr (f, c, 1l);
+-                  if (otassemblyptr != (C4P_integer)     nullptr ())
++                  if (otassemblyptr != nullptr ())
+                     {
+                       freenode (p, 5l);
+                       p = buildopentypeassembly (f, otassemblyptr, w, 1l);
+@@ -27913,7 +27913,7 @@ makeop (halfword q)
+                   if ( (h2 < (C4P_integer)     0l) )
+                     {
+                       otassemblyptr = getotassemblyptr (g_curf, c, 0l);
+-                      if (otassemblyptr != (C4P_integer)     nullptr ())
++                      if (otassemblyptr != nullptr ())
+                         {
+                           freenode (p, 5l);
+                           p = buildopentypeassembly (g_curf, otassemblyptr, h1, 0l);
+@@ -43101,7 +43101,7 @@ storefmtfile (void)
+         printnl (66673l);
+         printesc (g_hash[ 2243238l + (C4P_integer)     k ].rh);
+         printchar (61l);
+-        if ( ( (g_fontarea[ k ] == (C4P_integer)     65535l)  ||  (g_fontarea[ k ] == (C4P_integer)     65534l) )  ||  (g_fontmapping[ k ] != (C4P_integer)     0l) )
++        if ( ( (g_fontarea[ k ] == (C4P_integer)     65535l)  ||  (g_fontarea[ k ] == (C4P_integer)     65534l) )  ||  (g_fontmapping[ k ] != 0l) )
+           {
+             printfilename (g_fontname[ k ], 65622l, 65622l);
+             {
+@@ -45394,7 +45394,7 @@ maincontrol (void)
+         }
+       
+       c4p_L72:
+-      if ( (g_fontmapping[ g_mainf ] != (C4P_integer)     0l) )
++      if ( (g_fontmapping[ g_mainf ] != 0l) )
+         {
+           g_maink = applymapping (g_fontmapping[ g_mainf ], g_nativetext, g_nativelen);
+           g_nativelen = 0l;

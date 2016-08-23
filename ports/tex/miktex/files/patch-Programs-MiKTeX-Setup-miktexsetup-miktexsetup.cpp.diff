@@ -1,0 +1,13 @@
+://sourceforge.net/p/miktex/bugs/2481/
+
+--- Programs/MiKTeX/Setup/miktexsetup/miktexsetup.cpp.orig
++++ Programs/MiKTeX/Setup/miktexsetup/miktexsetup.cpp
+@@ -670,7 +670,7 @@ void Application::Main(int argc, const char ** argv)
+   }
+   else
+   {
+-    Error(T_("Unknown/unsupported setup task: %s"), leftovers[0]);
++    Error(T_("Unknown/unsupported setup task: %s"), leftovers[0].c_str());
+   }
+ 
+   if (optShared)

@@ -1,0 +1,13 @@
+https://sourceforge.net/p/miktex/bugs/2480/
+
+--- Libraries/MiKTeX/Web2CEmulation/StdAfx.h.orig
++++ Libraries/MiKTeX/Web2CEmulation/StdAfx.h
+@@ -22,7 +22,7 @@
+ #pragma once
+ 
+ #include <cstdlib>
+-#include <malloc.h>
++#include <malloc/malloc.h>
+ #if defined(MIKTEX_UNIX)
+ #include <sys/time.h>
+ #endif

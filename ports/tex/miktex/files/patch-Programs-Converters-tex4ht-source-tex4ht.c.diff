@@ -1,0 +1,15 @@
+https://sourceforge.net/p/miktex/bugs/2488/
+
+--- Programs/Converters/tex4ht/source/tex4ht.c.orig
++++ Programs/Converters/tex4ht/source/tex4ht.c
+@@ -3996,8 +3996,8 @@ if( (file = f_open(str, flags)) != NULL ){
+ 
+ 
+   str[i] = '\0';
+-  return  subs?  search_file_ext( name, str, flags):
+-                FALSE;
++  return  (subs ? search_file_ext( name, str, flags):
++                NULL);
+ }
+ 
+ 
