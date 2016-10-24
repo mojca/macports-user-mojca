@@ -2,10 +2,11 @@
 # $Id$
 
 PortSystem          1.0
+PortGroup           compilers 1.0
 PortGroup           python 1.0
 
 name                py-ffnet
-version             0.8.0
+version             0.8.3
 platforms           darwin
 license             GPL
 maintainers         mojca openmaintainer
@@ -17,18 +18,29 @@ homepage            http://ffnet.sourceforge.net
 master_sites        pypi:[string index ${python.rootname} 0]/${python.rootname}
 distname            ${python.rootname}-${version}
 
-checksums           rmd160  e65fed42038c1c4ed04f8946fa4220b3adc9316a \
-                    sha256  6c413ca0066039b1bd0601c6332e4dc765ee978a4f28df04ed399edcff4171e1
+checksums           rmd160  6a793d7a16fc8f6f1b5cbd8efa383420ac354960 \
+                    sha256  4d7befca0247108fc05fb7ebe7cdcff78eb642c4ab8c93215f592dcfed0f29f6
 
-python.versions     27 34
+python.versions     27 34 35
 
 if {${name} ne ${subport}} {
+    # compilers.setup     -clang -dragonegg -gcc44 -gcc45 -gcc46 -g95
+    compilers.setup     require_fortran
+
     depends_build-append \
                         port:py${python.version}-setuptools \
                         port:py${python.version}-numpy
     depends_run-append  port:py${python.version}-numpy \
                         port:py${python.version}-scipy \
                         port:py${python.version}-networkx
+
+    configure.env-append \
+                        F77=${prefix}/bin/gfortran-mp-6 \
+                        F90=${prefix}/bin/gfortran-mp-6
+
+    build.env-append \
+                        F77=${prefix}/bin/gfortran-mp-6 \
+                        F90=${prefix}/bin/gfortran-mp-6
 
     livecheck.type      none
 } else {
