@@ -4,7 +4,7 @@
 PortSystem          1.0
 PortGroup           github 1.0
 
-github.setup        mirror mingw-w64 5.0-rc2 v
+github.setup        mirror mingw-w64 5.0.0 v
 set mingw_name      w64-mingw32
 
 platforms           darwin
@@ -18,8 +18,8 @@ long_description    Mingw-w64 is an advancement of the original mingw.org projec
 
 homepage            http://mingw-w64.sourceforge.net/
 
-checksums           rmd160  8097e29913b5271c366ae07c41c72b07e9079d69 \
-                    sha256  d20583622dbb7105bc5ebd4911158b73f8996d2114806faf719a72fdcf4a8ff6
+checksums           rmd160  31f236afc1ea8013e1c0d0d0727daab35f1bccb8 \
+                    sha256  e83ddf0466ff584d36ebd3feffa87c1c332002bcb07e39ef796bb820465a1b28
 
 configure.dir       ${workpath}/build
 build.dir           ${configure.dir}
