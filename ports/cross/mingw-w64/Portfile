@@ -47,15 +47,13 @@ if {${subport} ne ${name}} {
     set mingw_prefix            ${prefix}/${mingw_target}
     configure.cmd               ${worksrcpath}/mingw-w64-${mingw_dir}/configure
     # TODO: remove one level in --prefix and --with-sysroot (but figure out how to do it consistently/properly)
-    configure.args-append       --prefix=${mingw_prefix}/${mingw_target} \
+    configure.args-append       --prefix=${mingw_prefix} \
                                 --host=${mingw_target}
+                              # --build=<host triplet>
     configure.pre_args-delete   --prefix=${prefix}
 
-    if {${mingw_dir} eq "headers"} {
-        post-destroot {
-            ln -s ${mingw_target} "${destroot}${mingw_prefix}/mingw"
-        }
-    }
+    # *-headers: check whether we need to add:
+    #                           --enable-sdk=none
 
     # CRT
     if {${mingw_dir} eq "crt"} {
