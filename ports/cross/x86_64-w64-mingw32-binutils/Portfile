@@ -1,5 +1,4 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
-# $Id$
 
 PortSystem          1.0
 PortGroup           crossbinutils 1.0
@@ -17,20 +16,7 @@ homepage            http://mingw-w64.sourceforge.net/
 checksums           rmd160  e6623d3a90578169790417b8dd83e850c0a81910 \
                     sha256  369737ce51587f92466041a97ab7d2358c6d9e1b6490b3940eb09fb0a9a6ac88
 
-# TODO: try to use ${prefix} for --prefix and --with-sysroot,
-#       but figure out how to do that consistently
-configure.args-delete \
-                    --prefix=${prefix}
 configure.args-append \
-                    --prefix=${mingw_prefix} \
-                    --with-sysroot=${mingw_prefix} \
+                    --with-sysroot=${prefix} \
                     --disable-multilib \
                     --disable-werror
-
-# TODO: this code should be removed once --prefix gets fixed
-post-destroot {
-    ui_info "path: ${destroot}${mingw_prefix}/bin"
-    foreach file [glob -tails -directory ${destroot}${mingw_prefix}/bin ${mingw_target}-*] {
-        ln -s "${mingw_prefix}/bin/${file}" "${destroot}${prefix}/bin/"
-    }
-}
