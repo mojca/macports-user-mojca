@@ -6,15 +6,10 @@ PortGroup           crossgcc 1.0
 set mingw_name      w64-mingw32
 set mingw_arch      i686
 set mingw_target    ${mingw_arch}-${mingw_name}
-set mingw_prefix    ${prefix}/${mingw_target}
-
-# TODO: test, potentially add support for ada
-crossgcc.languages  {c c++ fortran objc obj-c++}
 
 crossgcc.setup      ${mingw_target} 6.2.0
+crossgcc.languages  {c c++ fortran objc obj-c++}
 dist_subdir         gcc6
-
-# set branch        [join [lrange [split ${version} .] 0 1] .]
 
 maintainers         mojca openmaintainer
 
@@ -46,29 +41,30 @@ configure.args-replace \
 #   --enable-libgomp
 #       Enable OpenMP support, it is not enabled by default on MinGW platforms.
 #       Requires pthreads-win32 (target) installed.
-#   --with-{cloog,ppl}=<host dir>
-#       Tells GCC where the host support libraries are installed to.
-#       (i.e. search <host dir>/include & <host dir>/lib)
 
 if {${subport} eq ${name}} {
+    # TODO: this is probably a build + runtime dependency
+    depends_lib-append  port:${mingw_target}-binutils \
+                        port:${mingw_target}-headers \
+
     build.target        all-gcc
     destroot.target     install-gcc
 }
 
-subport ${mingw_target}-libgcc {
-    depends_lib-append  port:${mingw_target}-crt \
-                        port:${mingw_target}-gcc
-
-    build.target        all-target-libgcc
-    destroot.target     install-target-libgcc
-    # move libgcc_*.dll to a more suitable place
-}
+# subport ${mingw_target}-libgcc {
+#     depends_lib-append  port:${mingw_target}-crt \
+#                         port:${mingw_target}-gcc
+#
+#     build.target        all-target-libgcc
+#     destroot.target     install-target-libgcc
+#     # move libgcc_*.dll to a more suitable place
+# }
 subport ${mingw_target}-all {
-    # TODO: pthread-win32
-    depends_build-append \
+    depends_lib-append  port:${mingw_target}-binutils \
+                        port:${mingw_target}-headers \
                         port:${mingw_target}-crt \
+    depends_build-append \
                         bin:${mingw_target}-gcc:${mingw_target}-gcc
-                        # port:${mingw_target}-libgcc
 
     set mingw_gcc_bootstrap ${mingw_target}-gcc
     pre-activate {
@@ -76,4 +72,9 @@ subport ${mingw_target}-all {
             registry_deactivate_composite ${mingw_gcc_bootstrap} "" [list ports_nodepcheck 1]
         }
     }
+
+    # TODO: the following files conflict:
+    # /opt/local/lib/x86_64/libcc1.0.so
+    # /opt/local/lib/x86_64/libcc1.la
+    # /opt/local/lib/x86_64/libcc1.so
 }
