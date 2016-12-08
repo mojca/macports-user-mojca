@@ -46,10 +46,8 @@ if {${subport} ne ${name}} {
     set mingw_target            ${mingw_arch}-${mingw_name}
     set mingw_prefix            ${prefix}/${mingw_target}
     configure.cmd               ${worksrcpath}/mingw-w64-${mingw_dir}/configure
-    # TODO: remove one level in --prefix and --with-sysroot (but figure out how to do it consistently/properly)
     configure.args-append       --prefix=${mingw_prefix} \
                                 --host=${mingw_target}
-                              # --build=<host triplet>
     configure.pre_args-delete   --prefix=${prefix}
 
     # *-headers: check whether we need to add:
@@ -60,8 +58,6 @@ if {${subport} ne ${name}} {
         depends_lib-append      port:${mingw_target}-binutils \
                                 port:${mingw_target}-gcc \
                                 port:${mingw_target}-headers
-        # maybe that's already default?
-        configure.args-append   --with-sysroot=${mingw_prefix}/${mingw_target}
         configure.cppflags      "-I${mingw_prefix}/include"
 
         # ----- from crossgcc (not sure if needed) ----
