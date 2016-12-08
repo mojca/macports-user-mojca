@@ -1,6 +1,9 @@
 Build instructions:
 * https://sourceforge.net/p/mingw-w64/mingw-w64/ci/master/tree/mingw-w64-doc/howto-build/
 
+* https://wiki.debian.org/Mingw-W64
+* https://packages.debian.org/sid/gcc-mingw-w64-i686
+
 # List of required packages
 
 * Host Support Libraries
