@@ -1,5 +1,4 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
-# $Id$
 
 PortSystem          1.0
 PortGroup           crossgcc 1.0
@@ -9,10 +8,12 @@ set mingw_arch      x86_64
 set mingw_target    ${mingw_arch}-${mingw_name}
 set mingw_prefix    ${prefix}/${mingw_target}
 
+# TODO: test, potentially add support for ada
+crossgcc.languages  {c c++ fortran objc obj-c++}
+
 crossgcc.setup      ${mingw_target} 6.2.0
 dist_subdir         gcc6
 
-# name              x86_64-w64-mingw32-gcc
 # set branch        [join [lrange [split ${version} .] 0 1] .]
 
 maintainers         mojca openmaintainer
@@ -21,26 +22,27 @@ checksums           rmd160  d9154ca51f40ae3ce42950a0476f701a9f86fc95 \
                     sha256  9944589fc722d3e66308c0ce5257788ebd7872982a718aa2516123940671b7c5
 
 depends_lib-append  port:${mingw_target}-binutils \
-                    port:${mingw_target}-headers
+                    port:${mingw_target}-headers \
+                    port:cloog \
+                    port:ppl
 
-# TODO: check the difference in headers installed by MinGW and those by the compiler
-# this doesn't work
-configure.args-delete \
-                    --prefix=${prefix}
 configure.args-append \
-                    --prefix=${mingw_prefix} \
-                    --with-sysroot=${mingw_prefix} \
-                    --disable-multilib \
                     --enable-shared \
                     --with-dwarf \
                     --enable-fully-dynamic-string \
                     --enable-libssp \
+                    --with-cloog=${prefix} \
+                    --with-ppl=${prefix} \
                     --enable-lto
+configure.args-replace \
+                    --enable-multilib \
+                    --disable-multilib
 
 # TODO:
 #   --enable-version-specific-runtime-libs
 #       Installs libgcc/libstdc++ and other target support libraries in such a
 #       way that multiple GCC installs can coexist simultaneously.
+#       (add once you have the default working as it needs some extra tweaking)
 #   --enable-libgomp
 #       Enable OpenMP support, it is not enabled by default on MinGW platforms.
 #       Requires pthreads-win32 (target) installed.
@@ -51,16 +53,6 @@ configure.args-append \
 if {${subport} eq ${name}} {
     build.target        all-gcc
     destroot.target     install-gcc
-
-    # TODO: this code should be removed once --prefix gets fixed
-    post-destroot {
-        ui_info "path: ${destroot}${mingw_prefix}/bin"
-        foreach file [glob -tails -directory ${destroot}${mingw_prefix}/bin ${mingw_target}-*] {
-            ln -s "${mingw_prefix}/bin/${file}" "${destroot}${prefix}/bin/"
-        }
-        # TODO:
-        # delete contents of ${destroot}/${prefix}/share/x86_64-w64-mingw32-gcc/locale
-    }
 }
 
 subport ${mingw_target}-libgcc {
@@ -73,19 +65,15 @@ subport ${mingw_target}-libgcc {
 }
 subport ${mingw_target}-all {
     # TODO: pthread-win32
-    depends_lib-append  port:${mingw_target}-gcc \
-                        port:${mingw_target}-libgcc
+    depends_build-append \
+                        port:${mingw_target}-crt \
+                        bin:${mingw_target}-gcc:${mingw_target}-gcc
+                        # port:${mingw_target}-libgcc
 
-    post-destroot {
-        # TODO:
-        # - delete contents of
-        #   ${destroot}/${prefix}/share/x86_64-w64-mingw32-gcc/locale
+    set mingw_gcc_bootstrap ${mingw_target}-gcc
+    pre-activate {
+        if {![catch {set installed [lindex [registry_active ${mingw_gcc_bootstrap}] 0]}]} {
+            registry_deactivate_composite ${mingw_gcc_bootstrap} "" [list ports_nodepcheck 1]
+        }
     }
 }
-
-# TODO:
-# - first build gcc with "make all-gcc & make install-gcc"
-# - then build CRT
-# - then libgcc in the same folder as the compiler was being built (make all-target-libgcc, make install-target-libgcc)
-# - then pthreads
-# - and another build of the compiler (make, make install)
