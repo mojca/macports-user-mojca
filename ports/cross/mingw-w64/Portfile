@@ -59,8 +59,8 @@ if {${subport} ne ${name}} {
     if {${mingw_dir} eq "crt"} {
         # TODO
         depends_lib-append      port:${mingw_target}-headers
-        depends_build-append    bin:${mingw_target}-gcc:${mingw_target}-gcc
-        depends_run-append      bin:${mingw_target}-gcc:${mingw_target}-gcc
+        depends_build-append    bin:${mingw_target}-gcc:${mingw_target}-bootstrap
+        #depends_run-append     bin:${mingw_target}-gcc:${mingw_target}-bootstrap
         configure.cppflags      "-I${prefix}/${mingw_target}/include"
 
         # ----- from crossgcc (not sure if needed) ----
