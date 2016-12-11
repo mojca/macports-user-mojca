@@ -92,8 +92,8 @@ if {${subport} ne ${name}} {
 } else {
     description             "GCC for Windows 64 & 32 bits (meta port)"
 
-    depends_run             port:i686-${mingw_name}-all \
-                            port:x86_64-${mingw_name}-all
+    depends_run             port:i686-${mingw_name}-gcc \
+                            port:x86_64-${mingw_name}-gcc
     distfiles
     use_configure           no
     build                   {}
