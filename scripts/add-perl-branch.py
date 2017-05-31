@@ -18,7 +18,7 @@ def replace_perl_versions(filename):
         if match:
             versions_old = match.group(1)
             # remove 5.16 5.28 5.20
-            versions_new = re.sub(r'5[.](22)\s*', '5.22 5.24', versions_old)
+            versions_new = re.sub(r'5[.](24)\s*', '5.24 5.26', versions_old)
             # new version string (properly formatted for 20 spaces)
             line_new     = "perl5.branches      {}".format(versions_new)
             # just debug output
